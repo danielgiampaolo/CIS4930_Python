@@ -20,6 +20,8 @@
 		}
 
 		.sidenav a {
+
+			width:100%;
 			padding: 6px 8px 6px 16px;
 			text-decoration: none;
 			font-size: 25px;
@@ -38,6 +40,43 @@
 			border: black solid;
 		}
 
+		.button {
+			border: black;
+			color: white;
+			padding: 5px 5px;
+			text-align: center;
+			border-radius: 5px;
+			font-size: 13px;
+			cursor: pointer;
+			background: #2e353d;
+		}
+		.dropdown {
+		  position: relative;
+		  display: inline-block;
+		}
+
+		.dropdown-content {
+		  display: none;
+		  position: absolute;
+		  background-color: #f1f1f1;
+		  min-width: 160px;
+		  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		  z-index: 1;
+		}
+
+		.dropdown-content a {
+		  color: black;
+		  padding: 12px 16px;
+		  text-decoration: none;
+		  display: inline-block;
+		}
+
+		.dropdown-content a:hover {background-color: #ddd;}
+
+		.dropdown:hover .dropdown-content {display: block; width: 100%}
+
+		.dropdown:hover .dropbtn {background-color: #3e8e41;}
+
 	</style>
 	<title>Tom's Site</title>
 </head>
@@ -51,17 +90,23 @@
 		</div>
 		<div class="property">
 			<div>
-			<span style="font-weight: bold">Ports (X)</span>
-			<span style="float: right">Add Port</span>
+			<span style="font-weight: bold; float: left; width: 50%">Ports (X)</span>
+			<div class="dropdown">
+  				<button class="dropbtn">Dropdown</button>
+  					<div class="dropdown-content">
+	  					<div style="display: inline-block; flex-direction: row">
+							<label for="node">Node Name:</label>
+    						<input style="vertical-align: middle"type="text" placeholder="Node to Node Edge" />
+    					</div>
+  					</div>
+				</div>
 			</div>
-			<span>Click to add a Node</span>
 		</div>
 		<div class="property">
 			<div>
-			<span style="font-weight: bold">Ports (X)</span>
-			<span style="float: right">Add Edge</span>
+			<span style="font-weight: bold">Edges (X)</span>
 			</div>
-			<span>Click to add an Edge</span>
+			<button class ="button">Add an Edge!</button>
 		</div>
 		<div class="property">
 			<span style="font-weight: bold">Add other Properties</span>
