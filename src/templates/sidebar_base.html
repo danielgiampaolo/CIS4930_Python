@@ -1,0 +1,33 @@
+<div class="sidenav">
+    <div class="sideTitle">Sample Graph 1 Info</div>
+    <div class="property">
+        <span style="font-weight: bold">Type</span>
+        <span style="float: right">
+            {% block graph_type %}
+            Hardcoded
+            {% endblock %}
+        </span>
+    </div>
+
+    <div class="property">
+        <div>
+            <span style="font-weight: bold">Ports (X)</span>
+            <span style="float: right">Add Port</span>
+        </div>
+        {% block node_list %}
+        <span>Click to add a Node</span>
+        {% endblock %}
+    </div>
+
+    <div class="property">
+        <div>
+            <span style="font-weight: bold">Edges (X)</span>
+            <span style="float: right">Add Edge</span>
+        </div>
+        <span>Click to add an Edge</span>
+    </div>
+    <div class="property">
+        <span style="font-weight: bold">Add other Properties</span>
+    </div>
+
+</div>

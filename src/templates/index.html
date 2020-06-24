@@ -10,9 +10,12 @@
             position: fixed;
             top: 0;
             left: 0;
-            background-color: #f1f1f1;
+            /*background-color: rgba(241, 241, 241, 0.63);*/
+            box-shadow: 0 0 2px 5px rgba(143, 143, 143, 0.49);
             overflow-x: hidden;
             padding-top: 20px;
+            margin: 10px;
+            border-radius: 10px;
         }
 
         .sideTitle {
@@ -37,7 +40,7 @@
             margin: 10px;
             padding: 5px;
             border-radius: 10px;
-            border: black solid;
+            border: 1px solid #dee2e6 !important;
         }
 
 
@@ -52,32 +55,13 @@
 </head>
 
 <body>
-<div class="sidenav">
-    <div class="sideTitle">Sample Graph 1 Info</div>
-    <div class="property">
-        <span style="font-weight: bold">Type</span>
-        <span style="float: right">Hardcoded</span>
-    </div>
-    <div class="property">
-        <div>
-            <span style="font-weight: bold">Ports (X)</span>
-            <span style="float: right">Add Port</span>
-        </div>
-        {% block list %}
-        <span>Click to add a Node</span>
-        {% endblock %}
-    </div>
-    <div class="property">
-        <div>
-            <span style="font-weight: bold">Ports (X)</span>
-            <span style="float: right">Add Edge</span>
-        </div>
-        <span>Click to add an Edge</span>
-    </div>
-    <div class="property">
-        <span style="font-weight: bold">Add other Properties</span>
-    </div>
-</div>
+
+{% include 'sidebar_context.html' %}
+
+{% block graph %}
+    "use inheritance feature replace this, fix overlap issues"
+{% endblock %}
+
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
         crossorigin="anonymous"></script>
