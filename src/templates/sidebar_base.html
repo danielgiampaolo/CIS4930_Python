@@ -15,8 +15,9 @@
             <span style="float: right">Add Port</span>
         </div>
         {% block node_list %}
-        <span>Click to add a Node</span>
         {% endblock %}
+
+        <span>Click to add a Node</span>
     </div>
 
     <div class="property">
@@ -24,6 +25,9 @@
             <span style="font-weight: bold">Edges (X)</span>
             <span style="float: right">Add Edge</span>
         </div>
+        {% block edge_list %}
+        {% endblock %}
+
         <span>Click to add an Edge</span>
     </div>
     <div class="property">

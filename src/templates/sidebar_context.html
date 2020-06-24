@@ -5,11 +5,20 @@
 <p>
     {{ type }}
 </p>
-
 {% endblock %}
 
 {% block node_list %}
-<p>
-    no list yet
-</p>
+{% for node in nodes %}
+<span style="display: block">
+    {{ forloop.counter }}. {{ node }}
+</span>
+{% endfor %}
+{% endblock %}
+
+{% block edge_list %}
+{% for edge in edges %}
+<span style="display: block">
+    {{ forloop.counter }}. {{ edge }}
+</span>
+{% endfor %}
 {% endblock %}
