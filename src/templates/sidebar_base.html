@@ -11,8 +11,8 @@
 
     <div class="property">
         <div>
-            <span style="font-weight: bold">Ports (X)</span>
-            <span style="float: right">Add Port</span>
+            {% block Ports%}
+            {%endblock%}
             <!--
             <span style="font-weight: bold; float: left; width: 50%">Ports (X)</span>
 			<div class="dropdown">
@@ -29,18 +29,15 @@
         {% block node_list %}
         {% endblock %}
 
-        <span>Click to add a Node</span>
     </div>
 
     <div class="property">
         <div>
             <span style="font-weight: bold">Edges (X)</span>
-            <span style="float: right">Add Edge</span>
         </div>
         {% block edge_list %}
         {% endblock %}
 
-        <span>Click to add an Edge</span>
         <!--<button class ="button">Add an Edge</button>-->
     </div>
     <div class="property">

@@ -10,7 +10,7 @@ def index(request):
     graph_data = {
         "bottom": "text",
         "nodes": ["test1", "test2"],
-        "edges": ["a to b"],
+        "edges": [["a", "b"], ["b" , "a"]],
         "type": "Undirected",
     }
 

@@ -7,18 +7,43 @@
 </p>
 {% endblock %}
 
+{% block Ports %}
+<span style="font-weight: bold">Ports({{ nodes|length }})</span>
+{% endblock %}
+
 {% block node_list %}
 {% for node in nodes %}
-<span style="display: block">
-    {{ forloop.counter }}. {{ node }}
-</span>
+
+<label > {{forloop.counter}}.</label>
+<input style=" width:50%" value="{{ node }}"/>
+<button type="button">Delete Node</button>
+<br/>
+
 {% endfor %}
+
+<label>{{ nodes|length|add:1 }}.</label>
+<input style=" width:50%" placeholder="New Node Name"/>
+<button type="button">Add Node</button>
+<br />
+
 {% endblock %}
 
 {% block edge_list %}
 {% for edge in edges %}
-<span style="display: block">
-    {{ forloop.counter }}. {{ edge }}
-</span>
+<label > {{forloop.counter}}.</label>
+
+<input style=" width:20%" value="{{ edge.0 }}"/>
+<label>to</label>
+<input style=" width:20%" value="{{ edge.1 }}"/>
+<button type="button">Delete Edge</button>
+<br />
+
 {% endfor %}
+
+<label>{{ edges|length|add:1 }}.</label>
+<input style=" width:20%" placeholder="From"/>
+<input style=" width:20%" placeholder="To"/>
+<button type="button">Add Edge</button>
+<br />
+
 {% endblock %}

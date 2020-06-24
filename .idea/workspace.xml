@@ -3,9 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="56398120-9910-4c02-8ba1-636055c9ce81" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graph/sidebar.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graph/templates/graph/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/graph/templates/graph/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/netview/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/netview/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graph/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/graph/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/templates/sidebar_base.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/templates/sidebar_base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/templates/sidebar_context.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/templates/sidebar_context.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,6 +84,9 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="2" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
     <state x="223" y="67" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1592849900404">
