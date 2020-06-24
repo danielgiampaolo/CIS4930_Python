@@ -21,8 +21,8 @@ def index(request):
 
     graph_data = {
         "bottom": "text",
-        "nodes": ["test1", "test2"],
-        "edges": ["a to b"],
+        "nodes": ["test1", "test2","test1", "test2","test1", "test2","test1", "test2","test1", "test2","test1", "test2","test1", "test2","test1", "test2"],
+        "edges": [["a", "b"], ["b" , "a"]],
         "type": "Undirected",
     }
 
