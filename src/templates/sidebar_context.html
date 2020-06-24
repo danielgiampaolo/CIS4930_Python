@@ -11,39 +11,45 @@
 <span style="font-weight: bold">Ports({{ nodes|length }})</span>
 {% endblock %}
 
+{% block Edges %}
+<span style="font-weight: bold">Edges({{ edges|length }})</span>
+{% endblock %}
+
 {% block node_list %}
+
 {% for node in nodes %}
 
 <label > {{forloop.counter}}.</label>
-<input style=" width:50%" value="{{ node }}"/>
-<button type="button">Delete Node</button>
+<input style=" width:50%; border-radius: 5px" value="{{ node }}"/>
+<button style="border-radius: 10px" type="button">Delete Node</button>
 <br/>
 
 {% endfor %}
 
 <label>{{ nodes|length|add:1 }}.</label>
-<input style=" width:50%" placeholder="New Node Name"/>
-<button type="button">Add Node</button>
+<input style=" width:50%; border-radius: 5px" placeholder="New Node Name"/>
+<button style="border-radius: 10px" type="button">Add Node</button>
 <br />
-
 {% endblock %}
 
 {% block edge_list %}
 {% for edge in edges %}
 <label > {{forloop.counter}}.</label>
 
-<input style=" width:20%" value="{{ edge.0 }}"/>
+<input style=" width:20%; border-radius: 5px" value="{{ edge.0 }}"/>
 <label>to</label>
-<input style=" width:20%" value="{{ edge.1 }}"/>
-<button type="button">Delete Edge</button>
+<input style=" width:20%; border-radius: 5px;" value="{{ edge.1 }}"/>
+<button style="border-radius: 10px" type="button">Delete Edge</button>
 <br />
 
 {% endfor %}
 
 <label>{{ edges|length|add:1 }}.</label>
-<input style=" width:20%" placeholder="From"/>
-<input style=" width:20%" placeholder="To"/>
-<button type="button">Add Edge</button>
+<input style=" width:20%; border-radius: 5px" placeholder="From"/>
+<input style=" width:20%; border-radius: 5px" placeholder="To"/>
+<button type="button" style="border-radius: 10px">Add Edge</button>
 <br />
 
 {% endblock %}
+
+

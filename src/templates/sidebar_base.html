@@ -9,10 +9,10 @@
         </span>
     </div>
 
-    <div class="property">
+    <div class="property" style="overflow: auto; height: 300px">
         <div>
-            {% block Ports%}
-            {%endblock%}
+            {% block Ports %}
+            {% endblock %}
             <!--
             <span style="font-weight: bold; float: left; width: 50%">Ports (X)</span>
 			<div class="dropdown">
@@ -31,9 +31,10 @@
 
     </div>
 
-    <div class="property">
+    <div class="property" style="overflow: auto; height: 300px">
         <div>
-            <span style="font-weight: bold">Edges (X)</span>
+            {% block Edges %}
+            {% endblock %}
         </div>
         {% block edge_list %}
         {% endblock %}
