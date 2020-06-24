@@ -44,41 +44,49 @@
         }
 
         .button {
-			border: black;
-			color: white;
-			padding: 5px 5px;
-			text-align: center;
-			border-radius: 5px;
-			font-size: 13px;
-			cursor: pointer;
-			background: #2e353d;
-		}
-		.dropdown {
-		  position: relative;
-		  display: inline-block;
-		}
+            border: black;
+            color: white;
+            padding: 5px 5px;
+            text-align: center;
+            border-radius: 5px;
+            font-size: 13px;
+            cursor: pointer;
+            background: #2e353d;
+        }
 
-		.dropdown-content {
-		  display: none;
-		  position: absolute;
-		  background-color: #f1f1f1;
-		  min-width: 160px;
-		  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-		  z-index: 1;
-		}
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
 
-		.dropdown-content a {
-		  color: black;
-		  padding: 12px 16px;
-		  text-decoration: none;
-		  display: inline-block;
-		}
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
 
-		.dropdown-content a:hover {background-color: #ddd;}
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: inline-block;
+        }
 
-		.dropdown:hover .dropdown-content {display: block; width: 100%}
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
 
-		.dropdown:hover .dropbtn {background-color: #3e8e41;}
+        .dropdown:hover .dropdown-content {
+            display: block;
+            width: 100%
+        }
+
+        .dropdown:hover .dropbtn {
+            background-color: #3e8e41;
+        }
 
 
     </style>
@@ -95,9 +103,17 @@
 
 {% include 'sidebar_context.html' %}
 
-{% block graph %}
+<div style="margin-left: 23vw">
+    <p>
+        {% block graph %}
     "use inheritance feature replace this, fix overlap issues"
-{% endblock %}
+    {% endblock %}
+    </p>
+
+    <p>{{ request.user }}</p>
+    <p>{{ request.session }}</p>
+</div>
+
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
