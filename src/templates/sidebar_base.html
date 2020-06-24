@@ -13,6 +13,18 @@
         <div>
             <span style="font-weight: bold">Ports (X)</span>
             <span style="float: right">Add Port</span>
+            <!--
+            <span style="font-weight: bold; float: left; width: 50%">Ports (X)</span>
+			<div class="dropdown">
+  				<button class="dropbtn">Dropdown</button>
+  					<div class="dropdown-content">
+	  					<div style="display: inline-block; flex-direction: row">
+							<label for="node">Node Name:</label>
+    						<input style="vertical-align: middle"type="text" placeholder="Node to Node Edge" />
+    					</div>
+  					</div>
+				</div>
+				-->
         </div>
         {% block node_list %}
         {% endblock %}
@@ -29,6 +41,7 @@
         {% endblock %}
 
         <span>Click to add an Edge</span>
+        <!--<button class ="button">Add an Edge</button>-->
     </div>
     <div class="property">
         <span style="font-weight: bold">Add other Properties</span>
