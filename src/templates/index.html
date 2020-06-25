@@ -24,23 +24,25 @@
 
   <!-- Reference: https://simpleisbetterthancomplex.com/tutorial/2016/08/01/how-to-upload-files-with-django.html -->
 
-  <div class="row">
-    <div class="col-md-4"></div>
-    <div class="col-md-4">
-      <h1>File Upload Testing</h1>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4"></div>
+      <div class="col-md-4">
+        <h1>File Upload Testing</h1>
 
-      <form method="POST" action="http://localhost:8000/csv_upload" enctype="multipart/form-data">
-        {% csrf_token %}
-        <label for="file-input">Choose file</label>
-        <br />
-        <input type="file" id="file-input" name="csv-file">
+        <form method="POST" action="http://localhost:8000/csv_upload" enctype="multipart/form-data">
+          {% csrf_token %}
+          <label for="file-input">Choose file</label>
+          <br />
+          <input type="file" id="file-input" name="csv-file">
 
-        <br />
-        <br />
-        <button class="btn btn-primary" type="submit">Submit</button>
-      </form>
+          <br />
+          <br />
+          <button class="btn btn-primary" type="submit">Submit</button>
+        </form>
+      </div>
+      <div class="col-md-4"></div>
     </div>
-    <div class="col-md-4"></div>
   </div>
 
 </body>
