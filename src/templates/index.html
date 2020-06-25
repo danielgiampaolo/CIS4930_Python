@@ -80,6 +80,13 @@
 
 		.dropdown:hover .dropbtn {background-color: #3e8e41;}
 
+        .graphView{
+            float: right;
+            height: 100%;
+            width: auto;
+            position: relative;
+            flex-direction: column;
+        }
 
     </style>
     <title>NetView</title>
@@ -93,12 +100,13 @@
 
 <body>
 
-{% include 'sidebar_context.html' %}
-
-{% block graph %}
-    "use inheritance feature replace this, fix overlap issues"
-{% endblock %}
-
+<div>
+    <form name= "update" action="/" method="POST">
+        {% csrf_token %}
+    {% include 'sidebar_context.html' %}
+    {% include 'graph_context.html' %}
+    </form>
+</div>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
         crossorigin="anonymous"></script>

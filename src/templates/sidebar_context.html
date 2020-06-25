@@ -16,40 +16,56 @@
 {% endblock %}
 
 {% block node_list %}
+<form name= "updateNodes" action="/" method="POST">
+    {% csrf_token %}
+    <label for="node"></label>
+    {% for node in nodes %}
 
-{% for node in nodes %}
+    <label> {{forloop.counter}}.</label>
+    <input name="node{{forloop.counter}}" style=" width:50%; border-radius: 5px" value="{{ node }}"/>
+    <input style="border-radius: 10px" name="updateAll" type="submit" value="Update Node" />
+    <br/>
 
-<label > {{forloop.counter}}.</label>
-<input style=" width:50%; border-radius: 5px" value="{{ node }}"/>
-<button style="border-radius: 10px" type="button">Delete Node</button>
-<br/>
-
-{% endfor %}
+    {% endfor %}
+</form>
 
 <label>{{ nodes|length|add:1 }}.</label>
-<input style=" width:50%; border-radius: 5px" placeholder="New Node Name"/>
-<button style="border-radius: 10px" type="button">Add Node</button>
+
+<form name= "updateNodes" action="/" method="POST">
+    <label for="newNode"/>
+    {% csrf_token %}
+    <input name="newNode" style=" width:50%; border-radius: 5px" placeholder="New Node Name"/>
+    <input style="border-radius: 10px" name="addNode" type="submit" value="Add Node" />
+</form>
 <br />
+
 {% endblock %}
 
 {% block edge_list %}
-{% for edge in edges %}
-<label > {{forloop.counter}}.</label>
+<form name= "updateEdges" action="/" method="POST">
+    {% csrf_token %}
+    <label for="edge"></label>
+    {% for edge in edges %}
+    <label > {{forloop.counter}}.</label>
+    <input name="edge{{forloop.counter}}" style=" width:20%; border-radius: 5px" value="{{ edge.0 }}"/>
+    <label>to</label>
+    <input style=" width:20%; border-radius: 5px;" value="{{ edge.1 }}"/>
+    <input style="border-radius: 10px" name="updateEdge" type="submit" value="Update Edge" />
+    <br />
 
-<input style=" width:20%; border-radius: 5px" value="{{ edge.0 }}"/>
-<label>to</label>
-<input style=" width:20%; border-radius: 5px;" value="{{ edge.1 }}"/>
-<button style="border-radius: 10px" type="button">Delete Edge</button>
-<br />
+    {% endfor %}
+</form>
 
-{% endfor %}
-
+<label for="newEdge1"></label>
+<label for="newEdge2"></label>
 <label>{{ edges|length|add:1 }}.</label>
-<input style=" width:20%; border-radius: 5px" placeholder="From"/>
-<input style=" width:20%; border-radius: 5px" placeholder="To"/>
-<button type="button" style="border-radius: 10px">Add Edge</button>
-<br />
-
+<form name= "newEdge" action="/" method="POST">
+    {% csrf_token %}
+    <input name="newEdge1" style=" width:20%; border-radius: 5px" placeholder="From"/>
+    <input name="newEdge2" style=" width:20%; border-radius: 5px" placeholder="To"/>
+    <input style="border-radius: 10px" name="Add Edge" type="submit" value="Add Edge" />
+    <br />
+</form>
 {% endblock %}
 
 
