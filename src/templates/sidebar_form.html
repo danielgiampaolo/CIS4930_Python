@@ -7,9 +7,9 @@
 {% endblock %}
 
 {% block graph_form %}
-<form name="updateNodes" action="/" method="POST"> {% csrf_token %}
+<form name="update" action="/" method="POST"> {% csrf_token %}
 
-    <div class="property" style="overflow: auto">
+    <div class="property" style="overflow: auto; max-height: 300px">
         <p style="font-weight: bold">
             Ports({{ nodes|length }})
             <input
@@ -41,14 +41,9 @@
 
     </div>
 
+    <!-- Now edges -->
 
-</form>
-
-<!-- Now edges -->
-
-<form name="updateEdges" action="/" method="POST"> {% csrf_token %}
-
-    <div class="property" style="overflow: auto">
+    <div class="property" style="overflow: auto; max-height: 300px">
 
         <p style="font-weight: bold">
             Edges({{ edges|length }})
@@ -65,7 +60,7 @@
         <input name="newEdge1" style=" width:20%; border-radius: 5px" placeholder="From"/>
         to
         <input name="newEdge2" style=" width:20%; border-radius: 5px" placeholder="Dest."/>
-        <input style="border-radius: 10px" name="Add Edge" type="submit" value="Add Edge"/>
+        <input style="border-radius: 10px" name="Add Edge" type="submit" value="Add"/>
         <br/>
     </div>
 </form>

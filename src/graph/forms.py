@@ -1,10 +1,34 @@
 from django import forms
 
+
 class nodeInput(forms.Form):
-    node1 = forms.CharField(max_length=15, required=False)
-    # use setattr ?
-    # need to map the names on the POST to variables here for the map
-    # major trouble
-    # might need to try something else
-    # it maps to name property of form
-    send_help = forms.CharField(empty_value="default")
+    newNode = forms.CharField(max_length=20, required=False)
+    newedgefrom = forms.CharField(max_length=20, required=False)
+    newedgeto = forms.CharField(max_length=20, required=False)
+
+    # make sure information is valid
+    # make sure nodes are unique (non-duplicate names)
+    # implement error checking in the future
+
+    # Currently, testing "fields" attribute to add forms
+
+    def addNode(self, name, value):
+        self.fields[name] = forms.CharField(
+            max_length=20, empty_value=value
+        )
+        pass
+
+    def addEdge(self, name_to, value_to, name_from, value_from):
+        self.fields[name_to] = forms.CharField(
+            max_length=20, empty_value=value_to
+        )
+        self.fields[name_from] = forms.CharField(
+            max_length=20, empty_value=value_from
+        )
+
+    def delNode(self, name):
+        pass
+
+    def delEdge(self, name_to, value_to, name_from, value_from):
+        pass
+    # get nodes from

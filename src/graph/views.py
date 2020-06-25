@@ -8,9 +8,11 @@ def index(request):
 
     # get vertices (or anything) from session info here
     graph_data = {
-        "nodes": request.session.get('nodes', ['test1', 'test2']),  # need to save in POST
+        "nodes": request.session.get('nodes', []),  # need to save in POST
         "edges": request.session.get('edges', []),
         "type": request.session.get('type', 'Undirected'),
+        "num_nodes": request.session.get('num_nodes', 0),
+        "num_edges": request.session.get('num_edges', 0),
     }
 
     if request.method == "POST":
@@ -21,25 +23,79 @@ def index(request):
 
 
 def handle_graph_post(response):
+
+    num_nodes = response.session.get('num_nodes', 0)
+    num_edges = response.session.get('num_edges', 0)
+    cur_nodes = response.session.get('nodes', [])
+
     form = nodeInput(response.POST)
+
     print("printing POST")
     print(response.POST)
 
-    graph_data = {
-        "nodes": response.session.get('nodes', ['test1', 'test2']),  # need to save in POST
-        "edges": response.session.get('edges', []),
-        "type": response.session.get('type', 'Undirected'),
-    }
-
     print("verifying form")
+    print(form.is_valid())
 
     if form.is_valid():
-        print("printing form")
-        print(form)
+        if response.POST.get("update"):
+            pass
+        elif response.POST.get("addNode"):
+            print("addNode button pressed")
+            print("adding node...")
+
+            # book keeping
+            response.session['num_nodes'] = num_nodes + 1
+
+            # the new node is...
+            node_name = "node" + str(num_nodes + 1)
+
+            # since we are not rendering the "from" on html
+            # updating the context is also necessary
+            # I dont know why I am using forms anymore
+            # spagetti, spagetto, [redacted]
+
+            cur_nodes = cur_nodes + [form.cleaned_data['newNode']]
+            response.session['nodes'] = cur_nodes
+
+            # this would be better if we rendered the form like
+            # {{ form }}, less unnecessary bookkeeping
+
+
+            # create node field
+            form.addNode(node_name, form.cleaned_data['newNode'])
+
+        elif response.POST.get("addEdge"):
+            pass
+
+        #print("printing form")
+        #print(form)
+        print("printing form fields")
+        print(form.fields)
         print("printing cleaned data")
         print(form.cleaned_data)
 
+        graph_data = {
+            "nodes": response.session.get('nodes', []),  # save later
+            "edges": response.session.get('edges', []),
+            "type": response.session.get('type', 'Undirected'),
+            "num_nodes": num_nodes,
+            "num_edges": num_edges,
+        }
+
         return render(response, 'index.html', graph_data)
-        #request.session['nodes']
     else:
+
+        graph_data = {
+            "nodes": response.session.get('nodes', []),  # save later
+            "edges": response.session.get('edges', []),
+            "type": response.session.get('type', 'Undirected'),
+            "num_nodes": num_nodes,
+            "num_edges": num_edges,
+        }
         return render(response, 'index.html', graph_data)
+
+def get_post_data(request):
+    num_nodes = request.session.get('num_nodes', 0)
+    num_edges = request.session.get('num_edges', 0)
+
+    return None
