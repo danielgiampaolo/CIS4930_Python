@@ -1,0 +1,77 @@
+{% extends "sidebar_base.html" %}
+
+{% block graph_type %}
+<p>
+    {{ type }}
+</p>
+{% endblock %}
+
+{% block graph_form %}
+<form name="updateNodes" action="/" method="POST"> {% csrf_token %}
+
+    <div class="property" style="overflow: auto">
+        <p style="font-weight: bold">
+            Ports({{ nodes|length }})
+            <input
+                    style="border-radius: 10px; float: right"
+                    name="updateNodes"
+                    type="submit"
+                    value="Update Nodes"
+            />
+        </p>
+
+        {% block node_loop %} {% endblock %}
+
+        <label>
+            {{ nodes|length|add:1 }}.
+            <input
+                    name="newNode"
+                    style=" width:50%; border-radius: 5px"
+                    placeholder="New Node"
+            />
+            <input
+                    style="border-radius: 10px"
+                    name="addNode"
+                    type="submit"
+                    value="Add"
+            />
+        </label>
+
+        <br/>
+
+    </div>
+
+
+</form>
+
+<!-- Now edges -->
+
+<form name="updateEdges" action="/" method="POST"> {% csrf_token %}
+
+    <div class="property" style="overflow: auto">
+
+        <p style="font-weight: bold">
+            Edges({{ edges|length }})
+            <input
+                    style="border-radius: 10px; float: right"
+                    name="updateEdges"
+                    type="submit"
+                    value="Update Edges"
+            />
+        </p>
+
+        {% block edge_loop %} {% endblock %}
+
+        <input name="newEdge1" style=" width:20%; border-radius: 5px" placeholder="From"/>
+        to
+        <input name="newEdge2" style=" width:20%; border-radius: 5px" placeholder="Dest."/>
+        <input style="border-radius: 10px" name="Add Edge" type="submit" value="Add Edge"/>
+        <br/>
+    </div>
+</form>
+
+{% endblock %}
+
+
+
+

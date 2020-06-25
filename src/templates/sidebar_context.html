@@ -1,55 +1,45 @@
-{% extends "sidebar_base.html" %}
+{% extends "sidebar_form.html" %}
 
-
-{% block graph_type %}
-<p>
-    {{ type }}
-</p>
-{% endblock %}
-
-{% block Ports %}
-<span style="font-weight: bold">Ports({{ nodes|length }})</span>
-{% endblock %}
-
-{% block Edges %}
-<span style="font-weight: bold">Edges({{ edges|length }})</span>
-{% endblock %}
-
-{% block node_list %}
+{% block node_loop %}
 
 {% for node in nodes %}
-
-<label > {{forloop.counter}}.</label>
-<input style=" width:50%; border-radius: 5px" value="{{ node }}"/>
-<button style="border-radius: 10px" type="button">Delete Node</button>
-<br/>
-
+<div>
+    <label> {{forloop.counter}}.
+        <input
+                name="node{{forloop.counter}}"
+                style=" width:50%; border-radius: 5px"
+                value="{{ node }}"
+        />
+    </label>
+</div>
 {% endfor %}
 
-<label>{{ nodes|length|add:1 }}.</label>
-<input style=" width:50%; border-radius: 5px" placeholder="New Node Name"/>
-<button style="border-radius: 10px" type="button">Add Node</button>
-<br />
 {% endblock %}
 
-{% block edge_list %}
+
+
+{% block edge_loop %}
+
 {% for edge in edges %}
-<label > {{forloop.counter}}.</label>
+<div>
+    <label>
+        {{forloop.counter}}.
+        <input
+                name="edge{{forloop.counter}}from"
+                style=" width:20%; border-radius: 5px"
+                value="{{ edge.0 }}"
+        />
 
-<input style=" width:20%; border-radius: 5px" value="{{ edge.0 }}"/>
-<label>to</label>
-<input style=" width:20%; border-radius: 5px;" value="{{ edge.1 }}"/>
-<button style="border-radius: 10px" type="button">Delete Edge</button>
-<br />
-
+    </label>
+    <label>
+        to
+        <input
+                name="edge{{forloop.counter}}to"
+                style=" width:20%; border-radius: 5px;"
+                value="{{ edge.1 }}"
+        />
+    </label>
+</div>
 {% endfor %}
 
-<label>{{ edges|length|add:1 }}.</label>
-<input style=" width:20%; border-radius: 5px" placeholder="From"/>
-<input style=" width:20%; border-radius: 5px" placeholder="To"/>
-<button type="button" style="border-radius: 10px">Add Edge</button>
-<br />
-
 {% endblock %}
-
-

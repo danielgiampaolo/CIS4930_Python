@@ -84,8 +84,12 @@
             width: 100%
         }
 
-        .dropdown:hover .dropbtn {
-            background-color: #3e8e41;
+        .graphView {
+            float: right;
+            height: 100%;
+            width: auto;
+            position: relative;
+            flex-direction: column;
         }
 
 
@@ -101,17 +105,17 @@
 
 <body>
 
-{% include 'sidebar_context.html' %}
+<div>
+    {% include 'sidebar_context.html' %}
+</div>
 
 <div style="margin-left: 23vw">
-    <p>
-        {% block graph %}
-    "use inheritance feature replace this, fix overlap issues"
-    {% endblock %}
-    </p>
+    <form name="update" action="/" method="POST">
+        {% csrf_token %}
+        {% include 'graph_context.html' %}
 
-    <p>{{ request.user }}</p>
-    <p>{{ request.session }}</p>
+    </form>
+
 </div>
 
 

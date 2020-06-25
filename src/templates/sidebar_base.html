@@ -1,5 +1,6 @@
 <div class="sidenav">
     <div class="sideTitle">Sample Graph 1 Info</div>
+
     <div class="property">
         <span style="font-weight: bold">Type</span>
         <span style="float: right">
@@ -9,38 +10,11 @@
         </span>
     </div>
 
-    <div class="property" style="overflow: auto; height: 300px">
-        <div>
-            {% block Ports %}
-            {% endblock %}
-            <!--
-            <span style="font-weight: bold; float: left; width: 50%">Ports (X)</span>
-			<div class="dropdown">
-  				<button class="dropbtn">Dropdown</button>
-  					<div class="dropdown-content">
-	  					<div style="display: inline-block; flex-direction: row">
-							<label for="node">Node Name:</label>
-    						<input style="vertical-align: middle"type="text" placeholder="Node to Node Edge" />
-    					</div>
-  					</div>
-				</div>
-				-->
-        </div>
-        {% block node_list %}
-        {% endblock %}
+    {% block graph_form %}
+    Form of Nodes & Edges replace this
+    {% endblock %}
 
-    </div>
 
-    <div class="property" style="overflow: auto; height: 300px">
-        <div>
-            {% block Edges %}
-            {% endblock %}
-        </div>
-        {% block edge_list %}
-        {% endblock %}
-
-        <!--<button class ="button">Add an Edge</button>-->
-    </div>
     <div class="property">
         <span style="font-weight: bold">Add other Properties</span>
     </div>
