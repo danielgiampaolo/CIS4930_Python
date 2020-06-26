@@ -12,25 +12,21 @@
     <div class="property" style="overflow: auto; max-height: 300px">
         <p style="font-weight: bold">
             Ports({{ nodes|length }})
-            <input
-                    style="border-radius: 10px; float: right"
-                    name="updateNodes"
-                    type="submit"
-                    value="Update Nodes"
-            />
         </p>
 
         {% block node_loop %} {% endblock %}
 
-        <label>
+        <label style="width: 100%">
             {{ nodes|length|add:1 }}.
             <input
                     name="newNode"
-                    style=" width:50%; border-radius: 5px"
+                    style=" width:50%; border-radius: 5px; display: inline"
+                    class="form-control"
                     placeholder="New Node"
             />
             <input
-                    style="border-radius: 10px"
+                    style="border-radius: 10px; float: right"
+                    class="btn btn-outline-primary btn-sm"
                     name="addNode"
                     type="submit"
                     value="Add"
@@ -47,22 +43,44 @@
 
         <p style="font-weight: bold">
             Edges({{ edges|length }})
-            <input
-                    style="border-radius: 10px; float: right"
-                    name="updateEdges"
-                    type="submit"
-                    value="Update Edges"
-            />
         </p>
 
         {% block edge_loop %} {% endblock %}
 
-        <input name="newedgefrom" style=" width:20%; border-radius: 5px" placeholder="From"/>
-        to
-        <input name="newedgeto" style=" width:20%; border-radius: 5px" placeholder="Dest."/>
-        <input style="border-radius: 10px" name="addEdge" type="submit" value="Add"/>
-        <br/>
+        <label style="width: 100%">
+            {{ nodes|length|add:1 }}.
+            <input
+                    name="newedgefrom"
+                    style=" width:25%; border-radius: 5px; display: inline"
+                    placeholder="From"
+                    class="form-control"
+            />
+            to
+            <input
+                    name="newedgeto"
+                    style=" width:25%; border-radius: 5px; display: inline"
+                    placeholder="Dest."
+                    class="form-control"
+            />
+            <input
+                    style="border-radius: 10px; float: right"
+                    name="addEdge"
+                    class="btn btn-outline-primary btn-sm"
+                    type="submit"
+                    value="Add"
+            />
+        </label>
     </div>
+
+    <div style="margin: 10px">
+        <input
+                name="update"
+                class="btn btn-outline-primary btn-block"
+                type="submit"
+                value="Update"
+        />
+    </div>
+
 </form>
 
 {% endblock %}

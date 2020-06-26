@@ -4,26 +4,27 @@
 
 {% for node in nodes %}
 <div>
-    <label> {{forloop.counter}}.
+    <label style="width: 100%">
+        {{forloop.counter}}.
         <input
                 name="node{{forloop.counter}}"
-                style=" width:50%; border-radius: 5px"
+                style=" width:50%; border-radius: 5px; display: inline"
+                class="form-control"
                 value="{{ node }}"
         />
-         <input
-                    style="border-radius: 10px; float: right"
-                    name="deleteNode"
-                    id=""
-                    type="submit"
-                    value="Delete Node {{forloop.counter}}"
+        <input
+                style="border-radius: 10px; float: right"
+                name="deleteNode"
+                class="btn btn-outline-danger btn-sm"
+                type="submit"
+                value="Delete Node {{forloop.counter}}"
 
-            />
+        />
     </label>
 </div>
 {% endfor %}
 
 {% endblock %}
-
 
 
 {% block edge_loop %}
@@ -34,24 +35,24 @@
         {{forloop.counter}}.
         <input
                 name="edge{{forloop.counter}}from"
-                style=" width:20%; border-radius: 5px"
+                style=" width:20%; border-radius: 5px; display: inline"
+                class="form-control"
                 value="{{ edge.0 }}"
         />
-
-    </label>
-    <label>
         to
         <input
                 name="edge{{forloop.counter}}to"
-                style=" width:20%; border-radius: 5px;"
+                style=" width:20%; border-radius: 5px; display: inline"
+                class="form-control"
                 value="{{ edge.1 }}"
         />
-         <input
-                    style="border-radius: 10px; float: right"
-                    name="deleteEdge"
-                    type="submit"
-                    value="Delete Edge {{forloop.counter}}"
-            />
+        <input
+                style="border-radius: 10px; float: right"
+                name="deleteEdge"
+                class="btn btn-outline-danger btn-sm"
+                type="submit"
+                value="Delete Edge {{forloop.counter}}"
+        />
     </label>
 </div>
 {% endfor %}

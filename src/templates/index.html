@@ -6,7 +6,7 @@
         .sidenav {
             height: 100%;
             width: 22vw;
-            min-width: 200px;
+            min-width: 280px;
             position: fixed;
             top: 0;
             left: 0;
@@ -43,55 +43,13 @@
             border: 1px solid #dee2e6 !important;
         }
 
-        .button {
-            border: black;
-            color: white;
-            padding: 5px 5px;
-            text-align: center;
-            border-radius: 5px;
-            font-size: 13px;
-            cursor: pointer;
-            background: #2e353d;
-        }
-
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f1f1f1;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-            z-index: 1;
-        }
-
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .dropdown-content a:hover {
-            background-color: #ddd;
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block;
-            width: 100%
-        }
-
-        .graphView{
+        .graphView {
             float: right;
             height: 100%;
             width: auto;
             position: relative;
             flex-direction: column;
         }
-
 
     </style>
     <title>NetView</title>
@@ -110,12 +68,7 @@
 </div>
 
 <div style="margin-left: 23vw">
-    <form name="update" action="/" method="POST">
-        {% csrf_token %}
-        {% include 'graph_context.html' %}
-
-    </form>
-
+    {% include 'graph_base.html' %}
 </div>
 
 

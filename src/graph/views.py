@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_http_methods
 from .forms import nodeInput
 
@@ -117,26 +117,16 @@ def handle_graph_post(response):
         print("printing cleaned data")
         print(form.cleaned_data)
 
-        graph_data = {
-            "nodes": response.session.get('nodes', []),  # save later
-            "edges": response.session.get('edges', []),
-            "type": response.session.get('type', 'Undirected'),
-            "num_nodes": num_nodes,
-            "num_edges": num_edges,
-        }
-
-
-        return render(response, 'index.html', graph_data)
+        return redirect('/') # make a GET after changing session data
 
     else:
-        graph_data = {
-            "nodes": response.session.get('nodes', []),  # save later
-            "edges": response.session.get('edges', []),
-            "type": response.session.get('type', 'Undirected'),
-            "num_nodes": num_nodes,
-            "num_edges": num_edges,
-        }
-        return render(response, 'index.html', graph_data)
+
+        # tell user something went wrong.
+        # Error checking
+        # Form validation
+        # Etc.
+
+        return redirect('/')
 
 def get_post_data(request):
     num_nodes = request.session.get('num_nodes', 0)

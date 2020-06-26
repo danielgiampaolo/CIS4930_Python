@@ -1,9 +1,14 @@
 <div class="graphView">
-    <div style="float: right">
-        <label for="node"></label>
-        <label for="edge"></label>
-        <input name ="node" style=" width:50%; border-radius: 5px" value="meme"/>
-            <input style="font-size: 20px" name="updateAll" type="submit" value="Update Graph" />
-    </div>
+    <form name="update" action="/" method="POST">
+        {% csrf_token %}
+        <div class="btn-group"
+             role="group"
+             style="right: 0; top: 0; margin: 20px"
+        >
+            <button type="button" class="btn btn-primary">Upload File</button>
+            <button type="button" class="btn btn-primary">Download File</button>
+            <button type="button" class="btn btn-primary">Clear</button>
+        </div>
+    </form>
 
 </div>

@@ -16,7 +16,6 @@ class nodeInput(forms.Form):
         self.fields[name] = forms.CharField(
             max_length=20, empty_value=value
         )
-        pass
 
     def addEdge(self, name_to, value_to, name_from, value_from):
         self.fields[name_to] = forms.CharField(
@@ -30,7 +29,6 @@ class nodeInput(forms.Form):
         self.fields[delName] = forms.CharField(
             max_length=20, empty_value=''
         )
-        pass
 
     def delEdge(self, name_to, name_from):
         self.fields[name_to] = forms.CharField(
