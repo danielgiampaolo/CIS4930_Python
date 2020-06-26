@@ -26,9 +26,19 @@ class nodeInput(forms.Form):
             max_length=20, empty_value=value_from
         )
 
-    def delNode(self, name):
+    def delNode(self, delName):
+        self.fields[delName] = forms.CharField(
+            max_length=20, empty_value=''
+        )
         pass
 
-    def delEdge(self, name_to, value_to, name_from, value_from):
-        pass
+    def delEdge(self, name_to, name_from):
+        self.fields[name_to] = forms.CharField(
+            max_length=20, empty_value=''
+        )
+        self.fields[name_from] = forms.CharField(
+            max_length=20, empty_value=''
+        )
+
+
     # get nodes from

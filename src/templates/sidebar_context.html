@@ -10,6 +10,14 @@
                 style=" width:50%; border-radius: 5px"
                 value="{{ node }}"
         />
+         <input
+                    style="border-radius: 10px; float: right"
+                    name="deleteNode"
+                    id=""
+                    type="submit"
+                    value="Delete Node {{forloop.counter}}"
+
+            />
     </label>
 </div>
 {% endfor %}
@@ -38,6 +46,12 @@
                 style=" width:20%; border-radius: 5px;"
                 value="{{ edge.1 }}"
         />
+         <input
+                    style="border-radius: 10px; float: right"
+                    name="deleteEdge"
+                    type="submit"
+                    value="Delete Edge {{forloop.counter}}"
+            />
     </label>
 </div>
 {% endfor %}

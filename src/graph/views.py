@@ -27,6 +27,7 @@ def handle_graph_post(response):
     num_nodes = response.session.get('num_nodes', 0)
     num_edges = response.session.get('num_edges', 0)
     cur_nodes = response.session.get('nodes', [])
+    cur_edges = response.session.get('edges', [])
 
     form = nodeInput(response.POST)
 
@@ -55,6 +56,7 @@ def handle_graph_post(response):
             # spagetti, spagetto, [redacted]
 
             cur_nodes = cur_nodes + [form.cleaned_data['newNode']]
+
             response.session['nodes'] = cur_nodes
 
             # this would be better if we rendered the form like
@@ -65,7 +67,48 @@ def handle_graph_post(response):
             form.addNode(node_name, form.cleaned_data['newNode'])
 
         elif response.POST.get("addEdge"):
-            pass
+
+            #increase num of edges
+            response.session['num_edges'] = num_edges + 1
+
+            #set naming convention unsure if this is correct
+            edge_vert1 = "edge" + str(num_edges*2 + 1) + "from"
+            edge_vert2 = "edge" + str(num_edges*2 + 2) +"to"
+
+            #Updated session of nodes
+            cur_edges = cur_edges + [[response.POST.get("newedgefrom") ,response.POST.get("newedgeto")]]
+
+            response.session['edges'] = cur_edges
+
+            #Add to form looks like it worked fine
+            form.addEdge(edge_vert1, form.cleaned_data['newedgefrom'], edge_vert2, form.cleaned_data['newedgeto'])
+
+        elif response.POST.get("deleteNode"):
+            response.session['num_nodes'] = num_nodes - 1
+
+            nodeDeleted  = response.POST.get("deleteNode")[-1]
+
+            node_name = "node"+nodeDeleted
+
+            del cur_nodes[int(nodeDeleted)-1]
+
+            response.session['nodes'] = cur_nodes
+
+            form.delNode(node_name)
+
+        elif response.POST.get("deleteEdge"):
+            response.session['num_edges'] = num_edges - 1
+
+            edgeDeleted = response.POST.get("deleteEdge")[-1]
+
+            edge_vert1 = "edge" + str(int(edgeDeleted)*2) + "from"
+            edge_vert2 = "edge" + str(int(edgeDeleted)*2 +1) + "to"
+
+            del cur_edges[int(edgeDeleted) - 1]
+
+            response.session['edges'] = cur_edges
+
+            form.delEdge(edge_vert1,edge_vert2)
 
         #print("printing form")
         #print(form)
@@ -82,9 +125,10 @@ def handle_graph_post(response):
             "num_edges": num_edges,
         }
 
-        return render(response, 'index.html', graph_data)
-    else:
 
+        return render(response, 'index.html', graph_data)
+
+    else:
         graph_data = {
             "nodes": response.session.get('nodes', []),  # save later
             "edges": response.session.get('edges', []),
