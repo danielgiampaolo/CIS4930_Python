@@ -1,87 +1,88 @@
 {% extends "sidebar_base.html" %}
 
 {% block graph_type %}
-<p>
     {{ type }}
-</p>
 {% endblock %}
 
 {% block graph_form %}
-<form name="update" action="/" method="POST"> {% csrf_token %}
+<!-- <form name="update" action="/" method="POST"> {% csrf_token %}
 
-    <div class="property" style="overflow: auto; max-height: 300px">
-        <p style="font-weight: bold">
-            Ports({{ nodes|length }})
-        </p>
+</form> -->
+<div>
+    <p style="font-weight: bold" class="mb-2">
+        Ports
+        <span class="badge badge-secondary">
+            {{ nodes|length }}
+        </span>
+    </p>
 
+    <div class="scroll-bar property" style="overflow: auto; max-height: 200px">
         {% block node_loop %} {% endblock %}
-
-        <label style="width: 100%">
-            {{ nodes|length|add:1 }}.
-            <input
-                    name="newNode"
-                    style=" width:50%; border-radius: 5px; display: inline"
-                    class="form-control"
-                    placeholder="New Node"
-            />
-            <input
-                    style="border-radius: 10px; float: right"
-                    class="btn btn-outline-primary btn-sm"
-                    name="addNode"
-                    type="submit"
-                    value="Add"
-            />
-        </label>
-
-        <br/>
-
     </div>
 
-    <!-- Now edges -->
+    <form name="update" action="/" method="POST"> {% csrf_token %}
+        <div class="mb-3 input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">
+                    <!-- {{ nodes|length|add:1 }} -->
+                    +
+                </span>
+            </div>
+            <input type="text" class="form-control" placeholder="New node" name="newNode">
+            <div class="input-group-append">
+                <input class="btn btn-outline-primary" type="submit" value="Add" name="addNode" />
+            </div>
+        </div>
+    </form>
 
-    <div class="property" style="overflow: auto; max-height: 300px">
+</div>
 
-        <p style="font-weight: bold">
-            Edges({{ edges|length }})
-        </p>
+<hr />
 
+<!-- Now edges -->
+
+<div style="overflow: auto; max-height: 300px">
+
+    <p style="font-weight: bold" class="mb-2">
+        Edges
+        <span class="badge badge-secondary">
+            {{ edges|length }}
+        </span>
+    </p>
+
+    <div class="scroll-bar property" style="overflow: auto; max-height: 200px">
         {% block edge_loop %} {% endblock %}
-
-        <label style="width: 100%">
-            {{ nodes|length|add:1 }}.
-            <input
-                    name="newedgefrom"
-                    style=" width:25%; border-radius: 5px; display: inline"
-                    placeholder="From"
-                    class="form-control"
-            />
-            to
-            <input
-                    name="newedgeto"
-                    style=" width:25%; border-radius: 5px; display: inline"
-                    placeholder="Dest."
-                    class="form-control"
-            />
-            <input
-                    style="border-radius: 10px; float: right"
-                    name="addEdge"
-                    class="btn btn-outline-primary btn-sm"
-                    type="submit"
-                    value="Add"
-            />
-        </label>
     </div>
 
-    <div style="margin: 10px">
-        <input
-                name="update"
-                class="btn btn-outline-primary btn-block"
-                type="submit"
-                value="Update"
-        />
-    </div>
+    <form name="update" action="/" method="POST"> {% csrf_token %}
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">
+                    +
+                </span>
+            </div>
+            <input type="text" class="form-control" placeholder="From..." name="newedgefrom">
+            <div class="input-group-append">
+                <span class="input-group-text" style="font-family: monospace;">
+                    =>
+                </span>
+            </div>
+            <input type="text" class="form-control" placeholder="To..." name="newedgeto">
+            <div class="input-group-append">
+                <input class="btn btn-outline-primary" type="submit" value="Add" name="addEdge" />
+            </div>
+        </div>
+    </form>
+</div>
 
-</form>
+<hr />
+
+<input
+    name="update"
+    class="btn btn-outline-primary btn-block"
+    type="submit"
+    value="Update"
+/>
 
 {% endblock %}
 
