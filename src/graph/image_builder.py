@@ -25,6 +25,7 @@ def build_image(nodes, edges):
 
         buf = io.BytesIO()
         plt.savefig(buf, format='png')
+        plt.clf()
         buf.seek(0)
 
         return (0, buf)

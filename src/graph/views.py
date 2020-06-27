@@ -7,7 +7,10 @@ def index(request):
     return HttpResponse("Hello, world. You're at the graph index.")
 
 def sample_form(request):
-    return render(request, 'index.html', {})
+    return render(request, 'index.html', {
+        'nodes': request.session.get('nodes', []),
+        'edges': request.session.get('edges', [])
+    })
 
 def clear_session(request):
     request.session.flush()
@@ -47,13 +50,14 @@ def csv_upload(request):
     request.session['num_nodes'] = len(nodes)
     request.session['num_edges'] = len(edges)
 
-    return JsonResponse({
-        'message': 'yeet (no errors so far)',
-        'num_nodes': request.session['num_nodes'],
-        'num_edges': request.session['num_edges'],
-        'nodes': request.session['nodes'],
-        'edges': request.session['edges'],
-    })
+    # return JsonResponse({
+    #     'message': 'yeet (no errors so far)',
+    #     'num_nodes': request.session['num_nodes'],
+    #     'num_edges': request.session['num_edges'],
+    #     'nodes': request.session['nodes'],
+    #     'edges': request.session['edges'],
+    # })
+    return HttpResponseRedirect('/test_form')
 
 def graph(request):
     try:
@@ -72,12 +76,82 @@ def graph(request):
     (result, image) = image_builder.build_image(nodes, edges)
 
     if result == 0:
-        return HttpResponse(image, content_type='image/png')
+        x = HttpResponse(image, content_type='image/png')
+        image.close()
+        return x
 
     # something went wrong
     return JsonResponse({
         'message': 'something went wrong'
     })
+
+def remove_node(request):
+    if request.method != "POST":
+        return JsonResponse({
+            "message": "This is not a POST request."
+        })
+
+    remove_nodes = request.POST.getlist('nodes', [])
+    current_nodes = request.session.get('nodes', [])
+    current_edges = request.session.get('edges', [])
+
+    request.session['nodes'] = list(filter(lambda x: x not in remove_nodes, current_nodes))
+    request.session['edges'] = list(filter(lambda x: x[0] not in remove_nodes and x[1] not in remove_nodes, current_edges))
+    # you just got one-lined
+
+    return HttpResponseRedirect('/test_form')
+
+def add_edge(request):
+    if request.method != "POST":
+        return JsonResponse({
+            "message": "This is not a POST request."
+        })
+
+    from_node = request.POST.get('edge_from')
+    to_node = request.POST.get('edge_to')
+
+    current_nodes = request.session.get('nodes', [])
+    current_edges = request.session.get('edges', [])
+
+    if [from_node, to_node] not in current_edges:
+        if (from_node.strip()) and (to_node.strip()):
+            if from_node not in current_nodes:
+                current_nodes.append(from_node)
+            if to_node not in current_nodes:
+                current_nodes.append(to_node)
+            current_edges.append([from_node, to_node])
+            print('creating edge from %s to %s' % (from_node, to_node))
+
+            request.session['nodes'] = current_nodes
+            request.session['edges'] = current_edges
+
+    return HttpResponseRedirect('/test_form')
+
+
+
+def remove_edge(request):
+    if request.method != "POST":
+        return JsonResponse({
+            "message": "This is not a POST request."
+        })
+
+    remove_edges = request.POST.getlist('edges', [])
+    current_edges = request.session.get('edges', [])
+    rm_formatted = []
+
+    for edge in remove_edges:
+        rm_formatted.append(edge.split(", "))
+
+    request.session['edges'] = list(filter(lambda x: x not in rm_formatted, current_edges))
+
+    new_nodes = set()
+    for (x, y) in request.session['edges']:
+        new_nodes.add(x)
+        new_nodes.add(y)
+
+    request.session['nodes'] = list(new_nodes)
+
+    return HttpResponseRedirect('/test_form')
 
 # dont do this in production (security risk)
 # debug only
