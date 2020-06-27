@@ -132,3 +132,6 @@ dmypy.json
 
 # PyCharm garbage
 .idea/
+
+# VsCode Bs
+.vscode/

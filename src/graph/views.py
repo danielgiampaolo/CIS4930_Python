@@ -1,6 +1,7 @@
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render
-from .csv_parser import read
+from . import csv_parser, image_builder
+import json
 
 def index(request):
     return HttpResponse("Hello, world. You're at the graph index.")
@@ -33,36 +34,60 @@ def csv_upload(request):
     raw_bytes = uploaded.read()
     raw_data = raw_bytes.decode("utf-8")
 
-    request.session['node_data'] = raw_data
+    try:
+        (nodes, edges) = csv_parser.read(raw_data)
+    except Exception as e:
+        print(e)
+        return JsonResponse({
+            'message': 'Something went wrong >:('
+        })
+
+    request.session['edges'] = edges
+    request.session['nodes'] = nodes
+    request.session['num_nodes'] = len(nodes)
+    request.session['num_edges'] = len(edges)
 
     return JsonResponse({
-        'message': 'yeet (no errors so far)'
+        'message': 'yeet (no errors so far)',
+        'num_nodes': request.session['num_nodes'],
+        'num_edges': request.session['num_edges'],
+        'nodes': request.session['nodes'],
+        'edges': request.session['edges'],
     })
-
-
-    # set session somewhere here?
-
-    # return HttpResponse(resp, content_type='image/png')
-
-    # return JsonResponse({
-    #     'input': raw_data,
-    #     'output': resp
-    # })
 
 def graph(request):
     try:
-        raw_data = request.session['node_data']
+        nodes = request.session['nodes']
+        edges = request.session['edges']
     except KeyError:
         print(request.session)
         return JsonResponse({
             'message': 'whats the big idea?! (data not found in session)'
         })
 
-    if raw_data == None:
+    if edges == None or nodes == None:
         return JsonResponse({
             'message': 'whats the big idea?! (data is None)'
         })
 
-    resp = read(raw_data)
+    (result, image) = image_builder.build_image(nodes, edges)
 
-    return HttpResponse(resp, content_type='image/png')
+    if result == 0:
+        return HttpResponse(image, content_type='image/png')
+
+    # something went wrong
+    return JsonResponse({
+        'message': 'something went wrong'
+    })
+
+# dont do this in production (security risk)
+# debug only
+def view_session(request):
+    result = {}
+    for key, value in request.session.items():
+        result[key] = (value)
+        # result.append('{} => {}'.format(key, str(value)))
+
+    print(result)
+
+    return JsonResponse({'result': result})
