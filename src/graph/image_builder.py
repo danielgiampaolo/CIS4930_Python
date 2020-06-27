@@ -9,7 +9,6 @@ def build_image(nodes, edges):
         matplotlib.use('Agg')
 
         for [node1, node2] in edges:
-            print('edge betweent %s and %s' % (node1, node2))
             network_graph.add_edge(node1, node2)
 
         # node_adjacencies = []

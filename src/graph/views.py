@@ -60,7 +60,6 @@ def graph(request):
         nodes = request.session['nodes']
         edges = request.session['edges']
     except KeyError:
-        print(request.session)
         return JsonResponse({
             'message': 'whats the big idea?! (data not found in session)'
         })
@@ -87,7 +86,5 @@ def view_session(request):
     for key, value in request.session.items():
         result[key] = (value)
         # result.append('{} => {}'.format(key, str(value)))
-
-    print(result)
 
     return JsonResponse({'result': result})
