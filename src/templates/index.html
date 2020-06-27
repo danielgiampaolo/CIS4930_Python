@@ -8,7 +8,7 @@
           crossorigin="anonymous"
     >
     <style type="text/css">
-        html, body {
+        html, body, body > div {
             height: 100%;
             font-family: Roboto, sans-serif;
             background: #eee;
@@ -33,6 +33,12 @@
             font-size: 28px;
         }
 
+        .sideboy {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+
         .sidenav a {
             padding: 6px 0;
             text-decoration: none;
@@ -53,11 +59,17 @@
         }
 
         .graphView {
-            float: right;
-            height: 100%;
-            width: auto;
-            position: relative;
-            flex-direction: column;
+          height: 100%;
+          display: flex;
+          flex-flow: column nowrap;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .graphView > form {
+            position: fixed;
+            top: 10px;
+            right: 10px;
         }
 
         .scroll-bar {
@@ -81,8 +93,15 @@
             border-radius: 5px;
         }
 
-        form + form {
+        .input-group + .input-group {
             margin-top: 8px;
+        }
+
+        form[name="sauceupdate"] {
+          display: flex;
+          flex-flow: column-reverse nowrap;
+          justify-content: stretch;
+          align-items: stretch;
         }
 
     </style>
@@ -92,11 +111,11 @@
 
 <body>
 
-<div>
+<div class="sideboy">
     {% include 'sidebar_context.html' %}
 </div>
 
-<div style="margin-left: 23vw">
+<div style="margin-left: 400px;">
     {% include 'graph_base.html' %}
 </div>
 
