@@ -1,14 +1,16 @@
 <div class="graphView">
-    <form name="update" action="/" method="POST">
+    {% if misc.upload_open %}
+    {% include 'upload_base.html' %}
+    {% endif %}
+
+    <form class="top-fixed" name="update" action="/" method="POST">
         {% csrf_token %}
         <div class="btn-group"
              role="group"
         >
-            <button type="button" class="btn btn-primary">Upload File</button>
+            <button type="submit" name="open-upload" value="yee" class="btn btn-primary">Upload File</button>
             <button type="button" class="btn btn-primary">Download File</button>
             <button name="clear" value="Clear" type="submit" class="btn btn-primary">Clear</button>
-
-
         </div>
     </form>
 

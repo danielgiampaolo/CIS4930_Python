@@ -15,6 +15,7 @@ def index(request):
         "type": request.session.get('type', 'Undirected'),
         "num_nodes": request.session.get('num_nodes', 0),
         "num_edges": request.session.get('num_edges', 0),
+        "misc": request.session.get('misc', {})
     }
 
     if request.method == "POST":
@@ -30,6 +31,7 @@ def handle_graph_post(response):
     num_edges = response.session.get('num_edges', 0)
     cur_nodes = response.session.get('nodes', [])
     cur_edges = response.session.get('edges', [])
+    misc = response.session.get('misc', {})
 
     form = nodeInput(response.POST)
 
@@ -54,11 +56,23 @@ def handle_graph_post(response):
             pass
             delEdge(response, cur_edges, num_edges, cur_nodes)
 
+        elif response.POST.get("open-upload"):
+            misc['upload_open'] = True
+            response.session['misc'] = misc
+        elif response.POST.get("close-upload"):
+            misc['upload_open'] = False
+            response.session['misc'] = misc
+        elif response.POST.get("upload-csv"):
+            csv_upload(response)
+            misc['upload_open'] = False
+            response.session['misc'] = misc
+
         elif response.POST.get("clear"):
             response.session['nodes'] = []
             response.session['edges'] = []
             response.session['num_edges'] = 0
             response.session['num_nodes'] = 0
+            response.session['misc'] =  {}
 
         print("printing form fields")
         print(form.fields)
@@ -167,18 +181,17 @@ def clearAll (response):
     return HttpResponse("Hello, world. You're at the graph index.")
 
 def csv_upload(request):
-    if request.method != 'POST':
-        return HttpResponse("You weren't supposed to do that. This is a POST endpoint.")
-
     # request is guaranteed to be POST
     uploaded = request.FILES.get('csv-file')
 
     if uploaded == None:
+        print('Upload used, but no file found.')
         return JsonResponse({
             'message': 'No file found.'
         })
 
     if uploaded.content_type not in ['text/csv', 'application/vnd.ms-excel']:
+        print('Was not CSV file')
         return JsonResponse({
             'message': 'not csv file (we got %s)' % uploaded.content_type
         })
@@ -199,14 +212,7 @@ def csv_upload(request):
     request.session['num_nodes'] = len(nodes)
     request.session['num_edges'] = len(edges)
 
-    # return JsonResponse({
-    #     'message': 'yeet (no errors so far)',
-    #     'num_nodes': request.session['num_nodes'],
-    #     'num_edges': request.session['num_edges'],
-    #     'nodes': request.session['nodes'],
-    #     'edges': request.session['edges'],
-    # })
-    return HttpResponseRedirect('/test_form')
+    return
 
 def graph(request):
     try:
