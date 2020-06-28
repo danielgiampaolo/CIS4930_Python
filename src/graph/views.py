@@ -3,10 +3,9 @@ from django.views.decorators.http import require_http_methods
 from .forms import nodeInput
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from . import csv_parser, image_builder
-import json
 
 
-@require_http_methods(["GET", "POST"]) # only GET & POST allowed
+@require_http_methods(["GET", "POST"])  # only GET & POST allowed
 def index(request):
     # get vertices (or anything) from session info here
     graph_data = {
@@ -25,7 +24,6 @@ def index(request):
 
 
 def handle_graph_post(response):
-
     num_nodes = response.session.get('num_nodes', 0)
     num_edges = response.session.get('num_edges', 0)
     cur_nodes = response.session.get('nodes', [])
@@ -41,7 +39,7 @@ def handle_graph_post(response):
             updateFields(response, form)
 
         elif response.POST.get("addNode"):
-            addNode(response, cur_nodes, num_nodes, cur_edges, num_edges,form)
+            addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form)
 
         elif response.POST.get("addEdge"):
             add_edge(response)
@@ -60,12 +58,7 @@ def handle_graph_post(response):
             response.session['num_edges'] = 0
             response.session['num_nodes'] = 0
 
-        print("printing form fields")
-        print(form.fields)
-        print("printing cleaned data")
-        print(form.cleaned_data)
-
-        return redirect('/') # make a GET after changing session data
+        return redirect('/')  # make a GET after changing session data
 
     else:
 
@@ -76,32 +69,75 @@ def handle_graph_post(response):
 
         return redirect('/')
 
-def updateFields(response, form):
 
+def updateFields(response, form):
+    currentNodes = response.session["nodes"]
+    currentEdges = response.session["edges"]
     updatedNodes = []
     updatedEdges = []
 
+    # opportunity to optimize here
+    # to reduce checks with smarter
+    # algorithms/data_structure/etc
 
-    for key, value in response.POST.items():
+    for field, node in response.POST.items():
 
-        if "node" in key and key != "newNode":
-            updatedNodes = updatedNodes + [value]
+        if "node" in field and field != "newNode":
+            updatedNodes = updatedNodes + [node]
 
-        if "edge" in key and ((not key == "newedgeto") and (not key == "newedgefrom")):
+        if "edge" in field and ((not field == "newedgeto") and (not field == "newedgefrom")):
 
-            if "from" in key:
-                number = key[4]
-                updatedEdges = updatedEdges + [[value, response.POST.get("edge"+number+"to")]]
+            if "from" in field:
+                number = field[4:-4]  # start after edge, exclude from => number used
+                to_node = response.POST.get("edge" + number + "to")
 
+                updatedEdges = updatedEdges + [[node, to_node]]
 
+    # renaming edges from changed nodes
+    for old_name, new_name in zip(currentNodes, updatedNodes):
+        # find mismatched names
+        if not old_name == new_name:
+            # rename edge end points
+            for edge_index, edge_pair in enumerate(updatedEdges):
+                edge_from, edge_to = edge_pair
+
+                if edge_from == old_name:
+                    updatedEdges[edge_index][0] = new_name
+
+                if edge_to == old_name:
+                    updatedEdges[edge_index][1] = new_name
+
+    # renaming nodes from changed edges
+    for old_pair, new_pair in zip(currentEdges, updatedEdges):
+        old_edge_from, old_edge_to = old_pair
+        new_edge_from, new_edge_to = new_pair
+
+        # find mismatched node pairs (edges)
+        if not old_edge_from == new_edge_from and not new_edge_from in updatedNodes:
+            for node_index, node in enumerate(currentNodes):
+                if node == old_edge_from:
+                    updatedNodes[node_index] = new_edge_from
+                    break
+
+        if not old_edge_to == new_edge_to and not new_edge_to in updatedNodes:
+            for node_index, node in enumerate(currentNodes):
+                if node == old_edge_to:
+                    updatedNodes[node_index] = new_edge_to
+                    break
+
+    # what if both are changed? Well... I would be mad. >:(
+    # unless... node rename wins when both renamed
+
+    # issues to check if they exist
+    # what if they change to a name that doesnt exist
+    # what if edges change to different nodes (feature ?)
+
+    # make current = updated
     response.session["nodes"] = updatedNodes
     response.session["edges"] = updatedEdges
 
-def addNode (response, cur_nodes, num_nodes, cur_edges, num_edges,form):
-    print("addNode button pressed")
-    print("adding node...")
 
-     # book keeping
+def addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form):
     response.session['num_nodes'] = num_nodes + 1
 
     newNode = form.cleaned_data['newNode']
@@ -119,20 +155,22 @@ def addNode (response, cur_nodes, num_nodes, cur_edges, num_edges,form):
     # create node field
     # form.addNode(node_name, form.cleaned_data['newNode'])
 
+
 def delNode(response, cur_nodes, num_nodes, current_edges):
     response.session['num_nodes'] = num_nodes - 1
 
-    nodeDeleted  = response.POST.get("deleteNode")
+    nodeDeleted = response.POST.get("deleteNode")
 
-    deleting = cur_nodes[int(nodeDeleted)-1]
+    deleting = cur_nodes[int(nodeDeleted) - 1]
 
     print('deleting ', deleting)
 
-    del cur_nodes[int(nodeDeleted)-1]
+    del cur_nodes[int(nodeDeleted) - 1]
 
     response.session['nodes'] = cur_nodes
     response.session['edges'] = list(filter(lambda x: deleting not in x, current_edges))
     response.session['num_edges'] = len(response.session['edges'])
+
 
 def delEdge(response, cur_edges, num_edges, cur_nodes):
     response.session['num_edges'] = num_edges - 1
@@ -158,13 +196,14 @@ def delEdge(response, cur_edges, num_edges, cur_nodes):
     #     response.session['num_edges'] = len(cur_edges)
 
 
-def clearAll (response):
+def clearAll(response):
     response.session['nodes'] = []
     response.session['num_nodes'] = 0
     response.session['num_edges'] = 0
     response.session['edges'] = []
 
     return HttpResponse("Hello, world. You're at the graph index.")
+
 
 def csv_upload(request):
     if request.method != 'POST':
@@ -208,6 +247,7 @@ def csv_upload(request):
     # })
     return HttpResponseRedirect('/test_form')
 
+
 def graph(request):
     try:
         nodes = request.session['nodes']
@@ -233,6 +273,7 @@ def graph(request):
     return JsonResponse({
         'message': 'something went wrong'
     })
+
 
 def add_edge(request):
     if request.method != "POST":
