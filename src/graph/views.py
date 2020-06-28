@@ -29,6 +29,7 @@ def handle_graph_post(response):
     num_edges = response.session.get('num_edges', 0)
     cur_nodes = response.session.get('nodes', [])
     cur_edges = response.session.get('edges', [])
+    #prev_post = response.session.get('prev', {}) could be used for "undo"
     misc = response.session.get('misc', {})
 
     form = nodeInput(response.POST)
@@ -45,7 +46,6 @@ def handle_graph_post(response):
 
         elif response.POST.get("addEdge"):
             add_edge(response)
-            # addEdge(response, cur_edges, num_edges, form)
 
         elif response.POST.get("deleteNode"):
             delNode(response, cur_nodes, num_nodes, cur_edges)
@@ -70,7 +70,10 @@ def handle_graph_post(response):
             response.session['edges'] = []
             response.session['num_edges'] = 0
             response.session['num_nodes'] = 0
-            response.session['misc'] =  {}
+            response.session['misc'] = {}
+
+        # store previous post. for reasons.
+        # response.session['prev'] = response.POST
 
         return redirect('/')  # make a GET after changing session data
 
@@ -94,18 +97,50 @@ def updateFields(response, form):
     # to reduce checks with smarter
     # algorithms/data_structure/etc
 
+    # getting all updated nodes first
     for field, node in response.POST.items():
 
         if "node" in field and field != "newNode":
-            updatedNodes = updatedNodes + [node]
+            # added check to ensure the name is new
+            if not node in updatedNodes:
+                updatedNodes = updatedNodes + [node]
+            else:
+                old_node = currentNodes[int(field[4:])-1]
+                updatedNodes = updatedNodes + [old_node]
 
-        if "edge" in field and ((not field == "newedgeto") and (not field == "newedgefrom")):
+            if field[4:] == len(currentNodes):
+                break
+                # attempt to stop extra iterations
+
+    # Not assuming I will see all the node fields before the edges.
+    # Maybe I could.
+    # Doing this to compare the new edge names to all the new node names.
+    # With all updated nodes,
+    # I will check that the changes in edges are limited to existing nodes.
+
+    for field, node in response.POST.items():
+
+        if "edge" in field and (not field == "newedgeto" and not field == "newedgefrom"):
 
             if "from" in field:
                 number = field[4:-4]  # start after edge, exclude from => number used
                 to_node = response.POST.get("edge" + number + "to")
+                old_from = currentEdges[int(number) - 1][0]
+                old_to = currentEdges[int(number) - 1][1]
 
-                updatedEdges = updatedEdges + [[node, to_node]]
+                # different kinds of errors when re-mapping edges
+
+                if node in currentNodes and to_node in currentNodes: # ok
+                    updatedEdges = updatedEdges + [[node, to_node]]
+
+                elif (not node in currentNodes) and to_node in currentNodes:
+                    updatedEdges = updatedEdges + [[old_from, to_node]]
+
+                elif node in currentNodes and (not to_node in currentNodes):
+                    updatedEdges = updatedEdges + [[node, old_to]]
+
+                else: # both not in currentNodes
+                    updatedEdges = updatedEdges + [[old_from, old_to]]
 
     # renaming edges from changed nodes
     for old_name, new_name in zip(currentNodes, updatedNodes):
@@ -121,30 +156,34 @@ def updateFields(response, form):
                 if edge_to == old_name:
                     updatedEdges[edge_index][1] = new_name
 
-    # renaming nodes from changed edges
-    for old_pair, new_pair in zip(currentEdges, updatedEdges):
-        old_edge_from, old_edge_to = old_pair
-        new_edge_from, new_edge_to = new_pair
+    # not renaming nodes when changing edges so far
+    # because I dont think its done well enough
+    # to tell apart renaming vs pointing to other nodes
 
-        # find mismatched node pairs (edges)
-        if not old_edge_from == new_edge_from and not new_edge_from in updatedNodes:
-            for node_index, node in enumerate(currentNodes):
-                if node == old_edge_from:
-                    updatedNodes[node_index] = new_edge_from
-                    break
+    # renaming nodes from changed edges (Not Active)
+    # for old_pair, new_pair in zip(currentEdges, updatedEdges):
+    #    old_edge_from, old_edge_to = old_pair
+    #    new_edge_from, new_edge_to = new_pair
 
-        if not old_edge_to == new_edge_to and not new_edge_to in updatedNodes:
-            for node_index, node in enumerate(currentNodes):
-                if node == old_edge_to:
-                    updatedNodes[node_index] = new_edge_to
-                    break
+    # find mismatched node pairs (edges)
+    #    if not old_edge_from == new_edge_from and not new_edge_from in updatedNodes:
+    #        for node_index, node in enumerate(currentNodes):
+    #            if node == old_edge_from:
+    #                updatedNodes[node_index] = new_edge_from
+    #                break
+
+    #    if not old_edge_to == new_edge_to and not new_edge_to in updatedNodes:
+    #        for node_index, node in enumerate(currentNodes):
+    #            if node == old_edge_to:
+    #                updatedNodes[node_index] = new_edge_to
+    #                break
 
     # what if both are changed? Well... I would be mad. >:(
     # unless... node rename wins when both renamed
 
     # issues to check if they exist
     # what if they change to a name that doesnt exist
-    # what if edges change to different nodes (feature ?)
+    # what if edges change to different nodes (renaming on accident)
 
     # make current = updated
     response.session["nodes"] = updatedNodes
