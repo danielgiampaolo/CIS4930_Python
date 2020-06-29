@@ -23,6 +23,8 @@ def build_image(nodes, edges):
         nx.spring_layout(network_graph, k=0.15, iterations=20)
         nx.draw(network_graph, with_labels=True)
 
+        figure = plt.gcf()
+        figure.set_size_inches(16, 9)
         buf = io.BytesIO()
         plt.savefig(buf, format='png')
         plt.clf()
