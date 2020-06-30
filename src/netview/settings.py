@@ -19,8 +19,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '0_z8l9-*_t-sou1bt3r2@+xh0ba^n1(0f4m&*k^@63q!_^=-3='
+# SECURITY WARNING: keep the secret key used in production secret! (It has a couple changes, ask me for OG)
+SECRET_KEY = '%jt@cn#ac5bako==cb(3n*la3#4###bf^z#uw%93b!fc%r+60!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'graph.apps.GraphConfig',
+    #'django.netjsonconfig',
 ]
 
 MIDDLEWARE = [
@@ -51,10 +53,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'netview.urls'
 
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, "templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

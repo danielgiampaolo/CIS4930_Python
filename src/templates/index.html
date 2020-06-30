@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous"
+    >
+    <style type="text/css">
+        html, body, body > div {
+            height: 100%;
+            font-family: Roboto, sans-serif;
+            background: #eee;
+        }
+
+        .sidenav {
+            max-width: 350px;
+            height: calc(100% - 20px);
+            top: 0;
+            left: 0;
+            background-color: white;
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+            overflow-x: hidden;
+            padding-top: 20px;
+            margin: 10px;
+            border-radius: 10px;
+        }
+
+        .sideTitle > h1 {
+            text-align: left;
+            font-size: 28px;
+        }
+
+        .sideboy {
+            z-index: 10;
+            height: 100%;
+            min-width: 350px;
+        }
+
+        .sidenav a {
+            padding: 6px 0;
+            text-decoration: none;
+            font-size: 25px;
+            display: block;
+            border-radius: 10px;
+        }
+
+        .sidenav a:hover {
+            color: #f1f1f1;
+        }
+
+        .property {
+            margin: 10px 0;
+            padding: 8px 8px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+
+        .graphView {
+            height: 100%;
+            padding: 0 32px;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: center;
+            align-items: center;
+            align-self: center;
+        }
+
+        .graphView > .top-fixed {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+        }
+
+        .scroll-bar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(128, 128, 128, 0.4) rgba(128, 128, 128, 0.1);
+        }
+
+        .scroll-bar::-webkit-scrollbar-track {
+            background-color: rgba(128, 128, 128, 0.1);
+            border-radius: 5px;
+        }
+
+        .scroll-bar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+            background-color: transparent;
+        }
+
+        .scroll-bar::-webkit-scrollbar-thumb {
+            background-color: rgba(128, 128, 128, 0.4);
+            border-radius: 5px;
+        }
+
+        .input-group + .input-group {
+            margin-top: 8px;
+        }
+
+        form[name="sauceupdate"] {
+            display: flex;
+            flex-flow: column-reverse nowrap;
+            justify-content: stretch;
+            align-items: stretch;
+        }
+
+    </style>
+    <title>NetView</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+
+<body>
+
+<div style="display: flex">
+    <div class="sideboy">
+        {% include 'sidebar_context.html' %}
+    </div>
+
+    {% include 'graph_base.html' %}
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</body>
+</html>
