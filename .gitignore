@@ -109,8 +109,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-netview_venv/
 netview_env/
+netview_venv/
 
 # Spyder project settings
 .spyderproject
