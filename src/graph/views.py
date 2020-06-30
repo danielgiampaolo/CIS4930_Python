@@ -210,19 +210,39 @@ def addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form):
 
 
 def delNode(response, cur_nodes, num_nodes, current_edges):
-    response.session['num_nodes'] = num_nodes - 1
 
+    # get node to delete
     nodeDeleted = response.POST.get("deleteNode")
 
-    deleting = cur_nodes[int(nodeDeleted) - 1]
+    # remove node at index
+    deleting = cur_nodes.pop(int(nodeDeleted) - 1)
 
-    print('deleting ', deleting)
+    # remove edges that point to or from that node
+    current_edges = list(filter(lambda x: deleting not in x, current_edges))
 
-    del cur_nodes[int(nodeDeleted) - 1]
+    # necessary, to not modify and iterate at the same time (I think)
+    check_nodes = cur_nodes.copy()
 
+    # check all nodes and make sure they still have edges pointing to them
+    for node in check_nodes:
+
+        # checking edges for ends pointing to the a given node
+        for from_node, to_node in current_edges:
+            if from_node == node or to_node == node:
+                break
+                # if we find an edge point with the same name, good
+        else:
+            # if we didnt find anything...
+            try:
+                cur_nodes.remove(node)
+            finally:
+                pass  # try block, just in case
+
+    # save new values
     response.session['nodes'] = cur_nodes
-    response.session['edges'] = list(filter(lambda x: deleting not in x, current_edges))
-    response.session['num_edges'] = len(response.session['edges'])
+    response.session['edges'] = current_edges
+    response.session['num_edges'] = len(current_edges)
+    response.session['num_nodes'] = len(cur_nodes)
 
 
 def delEdge(response, cur_edges, num_edges, cur_nodes):
