@@ -16,7 +16,7 @@
 
         .sidenav {
             max-width: 350px;
-            height: 97%;
+            height: calc(100% - 20px);
             top: 0;
             left: 0;
             background-color: white;
@@ -33,12 +33,9 @@
         }
 
         .sideboy {
-            /*position: fixed;*/
-            bottom: 0;
-            left: 0;
+            z-index: 10;
             height: 100%;
-            width: 26%;
-            min-width: 250px;
+            min-width: 350px;
         }
 
         .sidenav a {
@@ -62,7 +59,7 @@
 
         .graphView {
             height: 100%;
-            width: 73%; /* idk */
+            padding: 0 32px;
             display: flex;
             flex-flow: column nowrap;
             justify-content: center;
