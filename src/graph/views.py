@@ -227,7 +227,7 @@ def delNode(response, cur_nodes, num_nodes, current_edges):
 
 def delEdge(response, cur_edges, num_edges, cur_nodes):
     response.session['num_edges'] = num_edges - 1
-
+    num_edges = num_edges -1
     edgeDeleted = response.POST.get("deleteEdge")[-1]
 
     (x, y) = cur_edges[int(edgeDeleted) - 1]
@@ -236,9 +236,37 @@ def delEdge(response, cur_edges, num_edges, cur_nodes):
 
     response.session['edges'] = cur_edges
 
+    iterator = 1
+    xFound = False
+    yFound = False
+
+   #Update Nodes to be 0 for no edges
+    if num_edges == 0:
+        response.session['nodes'] = []
+        response.session['num_nodes'] = 0
+    else:
+        for edge in cur_edges: #Loop through all edges
+            if edge[0] == x or edge[1] == x : #If the x element is found we wont delete it
+                xFound = True
+            if edge[0] == y or edge[1] == y:
+                yFound = True
+            if xFound and yFound: #break if both elements are found
+                break
+            elif iterator == len(cur_edges):# After checking all elements in the array
+                if not xFound and x != y: #if x was not found filter
+                    cur_nodes = list(filter(lambda z: x != z, cur_nodes))
+                if not yFound and y != x:
+                    cur_nodes = list(filter(lambda z: y != z, cur_nodes))
+                response.session['nodes'] = cur_nodes #saved filtered nodes and node count
+                response.session['num_nodes'] = len(cur_nodes)
+            else:
+                iterator = iterator + 1
+
+
+
     # if x == y:
-    response.session['nodes'] = list(filter(lambda z: x != z and y != z, cur_nodes))
-    response.session['num_nodes'] = len(response.session['nodes'])
+    #response.session['nodes'] = list(filter(lambda z: x != z and y != z, cur_nodes))
+    #response.session['num_nodes'] = len(response.session['nodes'])
     # else:
     #     if [x, x] not in cur_edges:
     #         cur_edges = cur_edges + [[x, x]]
@@ -343,5 +371,7 @@ def add_edge(request):
 
             request.session['nodes'] = current_nodes
             request.session['edges'] = current_edges
+            request.session['num_edges'] = len(current_edges)
+            request.session['num_nodes'] = len(current_nodes)
 
     return HttpResponseRedirect('/test_form')
