@@ -227,46 +227,49 @@ def delNode(response, cur_nodes, num_nodes, current_edges):
 
 def delEdge(response, cur_edges, num_edges, cur_nodes):
     response.session['num_edges'] = num_edges - 1
-    num_edges = num_edges -1
-    edgeDeleted = response.POST.get("deleteEdge")[-1]
 
-    (x, y) = cur_edges[int(edgeDeleted) - 1]
+    # the value of POST[deleteEdge] should be just a number
+    edgeDeleted = response.POST.get("deleteEdge")
+
+    # could use list.pop()
+    (deleted_from, deleted_to) = cur_edges[int(edgeDeleted) - 1]
 
     del cur_edges[int(edgeDeleted) - 1]
 
-    response.session['edges'] = cur_edges
 
-    iterator = 1
-    xFound = False
-    yFound = False
+    # trying to find nodes to delete by checking
+    # if there are edges left with their names
 
-   #Update Nodes to be 0 for no edges
-    if num_edges == 0:
-        response.session['nodes'] = []
-        response.session['num_nodes'] = 0
+    # checking edges for ends pointing to the same as "deleted_from"
+    for from_node, to_node in cur_edges:
+        if from_node == deleted_from or to_node == deleted_from:
+            break
+            # if we find an edge point with the same name, good
     else:
-        for edge in cur_edges: #Loop through all edges
-            if edge[0] == x or edge[1] == x : #If the x element is found we wont delete it
-                xFound = True
-            if edge[0] == y or edge[1] == y:
-                yFound = True
-            if xFound and yFound: #break if both elements are found
-                break
-            elif iterator == len(cur_edges):# After checking all elements in the array
-                if not xFound and x != y: #if x was not found filter
-                    cur_nodes = list(filter(lambda z: x != z, cur_nodes))
-                if not yFound and y != x:
-                    cur_nodes = list(filter(lambda z: y != z, cur_nodes))
-                response.session['nodes'] = cur_nodes #saved filtered nodes and node count
-                response.session['num_nodes'] = len(cur_nodes)
-            else:
-                iterator = iterator + 1
+        # if we didnt find anything...
+        try:
+            cur_nodes.remove(deleted_from)
+        finally:
+            pass # try block, just in case
 
+    # now checking "deleted_to"
+    for from_node, to_node in cur_edges:
+        if from_node == deleted_to or to_node == deleted_to:
+            break
+    else:
+        try:
+            cur_nodes.remove(deleted_to)
+        finally:
+            pass
 
+    response.session['edges'] = cur_edges
+    response.session['nodes'] = cur_nodes
+    response.session['num_nodes'] = len(cur_nodes)
+    response.session['num_edges'] = len(cur_edges)
 
     # if x == y:
-    #response.session['nodes'] = list(filter(lambda z: x != z and y != z, cur_nodes))
-    #response.session['num_nodes'] = len(response.session['nodes'])
+    # response.session['nodes'] = list(filter(lambda z: x != z and y != z, cur_nodes))
+    # response.session['num_nodes'] = len(response.session['nodes'])
     # else:
     #     if [x, x] not in cur_edges:
     #         cur_edges = cur_edges + [[x, x]]
