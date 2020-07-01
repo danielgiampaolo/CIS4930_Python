@@ -4,33 +4,20 @@ NetView
 
 NetView is a simple Django app.
 
-Detailed documentation is in...
+Detailed documentation is in... Submission readme
 
 Quick start
 -----------
 
-1. Clone Repository:: 
-    
-    https://github.com/danielgiampaolo/CIS4930_Python.git
+1. Install NetView:: 
 
-2. Update PIP::
+    pip install NetView
 
-    python3 -m pip install --upgrade pip
+2. Run Server (from within ./bin/)::
 
-3. Configure Virtual Environment (modify at will)::
+    python3 initmigrate
+    python3 runmyserver
 
-    python3 -m venv netview_env
-    source netview_env/bin/activate (activate virtual env)
-    pip install Django==3.0.7
-    cd src
-    python manage.py migrate
+3. Access Application:: 
 
-4. Install Dependencies (taken care off with pip install NetView)::
-    
-    pip install matplotlib
-    pip install networkx
-
-5. Run Server (from within ./src/):: 
-
-    python manage.py runserver
     http://127.0.0.1:8000/ (default)
