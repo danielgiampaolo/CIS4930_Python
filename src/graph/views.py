@@ -29,7 +29,7 @@ def handle_graph_post(response):
     num_edges = response.session.get('num_edges', 0)
     cur_nodes = response.session.get('nodes', [])
     cur_edges = response.session.get('edges', [])
-    #prev_post = response.session.get('prev', {}) could be used for "undo"
+    # prev_post = response.session.get('prev', {}) could be used for "undo"
     misc = response.session.get('misc', {})
 
     form = nodeInput(response.POST)
@@ -105,7 +105,7 @@ def updateFields(response, form):
             if not node in updatedNodes:
                 updatedNodes = updatedNodes + [node]
             else:
-                old_node = currentNodes[int(field[4:])-1]
+                old_node = currentNodes[int(field[4:]) - 1]
                 updatedNodes = updatedNodes + [old_node]
 
             if field[4:] == len(currentNodes):
@@ -130,7 +130,7 @@ def updateFields(response, form):
 
                 # different kinds of errors when re-mapping edges
 
-                if node in currentNodes and to_node in currentNodes: # ok
+                if node in currentNodes and to_node in currentNodes:  # ok
                     updatedEdges = updatedEdges + [[node, to_node]]
 
                 elif (not node in currentNodes) and to_node in currentNodes:
@@ -139,7 +139,7 @@ def updateFields(response, form):
                 elif node in currentNodes and (not to_node in currentNodes):
                     updatedEdges = updatedEdges + [[node, old_to]]
 
-                else: # both not in currentNodes
+                else:  # both not in currentNodes
                     updatedEdges = updatedEdges + [[old_from, old_to]]
 
     # renaming edges from changed nodes
@@ -210,7 +210,6 @@ def addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form):
 
 
 def delNode(response, cur_nodes, num_nodes, current_edges):
-
     # get node to delete
     nodeDeleted = response.POST.get("deleteNode")
 
@@ -235,7 +234,7 @@ def delNode(response, cur_nodes, num_nodes, current_edges):
             # if we didnt find anything...
             try:
                 cur_nodes.remove(node)
-            finally:
+            except ValueError:
                 pass  # try block, just in case
 
     # save new values
@@ -256,7 +255,6 @@ def delEdge(response, cur_edges, num_edges, cur_nodes):
 
     del cur_edges[int(edgeDeleted) - 1]
 
-
     # trying to find nodes to delete by checking
     # if there are edges left with their names
 
@@ -269,8 +267,8 @@ def delEdge(response, cur_edges, num_edges, cur_nodes):
         # if we didnt find anything...
         try:
             cur_nodes.remove(deleted_from)
-        finally:
-            pass # try block, just in case
+        except ValueError:
+            pass  # try block, just in case
 
     # now checking "deleted_to"
     for from_node, to_node in cur_edges:
@@ -279,7 +277,7 @@ def delEdge(response, cur_edges, num_edges, cur_nodes):
     else:
         try:
             cur_nodes.remove(deleted_to)
-        finally:
+        except ValueError:
             pass
 
     response.session['edges'] = cur_edges
