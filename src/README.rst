@@ -13,10 +13,10 @@ Quick start
 
     pip install NetView
 
-2. Run Server (from within ./bin/)::
+2. Run Server::
 
-    python3 initmigrate
-    python3 runmyserver
+    initmigrate
+    runmyserver
 
 3. Access Application:: 
 
