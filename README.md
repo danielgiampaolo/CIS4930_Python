@@ -1,18 +1,20 @@
 # NetView
+
 NetView is a simple Django app to create a graph and modify it in a browser.
 
-Quick start
------------
+## Quick start
 
-1. Install NetView:: 
+1. Install NetView:
 
-    pip install NetView
+```sh
+$ pip install NetView
+```
 
-2. Run Server::
+2. Run server:
 
-    initmigrate
-    runmyserver
+```sh
+$ initmigrate    # setup command
+$ runmyserver    # run command
+```
 
-3. Access Application:: 
-
-    http://127.0.0.1:8000/ (default)
+3. Access application at http://127.0.0.1:8000/ (default)
