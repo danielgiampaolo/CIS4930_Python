@@ -341,6 +341,19 @@ def csv_upload(request):
 
     return
 
+def csv_download(request):
+    # CSV Headers: Node, Link, Neighbor
+    headers = ('Node', 'Link', 'Neighbor')
+
+    result = [','.join(headers)]
+    edges = request.session.get('edges', [])
+
+    for edge in edges:
+        # as you can see, the link isn't carried over.
+        # someone should fix that.
+        result.append(','.join((edge[0], '0', edge[1])))
+
+    return HttpResponse('\n'.join(result), content_type="text/csv")
 
 def graph(request):
     try:
