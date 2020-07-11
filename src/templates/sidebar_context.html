@@ -13,7 +13,7 @@
             {{ forloop.counter }}
         </span>
     </div>
-    <input type="text" class="form-control" name="node{{forloop.counter}}" value="{{ node }}">
+    <input autocomplete="off" type="text" class="form-control" name="node{{forloop.counter}}" value="{{ node }}">
     <div class="input-group-append">
         <button class="btn btn-outline-danger" type="submit" name="deleteNode" value="{{forloop.counter}}">
             {% include "icons.html" with icon="trash" %}
@@ -38,13 +38,13 @@
             {{forloop.counter}}
         </span>
     </div>
-    <input type="text" class="form-control" name="edge{{forloop.counter}}from" value="{{ edge.0 }}">
+    <input autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}from" value="{{ edge.0 }}">
     <div class="input-group-append">
         <span class="input-group-text" style="font-family: monospace;">
             {% include "icons.html" with icon="right_arrow" %}
         </span>
     </div>
-    <input type="text" class="form-control" name="edge{{forloop.counter}}to" value="{{ edge.1 }}">
+    <input autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}to" value="{{ edge.1 }}">
     <div class="input-group-append">
         <button class="btn btn-outline-danger" type="submit" name="deleteEdge" value="{{forloop.counter}}">
             {% include "icons.html" with icon="trash" %}
