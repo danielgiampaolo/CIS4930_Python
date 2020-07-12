@@ -20,12 +20,14 @@ def build_image(nodes, edges):
         #     node_text.append('# of connections: ' + str(len(adjacencies[1])))
         #     node_link_qty.append([adjacencies[0], len(adjacencies[1])])
 
-        nx.spring_layout(network_graph, k=0.15, iterations=20)
-        nx.draw(network_graph, with_labels=True)
-
-        pos = nx.planar_layout(network_graph)  # pos = nx.nx_agraph.graphviz_layout(G)
         labels = nx.get_edge_attributes(network_graph, 'weight')
-        nx.draw_networkx_edge_labels(network_graph, pos, edge_labels=labels)
+        options = {'label_pos': 0.5, 'width':2, 'font_size':15}
+        pos = nx.spring_layout(network_graph, k=0.15, iterations=20)
+        nx.draw(network_graph,pos, with_labels=True,**options)
+
+
+
+        nx.draw_networkx_edge_labels(network_graph, pos, edge_labels=labels, **options)
 
         figure = plt.gcf()
         figure.set_size_inches(16, 9)
