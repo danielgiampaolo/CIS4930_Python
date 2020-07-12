@@ -8,8 +8,8 @@ def build_image(nodes, edges):
         network_graph = nx.Graph()
         matplotlib.use('Agg')
 
-        for [node1, node2] in edges:
-            network_graph.add_edge(node1, node2)
+        for [node1, node2,wght] in edges:
+            network_graph.add_edge(node1, node2,weight=wght)
 
         # node_adjacencies = []
         # node_text = []
@@ -22,6 +22,10 @@ def build_image(nodes, edges):
 
         nx.spring_layout(network_graph, k=0.15, iterations=20)
         nx.draw(network_graph, with_labels=True)
+
+        pos = nx.planar_layout(network_graph)  # pos = nx.nx_agraph.graphviz_layout(G)
+        labels = nx.get_edge_attributes(network_graph, 'weight')
+        nx.draw_networkx_edge_labels(network_graph, pos, edge_labels=labels)
 
         figure = plt.gcf()
         figure.set_size_inches(16, 9)

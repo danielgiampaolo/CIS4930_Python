@@ -196,7 +196,7 @@ def addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form):
     newNode = form.cleaned_data['newNode']
 
     if newNode not in cur_nodes:
-        response.session['edges'] = cur_edges + [[newNode, newNode]]
+        response.session['edges'] = cur_edges + [[newNode, newNode,0]]
         response.session['num_edges'] = num_edges + 1
         cur_nodes = cur_nodes + [form.cleaned_data['newNode']]
         response.session['nodes'] = cur_nodes
@@ -390,6 +390,7 @@ def add_edge(request):
 
     from_node = request.POST.get('newedgefrom')
     to_node = request.POST.get('newedgeto')
+    weight = request.POST.get('newedgeweight')
 
     current_nodes = request.session.get('nodes', [])
     current_edges = request.session.get('edges', [])
@@ -400,8 +401,8 @@ def add_edge(request):
                 current_nodes.append(from_node)
             if to_node not in current_nodes:
                 current_nodes.append(to_node)
-            current_edges.append([from_node, to_node])
-            print('creating edge from %s to %s' % (from_node, to_node))
+            current_edges.append([from_node, to_node, weight])
+            print('creating edge from %s to %s with weight %s' % (from_node, to_node,weight))
 
             request.session['nodes'] = current_nodes
             request.session['edges'] = current_edges

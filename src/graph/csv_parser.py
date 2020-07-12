@@ -16,7 +16,7 @@ def read(data):
     edges = []
     nodes = set()
     for row in nodeList:
-        edges.append([row['Node'], row['Neighbor']])
+        edges.append([row['Node'], row['Neighbor'], row['Link']])
         nodes.add(row['Node'])
         nodes.add(row['Neighbor'])
 

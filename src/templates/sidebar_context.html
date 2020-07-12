@@ -33,23 +33,25 @@
 
 {% for edge in edges %}
 <div class="input-group">
-    <div class="input-group-prepend">
-        <span class="input-group-text">
-            {{forloop.counter}}
-        </span>
-    </div>
-    <input autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}from" value="{{ edge.0 }}">
+    <input style="width: auto" autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}from" value="{{ edge.0 }}">
     <div class="input-group-append">
         <span class="input-group-text" style="font-family: monospace;">
             {% include "icons.html" with icon="right_arrow" %}
         </span>
+         <br/>
     </div>
-    <input autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}to" value="{{ edge.1 }}">
-    <div class="input-group-append">
+    <div style="width: 100%">
+        <input style="width: 100%" autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}to" value="{{ edge.1 }}">
+    </div>
+
+
+    <div class="input-group-append" style="width: 100%">
+         <input width="auto" autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}weight" value="{{edge.2}}">
         <button class="btn btn-outline-danger" type="submit" name="deleteEdge" value="{{forloop.counter}}">
             {% include "icons.html" with icon="trash" %}
         </button>
     </div>
+
 </div>
 {% endfor %}
 
