@@ -351,7 +351,7 @@ def csv_download(request):
     for edge in edges:
         # as you can see, the link isn't carried over.
         # someone should fix that.
-        result.append(','.join((edge[0], '0', edge[1])))
+        result.append(','.join((edge[0], edge[2], edge[1])))
 
     return HttpResponse('\n'.join(result), content_type="text/csv")
 
