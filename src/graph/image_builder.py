@@ -22,7 +22,7 @@ def build_image(nodes, edges):
 
         labels = nx.get_edge_attributes(network_graph, 'weight')
         options = {'label_pos': 0.5, 'width':2, 'font_size':15}
-        pos = nx.spring_layout(network_graph, k=0.15, iterations=20)
+        pos = nx.spring_layout(network_graph, k=0.3, iterations=20)
         nx.draw(network_graph,pos, with_labels=True,**options)
 
 
