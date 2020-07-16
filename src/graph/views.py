@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 from .forms import nodeInput
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
@@ -34,12 +34,12 @@ def handle_graph_post(response):
 
     form = nodeInput(response.POST)
 
-    print("printing POST")
-    print(response.POST)
+    # print("printing POST")
+    # print(response.POST)
 
     if form.is_valid():
         if response.POST.get("update"):
-            updateFields(response, form)
+            updateFields(response)
 
         elif response.POST.get("addNode"):
             addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form)
@@ -51,15 +51,16 @@ def handle_graph_post(response):
             delNode(response, cur_nodes, num_nodes, cur_edges)
 
         elif response.POST.get("deleteEdge"):
-            pass
             delEdge(response, cur_edges, num_edges, cur_nodes)
 
         elif response.POST.get("open-upload"):
             misc['upload_open'] = True
             response.session['misc'] = misc
+
         elif response.POST.get("close-upload"):
             misc['upload_open'] = False
             response.session['misc'] = misc
+
         elif response.POST.get("upload-csv"):
             csv_upload(response)
             misc['upload_open'] = False
@@ -87,7 +88,7 @@ def handle_graph_post(response):
         return redirect('/')
 
 
-def updateFields(response, form):
+def updateFields(response):
     currentNodes = response.session["nodes"]
     currentEdges = response.session["edges"]
     updatedNodes = []
@@ -155,35 +156,6 @@ def updateFields(response, form):
 
                 if edge_to == old_name:
                     updatedEdges[edge_index][1] = new_name
-
-    # not renaming nodes when changing edges so far
-    # because I dont think its done well enough
-    # to tell apart renaming vs pointing to other nodes
-
-    # renaming nodes from changed edges (Not Active)
-    # for old_pair, new_pair in zip(currentEdges, updatedEdges):
-    #    old_edge_from, old_edge_to = old_pair
-    #    new_edge_from, new_edge_to = new_pair
-
-    # find mismatched node pairs (edges)
-    #    if not old_edge_from == new_edge_from and not new_edge_from in updatedNodes:
-    #        for node_index, node in enumerate(currentNodes):
-    #            if node == old_edge_from:
-    #                updatedNodes[node_index] = new_edge_from
-    #                break
-
-    #    if not old_edge_to == new_edge_to and not new_edge_to in updatedNodes:
-    #        for node_index, node in enumerate(currentNodes):
-    #            if node == old_edge_to:
-    #                updatedNodes[node_index] = new_edge_to
-    #                break
-
-    # what if both are changed? Well... I would be mad. >:(
-    # unless... node rename wins when both renamed
-
-    # issues to check if they exist
-    # what if they change to a name that doesnt exist
-    # what if edges change to different nodes (renaming on accident)
 
     # make current = updated
     response.session["nodes"] = updatedNodes
@@ -341,6 +313,7 @@ def csv_upload(request):
 
     return
 
+
 def csv_download(request):
     # CSV Headers: Node, Link, Neighbor
     headers = ('Node', 'Link', 'Neighbor')
@@ -354,6 +327,7 @@ def csv_download(request):
         result.append(','.join((edge[0], '0', edge[1])))
 
     return HttpResponse('\n'.join(result), content_type="text/csv")
+
 
 def graph(request):
     try:
