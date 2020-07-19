@@ -110,7 +110,7 @@ def updateFields(response, form):
             else:
                 old_node = currentNodes[int(field[4:]) - 1]
                 updatedNodes = updatedNodes + [old_node]
-                response.session['node_error'] = old_node + " not changed, node name already exists!"
+                response.session['node_error'] = old_node + " not changed, new name conflicts with existing node!"
 
             if field[4:] == len(currentNodes):
                 break
