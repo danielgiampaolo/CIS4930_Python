@@ -75,6 +75,17 @@ def handle_graph_post(response):
         # store previous post. for reasons.
         # response.session['prev'] = response.POST
 
+        # update plotly_dash's session state
+        edges = response.session['edges']
+        nodes = response.session['nodes']
+
+        response.session['django_plotly_dash'] = {
+            "edges": edges,
+            "nodes": nodes,
+            "num_nodes": len(nodes),
+            "num_edges": len(edges),
+        }
+
         return redirect('/')  # make a GET after changing session data
 
     else:
