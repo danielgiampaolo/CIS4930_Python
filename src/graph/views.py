@@ -14,7 +14,9 @@ def index(request):
         "type": request.session.get('type', 'Undirected'),
         "num_nodes": request.session.get('num_nodes', 0),
         "num_edges": request.session.get('num_edges', 0),
-        "misc": request.session.get('misc', {})
+        "misc": request.session.get('misc', {}),
+        "node_error": request.session.get('node_error', ''),
+        "edge_error": request.session.get('edge_error', '')
     }
 
     if request.method == "POST":
@@ -104,9 +106,11 @@ def updateFields(response, form):
             # added check to ensure the name is new
             if not node in updatedNodes:
                 updatedNodes = updatedNodes + [node]
+                response.session['node_error'] = ''
             else:
                 old_node = currentNodes[int(field[4:]) - 1]
                 updatedNodes = updatedNodes + [old_node]
+                response.session['node_error'] = old_node + " not changed, node name already exists!"
 
             if field[4:] == len(currentNodes):
                 break
@@ -200,6 +204,9 @@ def addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form):
         response.session['num_edges'] = num_edges + 1
         cur_nodes = cur_nodes + [form.cleaned_data['newNode']]
         response.session['nodes'] = cur_nodes
+        response.session['node_error'] = 'Node Added: ' + newNode
+    else:
+        response.session['node_error'] = "Node not added, node already exists!"
 
     # since we are not rendering the "form" on html
     # updating the context is necessary
@@ -242,6 +249,7 @@ def delNode(response, cur_nodes, num_nodes, current_edges):
     response.session['edges'] = current_edges
     response.session['num_edges'] = len(current_edges)
     response.session['num_nodes'] = len(cur_nodes)
+    response.session['node_error'] = 'Node Deleted: ' + nodeDeleted
 
 
 def delEdge(response, cur_edges, num_edges, cur_nodes):

@@ -53,7 +53,7 @@
 
 <div>
     <p style="font-weight: bold" class="mb-2">
-        Ports
+        Nodes
         <span class="badge badge-secondary">
             {{ nodes|length }}
         </span>
@@ -74,6 +74,11 @@
         <div class="input-group-append">
             <input class="btn btn-outline-primary" type="submit" value="Add" name="addNode" />
         </div>
+        {% if 'Node Added: ' not in node_error and 'Node Deleted: ' not in node_error %}
+            <div class="text-danger">
+                {{ node_error }}
+            </div>
+        {% endif %}
     </div>
 
 </div>
