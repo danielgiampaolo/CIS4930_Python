@@ -2,12 +2,12 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 from .forms import nodeInput
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from . import csv_parser, image_builder
+from . import csv_parser, image_builder, graph_lib
 
 
 @require_http_methods(["GET", "POST"])  # only GET & POST allowed
 def index(request):
-    # get vertices (or anything) from session info here
+    # get data from session here
     graph_data = {
         "nodes": request.session.get('nodes', []),
         "edges": request.session.get('edges', []),
@@ -43,6 +43,7 @@ def handle_graph_post(response):
 
         elif response.POST.get("addNode"):
             addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form)
+            graph_lib.c_add_node(response, "new_node_here")
 
         elif response.POST.get("addEdge"):
             add_edge(response)
@@ -129,7 +130,7 @@ def updateFields(response):
                 old_from = currentEdges[int(number) - 1][0]
                 old_to = currentEdges[int(number) - 1][1]
 
-                # different kinds of errors when re-mapping edges
+                # possible errors when re-mapping edges
 
                 if node in currentNodes and to_node in currentNodes:  # ok
                     updatedEdges = updatedEdges + [[node, to_node]]
@@ -270,7 +271,7 @@ def delEdge(response, cur_edges, num_edges, cur_nodes):
     #     response.session['num_edges'] = len(cur_edges)
 
 
-def clearAll(response):
+def clear_all(response):
     response.session['nodes'] = []
     response.session['num_nodes'] = 0
     response.session['num_edges'] = 0
@@ -283,7 +284,8 @@ def csv_upload(request):
     # request is guaranteed to be POST
     uploaded = request.FILES.get('csv-file')
 
-    if uploaded == None:
+    # modified "==" to "is" because pycharm complained
+    if uploaded is None:
         print('Upload used, but no file found.')
         return JsonResponse({
             'message': 'No file found.'
@@ -300,6 +302,9 @@ def csv_upload(request):
 
     try:
         (nodes, edges) = csv_parser.read(raw_data)
+        # use C version here
+        # but actually no
+
     except Exception as e:
         print(e)
         return JsonResponse({
@@ -338,7 +343,7 @@ def graph(request):
             'message': 'whats the big idea?! (data not found in session)'
         })
 
-    if edges == None or nodes == None:
+    if edges is None or nodes is None:
         return JsonResponse({
             'message': 'whats the big idea?! (data is None)'
         })
@@ -375,7 +380,7 @@ def add_edge(request):
             if to_node not in current_nodes:
                 current_nodes.append(to_node)
             current_edges.append([from_node, to_node])
-            print('creating edge from %s to %s' % (from_node, to_node))
+            # print('creating edge from %s to %s' % (from_node, to_node))
 
             request.session['nodes'] = current_nodes
             request.session['edges'] = current_edges
