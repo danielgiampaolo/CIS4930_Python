@@ -6,7 +6,6 @@ read(data: string)
 """
 def read(data):
     nodeList = csv.DictReader(data.split('\n'), delimiter=',')
-    print(nodeList)
 
     """
     Each row is expected to have the following:

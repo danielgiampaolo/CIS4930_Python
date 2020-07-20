@@ -303,7 +303,7 @@ def csv_upload(request):
     try:
         (nodes, edges) = csv_parser.read(raw_data)
         # use C version here
-        # but actually no
+        
 
     except Exception as e:
         print(e)
