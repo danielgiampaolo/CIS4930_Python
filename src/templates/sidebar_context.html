@@ -13,7 +13,7 @@
             {{ forloop.counter }}
         </span>
     </div>
-    <input autocomplete="off" type="text" class="form-control" name="node{{forloop.counter}}" value="{{ node }}">
+    <input autocomplete="off" type="text" class="form-control" name="node{{forloop.counter}}" value="{{ node.0 }}">
     <div class="input-group-append">
         <button class="btn btn-outline-danger" type="submit" name="deleteNode" value="{{forloop.counter}}">
             {% include "icons.html" with icon="trash" %}

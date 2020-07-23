@@ -8,15 +8,18 @@ import plotly.graph_objs as go
 
 from django_plotly_dash import DjangoDash
 
+# Initialize Dash App
 app = DjangoDash("dash_graph")
 app.title = "NetView Graph"
 
-
+# App Layout (their version of HTML)
 app.layout = html.Div(id="graph-wrapper", children=[
   html.Span(id="callback-input", children=[])
 ])
 
-
+# Callback that sets up the graph
+# It uses a random span as the input, and outputs the figure into #graph-wrapper
+# NOTE: "session_state" is set as request.session['django_plotly_dash'] in views.py
 @app.expanded_callback(
     dash.dependencies.Output("graph-wrapper", "children"),
     [dash.dependencies.Input('callback-input', 'children')]
@@ -25,46 +28,65 @@ def update_graph_callback(_, session_state=None, **kwargs):
     if session_state is None:
         raise NotImplementedError("Cannot handle a missing session state")
 
-    # print("HELLO!!!", session_state, kwargs["request"], kwargs)
-
+    # grab session data (see structure.md)
     edges = session_state.get('edges', [])
+    bold_edges = session_state.get('bold_edges', [])
+    nodes = session_state.get('nodes', [])
 
-    nodes = dict()
+    # misc
+    max_weight = 1
+
+
+    nodes_dict = dict()
     node_set = set()
 
-    for edge in edges:
-        from_node = nodes.get(edge[0], [])
-        from_node.append(edge[1])
-        nodes[edge[0]] = from_node
-
-        node_set.add(edge[0])
-        node_set.add(edge[1])
-
+    # create networkx graph
     G = nx.Graph()
 
-    for [node1, node2] in edges:
-        G.add_edge(node1, node2)
-    # G = nx.from_pandas_edgelist(edges, 'Node', 'Neighbor', edge_attr=[
-    #                             'Node', 'Neighbor', 'Link'], create_using=nx.Graph())
+    # add edges to graph
+    # NOTE: if we allow float-based weights, change below
+    for [node1, node2, weight] in edges:
+        G.add_edge(node1, node2, weight=int(weight))
+        max_weight = max(int(weight), max_weight)
+        nodes_dict[node1] = "No data"
 
-    nx.set_node_attributes(G, nodes, 'connecting_to')
+    # setup nodes (remove later)
+    # for edge in edges:
+    #     from_node = nodes_dict.get(edge[0], [])
+    #     from_node.append(edge[1])
+    #     nodes_dict[edge[0]] = from_node
 
+    #     node_set.add(edge[0])
+    #     node_set.add(edge[1])
+
+    # setup nodes
+    for [node_name, *lines] in nodes:
+        nodes_dict[node_name] = lines
+
+    # set node attributes based on nodes_dict
+    nx.set_node_attributes(G, nodes_dict, 'description')
+
+    # set layout for graph
     pos = nx.drawing.layout.spring_layout(G, k=0.15, iterations=20)
+
+    # enable below for shell based layout (circular)
     # pos = nx.drawing.layout.shell_layout(G, [list(node_set)])
 
     for node in G.nodes:
         G.nodes[node]['pos'] = list(pos[node])
 
-        traceRecode = []
+    traceRecode = []
     node_trace = go.Scatter(x=[], y=[], hovertext=[], text=[], mode='markers+text', textposition="bottom center",
                             hoverinfo="text", marker={'size': 50, 'color': 'LightSkyBlue'})
 
+    # add nodes into trace
     index = 0
     for node in G.nodes():
         x, y = G.nodes[node]['pos']
-        hovertext = "Connected to (fwd): " + \
-                                   str(','.join(
-                                       G.nodes[node].get('connecting_to', 'unknown')))
+        hovertext = str('<br />'.join([
+            "Name: %s" % node,
+            *G.nodes[node].get('description', 'unknown')
+        ]))
         text = node
         node_trace['x'] += tuple([x])
         node_trace['y'] += tuple([y])
@@ -74,54 +96,74 @@ def update_graph_callback(_, session_state=None, **kwargs):
 
     traceRecode.append(node_trace)
 
-    colors = list(Color('lightcoral').range_to(
-        Color('darkred'), len(G.edges())))
+
+    colors = list(Color('lightcoral').range_to(Color('darkred'), max(1, len(G.edges()))))
     colors = ['rgb' + str(x.rgb) for x in colors]
 
+    # add edges into trace
     index = 0
     for edge in G.edges:
         x0, y0 = G.nodes[edge[0]]['pos']
         x1, y1 = G.nodes[edge[1]]['pos']
+
         weight = 1
-        # weight = float(G.edges[edge]['Link']) / max(edges['Link']) * 10
-        trace = go.Scatter(x=tuple([x0, x1, None]), y=tuple([y0, y1, None]),
-                        mode='lines',
-                        line={'width': weight},
-                        marker=dict(color=colors[index]),
-                        line_shape='spline',
-                        opacity=1)
+
+        node_list = list(edge)
+        if node_list in bold_edges or node_list[::-1] in bold_edges:
+            weight = 10
+
+        # if you want thickness based on weight, enable commented line below
+        # weight = float(G.edges[edge]['weight']) / max_weight * 10
+
+        trace = go.Scatter(
+            x=tuple([x0, x1, None]),
+            y=tuple([y0, y1, None]),
+            mode='lines',
+            line={ 'width': weight },
+            marker=dict(color=colors[index]),
+            line_shape='spline',
+            opacity=1
+        )
+
         traceRecode.append(trace)
+
         index = index + 1
 
     figure = {
         "data": traceRecode,
-        "layout": go.Layout(title='Network Graph Visualization', showlegend=False, hovermode='closest',
-                            margin={'b': 40, 'l': 40, 'r': 40, 't': 40},
-                            xaxis={'showgrid': False, 'zeroline': False,
-                                'showticklabels': False},
-                            yaxis={'showgrid': False, 'zeroline': False,
-                                'showticklabels': False},
-                            height=600,
-                            clickmode='event+select',
-                            annotations=[
-                                dict(
-                                    ax=(G.nodes[edge[0]]['pos'][0] +
-                                        G.nodes[edge[1]]['pos'][0]) / 2,
-                                    ay=(G.nodes[edge[0]]['pos'][1] + G.nodes[edge[1]]['pos'][1]) / 2, axref='x', ayref='y',
-                                    x=(G.nodes[edge[1]]['pos'][0] * 3 +
-                                       G.nodes[edge[0]]['pos'][0]) / 4,
-                                    y=(G.nodes[edge[1]]['pos'][1] * 3 + G.nodes[edge[0]]['pos'][1]) / 4, xref='x', yref='y',
-                                    showarrow=False,
-                                    arrowhead=3,
-                                    arrowsize=4,
-                                    arrowwidth=1,
-                                    opacity=1
-                                ) for edge in G.edges]
-                            )}
+        "layout": go.Layout(
+            title='Network Graph Visualization',
+            showlegend=False,
+            hovermode='closest',
+            margin={'b': 40, 'l': 40, 'r': 40, 't': 40},
+            xaxis={'showgrid': True, 'zeroline': False, 'showticklabels': False},
+            yaxis={'showgrid': True, 'zeroline': False, 'showticklabels': False},
+            height=600,
+            clickmode='event+select',
+            annotations=[
+                dict(
+                    text=G.edges[edge]['weight'],
+                    ax=(G.nodes[edge[0]]['pos'][0] + G.nodes[edge[1]]['pos'][0]) / 2,
+                    ay=(G.nodes[edge[0]]['pos'][1] + G.nodes[edge[1]]['pos'][1]) / 2,
+                    axref='x',
+                    ayref='y',
+                    x=(G.nodes[edge[1]]['pos'][0] * 3 + G.nodes[edge[0]]['pos'][0]) / 4,
+                    y=(G.nodes[edge[1]]['pos'][1] * 3 + G.nodes[edge[0]]['pos'][1]) / 4,
+                    xref='x',
+                    yref='y',
+                    showarrow=False,
+                    arrowhead=3,
+                    arrowsize=4,
+                    arrowwidth=1,
+                    opacity=0.8
+                ) for edge in G.edges
+            ]
+        )
+    }
 
     return [
         dcc.Graph(
-            id='example-graph',
+            id='graph',
             figure=figure
         ),
         html.Span(id="callback-input", children=[])
