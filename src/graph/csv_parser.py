@@ -58,10 +58,13 @@ def c_read(data):
     print("testing C init of csv parser")
     lib.init()
 
+    read_data = PerfRead.in_dll(lib, 'Ext_Struct')
+    nodes, edges = read_data
+
     print("nodes:")
-    print(List(nodes))
+    print(list(nodes))
     print("edges:")
-    print(List(edges))
+    print(list(edges))
 
     # coming back later, surfing stack overflow
 
@@ -76,8 +79,8 @@ def c_read(data):
     nodes, edges = read_data
 
     print("nodes:")
-    print(List(nodes))
+    print(list(nodes))
     print("edges:")
-    print(List(edges))
+    print(list(edges))
 
     # return (nodes, edges)

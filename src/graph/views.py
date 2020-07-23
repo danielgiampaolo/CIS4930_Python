@@ -42,14 +42,18 @@ def handle_graph_post(response):
             updateFields(response)
 
         elif response.POST.get("addNode"):
-            addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form)
-            graph_lib.c_add_node(response, "new_node_here")
+            new_node_field = form.cleaned_data['newNode']
+            graph_lib.c_add_node(response, new_node_field)
+
+            #addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form)
 
         elif response.POST.get("addEdge"):
             add_edge(response)
 
         elif response.POST.get("deleteNode"):
-            delNode(response, cur_nodes, num_nodes, cur_edges)
+            graph_lib.c_delete_node(response)
+
+            #delNode(response, cur_nodes, num_nodes, cur_edges)
 
         elif response.POST.get("deleteEdge"):
             delEdge(response, cur_edges, num_edges, cur_nodes)
