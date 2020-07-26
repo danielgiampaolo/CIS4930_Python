@@ -44,9 +44,6 @@
         <div class="input-group-append">
             <input class="btn btn-outline-primary" type="submit" value="Show" name="addPath" />
         </div>
-        <div class="scroll-bar property" style="overflow: auto; max-height: 150px">
-            {% block path_loop %} {% endblock %}
-        </div>
     </div>
     {% if 'Path Drawn: ' not in path_error %}
         <div class="text-danger">
