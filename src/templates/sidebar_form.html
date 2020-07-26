@@ -16,6 +16,40 @@
 
 <hr />
 
+<!-- Path -->
+<div style="overflow: auto; max-height: 300px">
+    <br>
+    <p style="font-weight: bold" class="mb-2">
+        Show Shortest Path
+    </p>
+
+    <div class="input-group">
+        <select autocomplete="off" type="text" class="form-control" placeholder="To..." name="end">
+            <option value="{{end}}">{{end}}</option>
+            {% for node in nodes  %}
+                <option value="{{node}}">{{node}}</option>
+            {% endfor %}
+        </select>
+        <div class="input-group-append">
+            <span class="input-group-text" style="font-family: monospace;">
+                {% include "icons.html" with icon="right_arrow" %}
+            </span>
+        </div>
+        <select autocomplete="off" type="text" class="form-control" placeholder="From..." name="start">
+            <option value="{{start}}">{{start}}</option>
+            {% for node in nodes  %}
+                <option value="{{node}}">{{node}}</option>
+            {% endfor %}
+        </select>
+        <div class="input-group-append">
+            <input class="btn btn-outline-primary" type="submit" value="Show" name="addPath" />
+        </div>
+        <div class="scroll-bar property" style="overflow: auto; max-height: 150px">
+            {% block path_loop %} {% endblock %}
+        </div>
+    </div>
+</div>
+
 <!-- Now edges -->
 
 <div style="overflow: auto; max-height: 300px">

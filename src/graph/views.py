@@ -16,7 +16,9 @@ def index(request):
         "num_edges": request.session.get('num_edges', 0),
         "misc": request.session.get('misc', {}),
         "node_error": request.session.get('node_error', ''),
-        "edge_error": request.session.get('edge_error', '')
+        "edge_error": request.session.get('edge_error', ''),
+        "start": request.session.get('start', ''),
+        "end": request.session.get('end', '')
     }
 
     if request.method == "POST":
@@ -48,6 +50,9 @@ def handle_graph_post(response):
 
         elif response.POST.get("addEdge"):
             add_edge(response)
+        
+        elif response.POST.get("addPath"):
+            add_path(response)
 
         elif response.POST.get("deleteNode"):
             delNode(response, cur_nodes, num_nodes, cur_edges)
@@ -68,11 +73,7 @@ def handle_graph_post(response):
             response.session['misc'] = misc
 
         elif response.POST.get("clear"):
-            response.session['nodes'] = []
-            response.session['edges'] = []
-            response.session['num_edges'] = 0
-            response.session['num_nodes'] = 0
-            response.session['misc'] = {}
+            clearAll(response)
 
         # store previous post. for reasons.
         # response.session['prev'] = response.POST
@@ -311,6 +312,8 @@ def clearAll(response):
     response.session['num_nodes'] = 0
     response.session['num_edges'] = 0
     response.session['edges'] = []
+    response.session['start'] = ''
+    response.session['end'] = ''
 
     return HttpResponse("Hello, world. You're at the graph index.")
 
@@ -367,6 +370,8 @@ def graph(request):
     try:
         nodes = request.session['nodes']
         edges = request.session['edges']
+        start = request.session['start']
+        end = request.session['end']
     except KeyError:
         return JsonResponse({
             'message': 'whats the big idea?! (data not found in session)'
@@ -377,7 +382,7 @@ def graph(request):
             'message': 'whats the big idea?! (data is None)'
         })
 
-    (result, image) = image_builder.build_image(nodes, edges)
+    (result, image) = image_builder.build_image(nodes, edges, start, end)
 
     if result == 0:
         x = HttpResponse(image, content_type='image/png')
@@ -417,3 +422,22 @@ def add_edge(request):
             request.session['num_nodes'] = len(current_nodes)
 
     return HttpResponseRedirect('/test_form')
+
+def add_path(request):
+    if request.method != "POST":
+        return JsonResponse({
+            "message": "This is not a POST request."
+        })
+
+    #current_nodes = request.session.get('nodes', [])
+    #current_edges = request.session.get('edges', [])
+
+    #if node has no connection to destination node, graph will break.
+
+    from_node = request.POST.get('start')
+    to_node = request.POST.get('end')
+    
+    print(from_node)
+    print(to_node)
+    request.session['start'] = from_node
+    request.session['end'] = to_node

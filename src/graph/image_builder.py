@@ -3,7 +3,7 @@ import io
 import matplotlib
 import matplotlib.pyplot as plt
 
-def build_image(nodes, edges):
+def build_image(nodes, edges, start, end):
     try:
         network_graph = nx.Graph()
         matplotlib.use('Agg')
@@ -20,8 +20,18 @@ def build_image(nodes, edges):
         #     node_text.append('# of connections: ' + str(len(adjacencies[1])))
         #     node_link_qty.append([adjacencies[0], len(adjacencies[1])])
 
-        nx.spring_layout(network_graph, k=0.15, iterations=20)
-        nx.draw(network_graph, with_labels=True)
+        pos = nx.spring_layout(network_graph, k=0.1, iterations=50)
+        nx.draw(network_graph,pos, with_labels=True)
+
+        #start = 'node 1'
+        #end = 'node 34'
+        if start in nodes and end in nodes:
+            path = nx.shortest_path(network_graph,source=start,target=end)
+            print(path)
+            path_edges = set(zip(path,path[1:]))    
+            nx.draw_networkx_nodes(network_graph,pos,nodelist=path,node_color='g')
+            nx.draw_networkx_edges(network_graph,pos,edgelist=path_edges,edge_color='g',width=10)
+        plt.axis('equal')
 
         figure = plt.gcf()
         figure.set_size_inches(16, 9)
