@@ -48,6 +48,10 @@
             {% block path_loop %} {% endblock %}
         </div>
     </div>
+    {% if 'Path Drawn: ' not in path_error %}
+        <div class="text-danger">
+        </div>
+    {% endif %}
 </div>
 
 <!-- Now edges -->

@@ -17,6 +17,7 @@ def index(request):
         "misc": request.session.get('misc', {}),
         "node_error": request.session.get('node_error', ''),
         "edge_error": request.session.get('edge_error', ''),
+        "path_error": request.session.get('path_error', ''),
         "start": request.session.get('start', ''),
         "end": request.session.get('end', '')
     }
@@ -95,6 +96,10 @@ def updateFields(response, form):
     currentEdges = response.session["edges"]
     updatedNodes = []
     updatedEdges = []
+    from_node = response.POST.get('start')
+    to_node = response.POST.get('end')
+    response.session['start'] = from_node
+    response.session['end'] = to_node
 
     # opportunity to optimize here
     # to reduce checks with smarter
@@ -423,21 +428,12 @@ def add_edge(request):
 
     return HttpResponseRedirect('/test_form')
 
-def add_path(request):
-    if request.method != "POST":
-        return JsonResponse({
-            "message": "This is not a POST request."
-        })
-
-    #current_nodes = request.session.get('nodes', [])
-    #current_edges = request.session.get('edges', [])
-
+def add_path(response):
     #if node has no connection to destination node, graph will break.
+    #caught in image_builder, but makes it a refresh late on page...
 
-    from_node = request.POST.get('start')
-    to_node = request.POST.get('end')
-    
-    print(from_node)
-    print(to_node)
-    request.session['start'] = from_node
-    request.session['end'] = to_node
+    from_node = response.POST.get('start')
+    to_node = response.POST.get('end')
+
+    response.session['start'] = from_node
+    response.session['end'] = to_node
