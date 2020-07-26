@@ -24,8 +24,8 @@
     </p>
 
     <div class="input-group">
-        <select autocomplete="off" type="text" class="form-control" placeholder="To..." name="end">
-            <option value="{{end}}">{{end}}</option>
+        <select autocomplete="off" type="text" class="form-control" name="start">
+            <option value="{{start}}">{{start}}</option>
             {% for node in nodes  %}
                 <option value="{{node}}">{{node}}</option>
             {% endfor %}
@@ -35,8 +35,8 @@
                 {% include "icons.html" with icon="right_arrow" %}
             </span>
         </div>
-        <select autocomplete="off" type="text" class="form-control" placeholder="From..." name="start">
-            <option value="{{start}}">{{start}}</option>
+        <select autocomplete="off" type="text" class="form-control" name="end">
+            <option value="{{end}}">{{end}}</option>
             {% for node in nodes  %}
                 <option value="{{node}}">{{node}}</option>
             {% endfor %}

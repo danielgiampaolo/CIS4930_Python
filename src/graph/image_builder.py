@@ -32,10 +32,10 @@ def build_image(nodes, edges, start, end):
                 path_edges = set(zip(path,path[1:]))    
                 nx.draw_networkx_nodes(network_graph,pos,nodelist=path,node_color='g')
                 nx.draw_networkx_edges(network_graph,pos,edgelist=path_edges,edge_color='g',width=10)
-                #request.session['path_error'] = "Path Drawn: " + end + " to " + start
+                #request.session['path_error'] = "Path Drawn: " + start + " to " + end
             except nx.NetworkXException as e:
                 print('networkxexpception:', e)
-                #request.session['path_error'] = "No path exists between " + end + " and " + start
+                #request.session['path_error'] = "No path exists between " + start + " and " + end
         plt.axis('equal')
 
         figure = plt.gcf()

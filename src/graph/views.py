@@ -429,8 +429,9 @@ def add_edge(request):
     return HttpResponseRedirect('/test_form')
 
 def add_path(response):
-    #if node has no connection to destination node, graph will break.
-    #caught in image_builder, but makes it a refresh late on page...
+    # if node has no connection to destination node, graph will break.
+    # caught in image_builder, but makes it a refresh late on page...
+    # not sure how to refresh sidebar_base, when graph_base is re-rendered.
 
     from_node = response.POST.get('start')
     to_node = response.POST.get('end')
