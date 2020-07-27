@@ -48,7 +48,14 @@ def handle_graph_post(response):
             #addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form)
 
         elif response.POST.get("addEdge"):
-            add_edge(response)
+            graph_lib.c_add_edge(response)
+
+            #add_edge(response)
+
+            # was inside add_edge, up for review
+            #return HttpResponseRedirect('/test_form')
+            # commented out because it caused an error when here
+            # testing removing it atm
 
         elif response.POST.get("deleteNode"):
             graph_lib.c_delete_node(response)
@@ -390,5 +397,3 @@ def add_edge(request):
             request.session['edges'] = current_edges
             request.session['num_edges'] = len(current_edges)
             request.session['num_nodes'] = len(current_nodes)
-
-    return HttpResponseRedirect('/test_form')
