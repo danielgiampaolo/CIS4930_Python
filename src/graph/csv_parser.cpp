@@ -18,7 +18,7 @@ typedef struct {
     char** nodes;
     char*** edges;
 } Ext_Struct;
-
+Ext_Struct Read;
 
 void init(Ext_Struct* PerfRead)
 {
@@ -26,13 +26,13 @@ void init(Ext_Struct* PerfRead)
     PerfRead->nodes = nullptr;
     PerfRead->edges = nullptr;
 }
-
+extern Ext_Struct Read;
 
 extern void read(const char* Ext_Struct);
 
 void read(const char* data, Ext_Struct* PerfRead)
 {
-    cout << "Made it inside" << endl;
+    printf("In here");
     init(PerfRead);
     vector<char*> words;
     vector<char**> rows;
@@ -70,9 +70,9 @@ void read(const char* data, Ext_Struct* PerfRead)
         letter_a_count += node1.size(); // Idea was to allocate memory for bigger names but that may bee too difficult
         letter_b_count += weight.size();
         letter_c_count += node2.size();
-        words.push_back((char*)malloc(25 * sizeof(char))); // As of right now it holds 24 chars plus the null operator
-        words.push_back((char*)malloc(25 * sizeof(char)));
-        words.push_back((char*)malloc(25 * sizeof(char)));
+        words.push_back((char*)malloc(node1.size()+1 * sizeof(char))); // As of right now it holds 24 chars plus the null operator
+        words.push_back((char*)malloc(weight.size()+1 * sizeof(char)));
+        words.push_back((char*)malloc(node2.size()+1 * sizeof(char)));
 
         char* letter_iter_a = words.at(index); //Points the pointers in the word vector to a random char*
         char* letter_iter_b = words.at(index + 1);
