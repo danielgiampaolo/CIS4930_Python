@@ -19,24 +19,21 @@ typedef struct {
     char*** edges;
 } Ext_Struct;
 
-Ext_Struct PerfRead;
 
-void init(void)
+void init(Ext_Struct* PerfRead)
 {
     // testing
-    PerfRead.nodes = nullptr;
-    PerfRead.edges = nullptr;
+    PerfRead->nodes = nullptr;
+    PerfRead->edges = nullptr;
 }
 
-// nvm
 
+extern void read(const char* Ext_Struct);
 
-extern Ext_Struct PerfRead;
-extern void read(const char*);
-
-void read(const char* data)
+void read(const char* data, Ext_Struct* PerfRead)
 {
-    init();
+    cout << "Made it inside" << endl;
+    init(PerfRead);
     vector<char*> words;
     vector<char**> rows;
     set<string> node_set;
@@ -120,8 +117,8 @@ void read(const char* data)
     }
     
     //Inserts rows char** to structure char***
-    PerfRead.edges = (char***)malloc(rows.size() * sizeof(char**));
-    char*** edges_iter = PerfRead.edges;
+    PerfRead->edges = (char***)malloc(rows.size() * sizeof(char**));
+    char*** edges_iter = PerfRead->edges;
     for (int i = 0; i < rows.size(); i++)
     {
         *edges_iter = rows.at(i);
@@ -129,9 +126,9 @@ void read(const char* data)
     }
 
     //Section to insert all nodes in the set to the nodes**
-    PerfRead.nodes = (char**)malloc(node_set.size() * sizeof(char*));
+    PerfRead->nodes = (char**)malloc(node_set.size() * sizeof(char*));
     words.clear();
-    char** nodes_iter = PerfRead.nodes;
+    char** nodes_iter = PerfRead->nodes;
     index = 0;
     for (auto it = node_set.begin(); it != node_set.end(); it++)
     {

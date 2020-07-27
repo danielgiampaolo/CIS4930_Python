@@ -5,6 +5,19 @@ import ctypes
 read(data: string)
 """
 def read(data):
+    data_bytes = data.encode("utf8")
+    testlib = load()
+    testlib.read.restype = None
+    class PerfRead(ctypes.Structure):
+        _fields_ = [("nodes", ctypes.POINTER(ctypes.c_char_p)),  # Temporary
+                ("edges",ctypes.POINTER(ctypes.POINTER(ctypes.c_char_p)))]
+
+    test = PerfRead()
+    testlib.read(data_bytes,ctypes.byref(test))
+    print("Printing C Test Nodes")
+    print(list( test.nodes))
+    print("Printing C Test Edges")
+    print(list(test.edges))
     nodeList = csv.DictReader(data.split('\n'), delimiter=',')
 
     """
@@ -23,13 +36,12 @@ def read(data):
 
     return (list(nodes), edges)
 
-class PerfRead(ctypes.Structure):
-    _fields_ = [("nodes", ctypes.POINTER(ctypes.POINTER(ctypes.POINTER(ctypes.c_char)))), # Temporary
-                ("edges", ctypes.POINTER(ctypes.POINTER(ctypes.POINTER(ctypes.POINTER(ctypes.c_char)))))]
 
 def load():
-    lib = ctypes.cdll.LoadLibrary("./csv_parser.so")
+    print("Here")
+    lib = ctypes.cdll.LoadLibrary("libc_graph.so")
     lib.read.argtypes = [ctypes.c_char_p]
+    print("Returned Lib")
     #lib.read.restype = ctypes.POINTER(PerfRead)
     # do any other setup
     return lib
@@ -52,6 +64,7 @@ def c_read(data):
 
     print("testing C init of csv parser")
     lib.init()
+
 
     print("nodes:")
     print(List(nodes))
