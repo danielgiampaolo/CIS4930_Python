@@ -63,7 +63,8 @@ def handle_graph_post(response):
             #delNode(response, cur_nodes, num_nodes, cur_edges)
 
         elif response.POST.get("deleteEdge"):
-            delEdge(response, cur_edges, num_edges, cur_nodes)
+            graph_lib.c_delete_edge(response)
+            #delEdge(response, cur_edges, num_edges, cur_nodes)
 
         elif response.POST.get("open-upload"):
             misc['upload_open'] = True
