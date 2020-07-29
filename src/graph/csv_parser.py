@@ -17,13 +17,26 @@ def read(data):
     """
 
     edges = []
-    nodes = set()
+    nodes_set = set()
     for row in nodeList:
-        edges.append([row['Node'], row['Neighbor']])
-        nodes.add(row['Node'])
-        nodes.add(row['Neighbor'])
+        edges.append([row['Node'], row['Neighbor'], row['Link']])
+        nodes_set.add(row['Node'])
+        nodes_set.add(row['Neighbor'])
 
-    return (list(nodes), edges)
+    # TODO: remove/update later
+    nodes = []
+    i = 1
+    for node in list(nodes_set):
+        data = [node]
+
+        if i % 2 == 0:
+            data.append('line1')
+            data.append('line2')
+
+        nodes.append(data)
+        i = i + 1
+
+    return (nodes, edges)
 
 
 class PerfRead(ctypes.Structure):

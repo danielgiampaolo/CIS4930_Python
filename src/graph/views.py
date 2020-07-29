@@ -89,6 +89,16 @@ def handle_graph_post(response):
         # store previous post. for reasons.
         # response.session['prev'] = response.POST
 
+        # update plotly_dash's session state
+        edges = response.session['edges']
+        nodes = response.session['nodes']
+
+        # TODO: add bold_edges here
+        response.session['django_plotly_dash'] = {
+            "edges": edges,
+            "nodes": nodes,
+        }
+
         return redirect('/')  # make a GET after changing session data
 
     else:
@@ -181,9 +191,9 @@ def addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form):
     newNode = form.cleaned_data['newNode']
 
     if newNode not in cur_nodes:
-        response.session['edges'] = cur_edges + [[newNode, newNode]]
+        response.session['edges'] = cur_edges + [[newNode, newNode, 10]]
         response.session['num_edges'] = num_edges + 1
-        cur_nodes = cur_nodes + [form.cleaned_data['newNode']]
+        cur_nodes = cur_nodes + [[form.cleaned_data['newNode']]]
         response.session['nodes'] = cur_nodes
 
     # since we are not rendering the "form" on html
@@ -392,7 +402,6 @@ def add_edge(request):
             if to_node not in current_nodes:
                 current_nodes.append(to_node)
             current_edges.append([from_node, to_node])
-            # print('creating edge from %s to %s' % (from_node, to_node))
 
             request.session['nodes'] = current_nodes
             request.session['edges'] = current_edges
