@@ -1,50 +1,63 @@
 import csv
 import ctypes
+from ctypes import cdll, c_int, c_char_p, POINTER, Structure,byref
+
+class PerfRead(ctypes.Structure):
+        def __init__(self):
+            self.nodes = None
+            self.edges = None
+
+        _fields_ = [("nodes", ctypes.POINTER(ctypes.c_char_p)),  # Temporary
+                    ("edges", ctypes.POINTER(ctypes.POINTER(ctypes.c_char_p))),
+                    ("node_size", c_int),
+                    ("edge_size", c_int)]
 
 """
 read(data: string)
 """
+
 def read(data):
+
+    print(data)
+    lib = load_library()
     data_bytes = data.encode("utf8")
-    testlib = load()
-    testlib.read.restype = None
-    class PerfRead(ctypes.Structure):
-        _fields_ = [("nodes", ctypes.POINTER(ctypes.c_char_p)),  # Temporary
-                ("edges",ctypes.POINTER(ctypes.POINTER(ctypes.c_char_p)))]
-
     test = PerfRead()
-    testlib.read(data_bytes,ctypes.byref(test))
-    print("Printing C Test Nodes")
-    print(list( test.nodes))
-    print("Printing C Test Edges")
-    print(list(test.edges))
-    nodeList = csv.DictReader(data.split('\n'), delimiter=',')
-
-    """
-    Each row is expected to have the following:
-        - Node
-        - Link
-        - Neighbor
-    """
-
+    print("Going")
+    lib.read(data_bytes,byref(test))
+    print("Pringing edge 1")
+    print(test.edges[0][1])
     edges = []
-    nodes = set()
-    for row in nodeList:
-        edges.append([row['Node'], row['Neighbor']])
-        nodes.add(row['Node'])
-        nodes.add(row['Neighbor'])
+    nodes = []
+
+    for x in range(0,test.node_size):
+        nodes.append(test.nodes[x].decode('utf8'))
+
+    # Need to add test.edges[x][1].decode('utf8') for weight 
+    for x in range(0,test.edge_size):
+        edges.append([test.edges[x][0].decode('utf8'),test.edges[x][2].decode('utf8')])
 
     return (list(nodes), edges)
 
 
 def load():
-    print("Here")
+
     lib = ctypes.cdll.LoadLibrary("libc_graph.so")
-    lib.read.argtypes = [ctypes.c_char_p]
+    lib.read.argtypes = [ctypes.c_char_p, PerfRead]
     print("Returned Lib")
     #lib.read.restype = ctypes.POINTER(PerfRead)
     # do any other setup
     return lib
+
+def load_library():
+  lib = cdll.LoadLibrary('./graph/libnetview.so')
+  print(lib)
+  print("I printed the library")
+  # set types
+
+  lib.read.restype = None
+  lib.read.argtypes = [c_char_p, POINTER(PerfRead)]
+
+  return lib
 
 def c_read(data):
     # notes to self (deleting when done)

@@ -14,26 +14,21 @@ while(std::getline(ss, token, ',')) {
 }
 */
 
-typedef struct {
+struct Ext_Struct {
     char** nodes;
     char*** edges;
-} Ext_Struct;
-Ext_Struct Read;
+    int node_size;
+    int edge_size;
+} ;
 
-void init(Ext_Struct* PerfRead)
-{
-    // testing
-    PerfRead->nodes = nullptr;
-    PerfRead->edges = nullptr;
-}
+
+
 extern Ext_Struct Read;
 
-extern void read(const char* Ext_Struct);
+extern "C" void read(const char* data, struct Ext_Struct *Perf);
 
-void read(const char* data, Ext_Struct* PerfRead)
+void read(const char* data, struct Ext_Struct *PerfRead)
 {
-    printf("In here");
-    init(PerfRead);
     vector<char*> words;
     vector<char**> rows;
     set<string> node_set;
@@ -83,10 +78,10 @@ void read(const char* data, Ext_Struct* PerfRead)
 
         for (int i = 0; i < node1.size(); i++) //Manually adds each character to their respective array
         {
-               
+
             *letter_iter_a = node1.at(i);
              letter_iter_a++;
-            
+
         }
         for (int i = 0; i < weight.size(); i++)
         {
@@ -105,7 +100,7 @@ void read(const char* data, Ext_Struct* PerfRead)
 
         rows.push_back((char**)malloc(3 * sizeof(char*))); // Allocate an index for 3 strings. Ech index represents a row
         char** row = rows.at(index / 3);
-        *row = words.at(index); 
+        *row = words.at(index);
         row++;
         *row = words.at(index + 1);
         row++;
@@ -115,7 +110,7 @@ void read(const char* data, Ext_Struct* PerfRead)
         index = index + 3;
         line_count++;
     }
-    
+
     //Inserts rows char** to structure char***
     PerfRead->edges = (char***)malloc(rows.size() * sizeof(char**));
     char*** edges_iter = PerfRead->edges;
@@ -146,20 +141,15 @@ void read(const char* data, Ext_Struct* PerfRead)
     }
 
     //Commented code is to test if the edges*** correctly got all the strings. Worked with test data i used
-    /*auto help = PerfRead.edges;
+    /*auto help = PerfRead->nodes;
     int i = 0;
-    int k = 0;
-    while (i != line_count)
+    while (i != node_set.size())
     {
-        while (k != 3)
-        {
-            cout << **help << endl;
-            (*help)++;
-            k++;
-        }
-        k = 0;
+        cout << *help << endl;
         help++;
         i++;
     }*/
+    PerfRead->node_size = node_set.size();
+    PerfRead->edge_size = line_count;
 }
 
