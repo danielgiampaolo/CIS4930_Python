@@ -101,7 +101,7 @@ def c_add_node(response, node_name):
             cur_nodes = response.session.get('nodes', [])
             cur_edges = response.session.get('edges', [])
 
-            cur_nodes.append([node_name, ["Test add_node"]])
+            cur_nodes.append([node_name, "Test add_node"])
 
             response.session['nodes'] = cur_nodes
             response.session['num_nodes'] = len(cur_nodes) + 1

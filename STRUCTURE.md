@@ -18,20 +18,16 @@ example = [
 ```py
 array_element = [
   "internal_name",
-  [
-    "Description, line 1",
-    "Description, line 2",
-    "..."
-  ]
+  "Description, line 1",
+  "Description, line 2",
+  "..."
 ]
 
 example = [
   [
     "node 1",
-    [
-      "Router",
-      "Room 2178"
-    ]
+    "Router",
+    "Room 2178"
   ]
 ]
 ```
