@@ -127,7 +127,8 @@ def updateFields(response):
         if "node" in field and field != "newNode":
             # added check to ensure the name is new
             if not node in updatedNodes:
-                updatedNodes = updatedNodes + [node]
+                old_node = currentNodes[int(field[4:]) - 1]
+                updatedNodes = updatedNodes + [node, old_node[1:]]
             else:
                 old_node = currentNodes[int(field[4:]) - 1]
                 updatedNodes = updatedNodes + [old_node]
@@ -149,30 +150,37 @@ def updateFields(response):
             if "from" in field:
                 number = field[4:-4]  # start after edge, exclude from => number used
                 to_node = response.POST.get("edge" + number + "to")
-                old_from = currentEdges[int(number) - 1][0]
-                old_to = currentEdges[int(number) - 1][1]
+                old_from, old_to, old_weight = currentEdges[int(number) - 1]
 
                 # possible errors when re-mapping edges
+                # New Note: When weights are added to POST, 
+                # update below to new weights (do checks if necessary w/e) 
 
                 if node in currentNodes and to_node in currentNodes:  # ok
-                    updatedEdges = updatedEdges + [[node, to_node]]
+                    updatedEdges = updatedEdges + [[node, to_node, old_weight]]
 
                 elif (not node in currentNodes) and to_node in currentNodes:
-                    updatedEdges = updatedEdges + [[old_from, to_node]]
+                    updatedEdges = updatedEdges + [[old_from, to_node, old_weight]]
 
                 elif node in currentNodes and (not to_node in currentNodes):
-                    updatedEdges = updatedEdges + [[node, old_to]]
+                    updatedEdges = updatedEdges + [[node, old_to, old_weight]]
 
                 else:  # both not in currentNodes
-                    updatedEdges = updatedEdges + [[old_from, old_to]]
+                    updatedEdges = updatedEdges + [[old_from, old_to, old_weight]]
 
     # renaming edges from changed nodes
-    for old_name, new_name in zip(currentNodes, updatedNodes):
+    for old_node_info, new_node_info in zip(currentNodes, updatedNodes):
+        print(new_node_info)
+        print(old_node_info)
+
+        old_name = old_node_info
+        new_name = new_node_info
+        
         # find mismatched names
         if not old_name == new_name:
             # rename edge end points
             for edge_index, edge_pair in enumerate(updatedEdges):
-                edge_from, edge_to = edge_pair
+                edge_from, edge_to, weight = edge_pair
 
                 if edge_from == old_name:
                     updatedEdges[edge_index][0] = new_name

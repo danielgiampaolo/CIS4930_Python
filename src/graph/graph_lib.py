@@ -5,7 +5,7 @@ from ctypes import cdll, c_char_p, c_int, c_bool, POINTER, Structure
 class Node(Structure):  # this structure is from Adithya (6 lines)
     _fields_ = [
         ('name', c_char_p),
-        ('description', POINTER(c_char_p)),
+        ('description', c_char_p),
         ('descriptionLines', c_int)
     ]
 
@@ -31,18 +31,36 @@ c_lib = load_c_graph_lib()
 c_lib.add_node.restype = c_bool
 c_lib.add_node.argtypes = [POINTER(State), c_char_p]
 
+# define del_node
+c_lib.del_node.restype = None
+c_lib.del_node.argtypes = [POINTER(State)]
+
 
 def init_nodes(nodes_to_c):  # this function is from Adithya (12 lines)
+    print("init nodes: nodes_to_c")
+    print(nodes_to_c)
+    
     c_nodes = []
     for node in nodes_to_c:
         c_node = Node()
         c_node.name = node[0].encode('utf-8')
-        c_node.description = (c_char_p * len(node[1]))(*[line.encode('utf-8') for line in node[1]])
-        c_node.descriptionLines = len(node[1])
+        c_node.description = node[1].encode('utf-8')
+        c_node.descriptionLines = 1 # for the time being
 
         c_nodes.append(c_node)
 
+    print("init nodes: c_nodes")
+    for node in c_nodes:
+        print(node.name, node.description)
+    
+
     c_nodes_array = (Node * len(c_nodes))(*c_nodes)
+
+    print("returning: c_nodes_array")
+    print(c_nodes_array)
+    for node in c_nodes_array:
+        print("bruhhhhhhhhhhhhhhhhhhhhhhh")
+        print(node.name, node.description)
 
     return c_nodes_array, len(c_nodes)
 
@@ -54,21 +72,56 @@ def init_state(session):
     cur_edges = session.get('edges', [])
     num_edges = len(cur_edges)
 
-    edge_bytes = []  # unsure if appending '\0' if necessary
+    edge_bytes = []  # name no longer accurate :'(
     for edge_from, edge_to, weight in cur_edges:
-        edge_bytes.append(edge_from.encode('utf-8'))
-        edge_bytes.append(edge_to.encode('utf-8'))
-        edge_bytes.append((str(weight)).encode('utf-8'))
+        from_ = c_char_p()
+        to_ = c_char_p()
+        weight_ = c_char_p()
 
-    c_edges = (c_char_p * (num_edges * 3))(*edge_bytes)
+        from_ = edge_from.encode('utf-8')
+        to_ = edge_to.encode('utf-8')
+        weight_ = (str(weight)).encode('utf-8')
 
-    state = State()
+        edge_bytes.append(from_)
+        edge_bytes.append(to_)
+        edge_bytes.append(weight_)
 
-    state.nodes = c_nodes  # type POINTER(Node)
-    state.num_nodes = node_num
+    c_edges = (c_char_p * ((num_edges * 3) + 1))(*edge_bytes) # wrong ?
 
-    state.edges = c_edges  # type POINTER(c_char)
-    state.num_edges = num_edges
+    #  + 1 for a null array ? Testing printing
+
+    print("init state: c_nodes")
+    for node in c_nodes:
+        print(node.name, node.description)
+
+    print("init state: c_edges") # works
+    for edge in c_edges:
+        print(edge)
+
+    state = State(c_nodes, c_edges, node_num, num_edges) # error here
+
+    #print("state: nodes") # crashes? 
+    #for node in state.nodes:
+    #    print(node.name, node.description)
+    # prints right, doesnt reach next print
+    
+    print("state: nodes") 
+    for x in range(state.num_nodes):
+        print(state.nodes[x].name, state.nodes[x].description)
+
+    ##########################################################
+    #print("state: edges") # now it does reach here
+    #for edge in state.edges:
+        #print(edge)
+
+    #print("test") # same error, empty list element doesnt help
+    ###########################################################
+
+    #state.nodes = c_nodes  # type POINTER(Node)
+    #state.num_nodes = node_num
+
+    #state.edges = c_edges  # type POINTER(c_char)
+    #state.num_edges = num_edges
 
     return state
 
@@ -81,14 +134,6 @@ def c_add_node(response, node_name):
     # get string to proper form
     new_node_bytes = node_name.encode('utf-8')
 
-    #################################################
-    print("printing state before c_add:")
-    print("nodes: POINTER(Node)")
-    print(cur_state.num_nodes)
-    print(cur_state.nodes) # crashes when list(cur_state.nodes)
-    print("edges: char**")
-    print(cur_state.edges) # same as above
-    #################################################
     # print("adding:")
     # print(new_node)
 
@@ -108,12 +153,6 @@ def c_add_node(response, node_name):
             response.session['edges'] = cur_edges + [[node_name, node_name, 10]]
             response.session['num_edges'] = len(cur_edges) + 1
 
-    print("printing state after c_add:")
-    print("nodes: POINTER(Node)")
-    #print(list(cur_state.Nodes))
-    print("edges: char**")
-    print(cur_state.edges)
-
 
 def c_delete_node(response):
     # get node (number) to delete
@@ -123,75 +162,51 @@ def c_delete_node(response):
     cur_edges = response.session.get('edges', [])
 
     # remove node at index
-    deleted = cur_nodes.pop(int(to_delete) - 1)
+    deleted, _ = cur_nodes.pop(int(to_delete) - 1)
 
     # remove edges with removed node
     cur_edges = list(filter(lambda x: deleted not in x, cur_edges))
+    # ISSUE: names might be unique but weights will not,
+    # make sure this doesnt filter out this case:
+    # deleted "1", example edge = [node1, node2, 1] (weight 1)
+    # element 3 could happen to match, and be filtered
 
-    num_nodes = len(cur_nodes)
-    num_edges = len(cur_edges)
+    # save changes to init state for C function
+    response.session['nodes'] = cur_nodes
+    response.session['edges'] = cur_edges
 
-    # TODO
-    #  1. Look into initializing the function only once
-    #       a. Perhaps a boolean for this function
+    # C state
+    cur_state = init_state(response.session)
 
-    # define library properties
-    c_lib.del_node.restype = None
-    c_lib.del_node.argtypes = [c_char_p * num_nodes,  # pointer to nodes_array
-                               c_char_p * (num_edges * 2),  # pointer to edges_array
-                               c_int,  # number of nodes
-                               c_int,  # number of edges
-                               c_char_p  # name of node deleted
-                               ]
-
-    # get parameters ready
-    del_node_bytes = deleted.encode('utf-8')
-    c_cur_nodes = (c_char_p * num_nodes)()
-    c_cur_edges = (c_char_p * (num_edges * 2))()
-    # other parameters: # of nodes & # of edges
-
-    # encoding arrays for putting into object created above
-    node_bytes = []
-    for i in range(num_nodes):
-        node_bytes.append((cur_nodes[i] + '\0').encode('utf-8'))
-
-    edge_bytes = []
-    for i in range(num_edges):
-        edge_bytes.append((cur_edges[i][0] + '\0').encode('utf-8'))
-        edge_bytes.append((cur_edges[i][1] + '\0').encode('utf-8'))
-        # ¯\_(ツ)_/¯ idk
-        # doing 1D array because I dont know how to pass 2D array to C
-        # it crashes when I try reading what I set up
-
-    # put bytes into C container
-    c_cur_nodes[:] = node_bytes
-    c_cur_edges[:] = edge_bytes
 
     # things done in C library (mainly loops):
     # 1. mark nodes with no connections
     # might look into:
-    # Using malloc to create new array
-    # to use less "filter" on python side
+        # Using malloc to create new array
+        # to use less "filter" on python side
 
     # TODO:
     #  1. make C function also set the error messages from DG
     #  2. look into other performance options
 
-    # print("testing removing a node")
-    # print(c_cur_edges)
-
     # C function use here:
-    c_lib.del_node(c_cur_nodes, c_cur_edges, num_nodes, num_edges, del_node_bytes)
+    c_lib.del_node(cur_state)
+
+    print("python")
+
+    print("state nodes")
+    print(cur_state.nodes[0])
 
     # get list without nodes marked for deletion (and decode)
-    cur_nodes = [x.decode('utf-8') for x in c_cur_nodes if x]
-    # decode edges and then put them in pairs
-    cur_edges = [x.decode('utf-8') for x in c_cur_edges]
-    cur_edges = list(zip(cur_edges[::2], cur_edges[1::2]))
-
-    print("after del_node")
+    cur_nodes = [x.name.decode('utf-8') for x in cur_state.nodes if x.name]
+    
     print("current nodes")
     print(cur_nodes)
+
+    # decode edges and then put them in pairs
+    cur_edges = [x.decode('utf-8') for x in cur_state.edges]
+    cur_edges = list(zip(*[iter(cur_edges)]*3))
+    
     print("current edges")
     print(cur_edges)
 

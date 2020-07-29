@@ -80,7 +80,7 @@ def update_graph_callback(_, session_state=None, **kwargs):
                             hoverinfo="text", marker={'size': 50, 'color': 'LightSkyBlue'})
 
     ######
-    print(G.nodes())
+    #print(G.nodes())
     ######
 
     # add nodes into trace
