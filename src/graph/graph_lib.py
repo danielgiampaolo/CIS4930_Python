@@ -1,70 +1,118 @@
 import enum
-from ctypes import cdll, c_char_p, c_int, c_bool, POINTER
+from ctypes import cdll, c_char_p, c_int, c_bool, POINTER, Structure
+
+
+class Node(Structure):  # this structure is from Adithya (6 lines)
+    _fields_ = [
+        ('name', c_char_p),
+        ('description', POINTER(c_char_p)),
+        ('descriptionLines', c_int)
+    ]
+
+class State(Structure):
+    _fields_ = [
+        ('nodes', POINTER(Node)),
+        ('edges', POINTER(c_char_p)),
+        ('num_nodes', c_int),
+        ('num_edges', c_int),
+    ]
 
 
 def load_c_graph_lib():
-
     lib = cdll.LoadLibrary("./graph/libc_graph.so")
-    # can define return types here
-    # c_lib.add_node.restype = c_bool
 
-    # defining arguments types elsewhere
-    # c_lib.add_node.argtypes = [c_char_p * num_nodes, c_int, c_char_p]
     return lib
 
 
-# library available
+# library available by importing graph_lib
 c_lib = load_c_graph_lib()
+
+# define add_node
+c_lib.add_node.restype = c_bool
+c_lib.add_node.argtypes = [POINTER(State), c_char_p]
+
+
+def init_nodes(nodes_to_c):  # this function is from Adithya (12 lines)
+    c_nodes = []
+    for node in nodes_to_c:
+        c_node = Node()
+        c_node.name = node[0].encode('utf-8')
+        c_node.description = (c_char_p * len(node[1]))(*[line.encode('utf-8') for line in node[1]])
+        c_node.descriptionLines = len(node[1])
+
+        c_nodes.append(c_node)
+
+    c_nodes_array = (Node * len(c_nodes))(*c_nodes)
+
+    return c_nodes_array, len(c_nodes)
+
+
+def init_state(session):
+    cur_nodes = session.get('nodes', [])
+    c_nodes, node_num = init_nodes(cur_nodes)
+
+    cur_edges = session.get('edges', [])
+    num_edges = len(cur_edges)
+
+    edge_bytes = []  # unsure if appending '\0' if necessary
+    for edge_from, edge_to, weight in cur_edges:
+        edge_bytes.append(edge_from.encode('utf-8'))
+        edge_bytes.append(edge_to.encode('utf-8'))
+        edge_bytes.append((str(weight)).encode('utf-8'))
+
+    c_edges = (c_char_p * (num_edges * 3))(*edge_bytes)
+
+    state = State()
+
+    state.nodes = c_nodes  # type POINTER(Node)
+    state.num_nodes = node_num
+
+    state.edges = c_edges  # type POINTER(c_char)
+    state.num_edges = num_edges
+
+    return state
 
 
 # example
-def c_add_node(response, new_node):
-    current_nodes = response.session.get('nodes', [])
-    num_nodes = len(current_nodes)
-
-    # define library properties
-    c_lib.add_node.restype = c_bool
-    c_lib.add_node.argtypes = [c_char_p * num_nodes, c_int, c_char_p]
-
+def c_add_node(response, node_name):
+    # parameters needed for C function: State, new_node
+    # initialize state for C
+    cur_state = init_state(response.session)
     # get string to proper form
-    new_node_bytes = new_node.encode('utf-8')
+    new_node_bytes = node_name.encode('utf-8')
 
-    # parameters for C function
-    c_curr_nodes = (c_char_p * num_nodes)()
-    # also num_nodes & new_node
+    #################################################
+    print("printing state before c_add:")
+    print("nodes: POINTER(Node)")
+    print(cur_state.num_nodes)
+    print(cur_state.nodes) # crashes when list(cur_state.nodes)
+    print("edges: char**")
+    print(cur_state.edges) # same as above
+    #################################################
+    # print("adding:")
+    # print(new_node)
 
-    # encoding array for passing into C
-    node_bytes = []
-    for i in range(num_nodes):
-        node_bytes.append((current_nodes[i] + '\0').encode('utf-8'))
-
-    # put bytes into C container
-    c_curr_nodes[:] = node_bytes
-
-    #print("current_nodes")
-    #print(current_nodes)
-    #print("new char** from current_nodes")
-    #print(list(c_curr_nodes))
-
-    #print("adding:")
-    #print(new_node)
-
-    if new_node:
-        add = c_lib.add_node(c_curr_nodes, num_nodes, new_node_bytes)
+    # check for empty input box
+    if node_name:
+        add = c_lib.add_node(cur_state, new_node_bytes)
 
         if add:
-            #print("add returned as true")
-            current_nodes.append(new_node)
-
+            # print("add returned as true")
+            cur_nodes = response.session.get('nodes', [])
             cur_edges = response.session.get('edges', [])
 
-            response.session['nodes'] = current_nodes
-            response.session['num_nodes'] = num_nodes + 1
-            response.session['edges'] = cur_edges + [[new_node, new_node]]
+            cur_nodes.append([node_name, ["Test add_node"]])
+
+            response.session['nodes'] = cur_nodes
+            response.session['num_nodes'] = len(cur_nodes) + 1
+            response.session['edges'] = cur_edges + [[node_name, node_name, 10]]
             response.session['num_edges'] = len(cur_edges) + 1
 
-    #print("\nnew_nodes after:")
-    #print(list(current_nodes))
+    print("printing state after c_add:")
+    print("nodes: POINTER(Node)")
+    #print(list(cur_state.Nodes))
+    print("edges: char**")
+    print(cur_state.edges)
 
 
 def c_delete_node(response):
@@ -90,7 +138,7 @@ def c_delete_node(response):
     # define library properties
     c_lib.del_node.restype = None
     c_lib.del_node.argtypes = [c_char_p * num_nodes,  # pointer to nodes_array
-                               c_char_p * (num_edges * 2), # pointer to edges_array
+                               c_char_p * (num_edges * 2),  # pointer to edges_array
                                c_int,  # number of nodes
                                c_int,  # number of edges
                                c_char_p  # name of node deleted
@@ -120,10 +168,10 @@ def c_delete_node(response):
     c_cur_edges[:] = edge_bytes
 
     # things done in C library (mainly loops):
-        # 1. mark nodes with no connections
+    # 1. mark nodes with no connections
     # might look into:
-        # Using malloc to create new array
-        # to use less "filter" on python side
+    # Using malloc to create new array
+    # to use less "filter" on python side
 
     # TODO:
     #  1. make C function also set the error messages from DG
@@ -153,10 +201,11 @@ def c_delete_node(response):
     response.session['num_nodes'] = len(cur_nodes)
     response.session['num_edges'] = len(cur_edges)
 
+
 class Result(enum.Enum):
     No_Add = 0
-    New_Edge = 1 # kind of redundant
-    Add_From = 2 # 2/3/4 also imply 1
+    New_Edge = 1  # kind of redundant
+    Add_From = 2  # 2/3/4 also imply 1
     Add_To = 3
     Add_Both = 4
 
@@ -182,8 +231,8 @@ def c_add_edge(response):
         c_lib.add_edge.restype = c_int
         c_lib.add_edge.argtypes = [c_char_p * num_nodes,  # pointer to nodes_array
                                    c_char_p * (num_edges * 2),  # pointer to edges_array
-                                   c_int,     # number of nodes
-                                   c_int,     # number of edges
+                                   c_int,  # number of nodes
+                                   c_int,  # number of edges
                                    c_char_p,  # name of new to_node
                                    c_char_p,  # name of new from_node
                                    ]
@@ -211,10 +260,10 @@ def c_add_edge(response):
 
         # sorry for the long function calls, should use structs
         op = c_lib.add_edge(c_nodes, c_edges, num_nodes, num_edges,
-                       from_node_bytes, to_node_bytes)
+                            from_node_bytes, to_node_bytes)
 
         if op == Result.No_Add:
-            pass # write error feedback reason
+            pass  # write error feedback reason
         else:
             cur_edges.append([from_node, to_node])
 
@@ -242,6 +291,7 @@ def c_add_edge(response):
         response.session['edges'] = cur_edges
         response.session['num_nodes'] = len(cur_nodes)
         response.session['num_edges'] = len(cur_edges)
+
 
 def c_delete_edge(response):
     cur_nodes = response.session.get('nodes', [])
@@ -296,7 +346,7 @@ def c_delete_edge(response):
 
     # checking connections
     c_lib.del_edge(c_nodes, c_edges, num_nodes, num_edges,
-                        from_node_bytes, to_node_bytes)
+                   from_node_bytes, to_node_bytes)
 
     # get list without nodes marked for deletion (and decode)
     cur_nodes = [x.decode('utf-8') for x in c_nodes if x]
@@ -316,11 +366,12 @@ def c_delete_edge(response):
     response.session['num_nodes'] = len(cur_nodes)
     response.session['num_edges'] = len(cur_edges)
 
+
 def c_update_names(response):
-    #cur_nodes = response.session["nodes"]
-    #cur_edges = response.session["edges"]
-    #new_nodes = []
-    #new_edges = []
+    # cur_nodes = response.session["nodes"]
+    # cur_edges = response.session["edges"]
+    # new_nodes = []
+    # new_edges = []
 
     # currently using python version
     # Reason: Traversing POST request
@@ -330,7 +381,3 @@ def c_update_names(response):
     # look into... I cant even imagine what I would do right now
 
     pass
-
-
-
-

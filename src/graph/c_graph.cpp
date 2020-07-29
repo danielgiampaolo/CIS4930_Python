@@ -5,33 +5,48 @@ extern "C"
 {
 // use struct to shorten parameter passing next
 void update_fields(char **nodes, char ***edges, char *test);
-bool add_node(const char **nodes, int node_num, const char *new_node);
+bool add_node(struct State *state, const char *new_node);
 int add_edge(char **nodes, char **edges, int num_nodes, int num_edges, char *new_from, char *new_to);
 void del_node(char **nodes, char **edges, int num_nodes, int num_edges);
 void del_edge(char **nodes, char **edges, int num_nodes, int num_edges, char *del_from, char *del_to);
 }
 
-void update_fields(char **nodes, char ***edges, char *test, char **new_nodes) {
+struct Node {
+    char *name;
+    char **description;
+    unsigned int descriptionLines;
+};
 
+struct State {
+    struct Node *nodes;    // see above
+    char **edges;          // [edge1_from, edge1_to, edge1_weight, edge2...]
+    unsigned int num_nodes;
+    unsigned int num_edges;
+};
+
+void update_fields(char **nodes, char ***edges, char *test, char **new_nodes) {
+    // unsure how to approach in a simple way, so left empty on purpose
 }
 
-bool add_node(const char **nodes, int node_num, const char *new_node) {
-    //printf("\ninside add_node\n");
+bool add_node(struct State *state, const char *new_node) {
+    printf("\ninside add_node\n");
 
     // doesnt happen I think
     if (new_node == nullptr) {
         return false;
     }
 
-    for (int i = 0; i < node_num; i++) {
+    printf("nodes: ...%d!\n\n", state->num_nodes);
 
-        if (strcmp(new_node, nodes[i]) == 0) {
-            //printf("found a match\n");
+    for (int i = 0; i < state->num_nodes; i++) {
+        printf("bruhhhh\n");
+        if (strcmp(new_node, state->nodes[i].name) == 0) {
+            printf("found a match\n");
             return false;
         }
     }
 
-    //printf("\n found no matches \n\n");
+    printf("\n found no matches \n\n");
 
     return true;
 }

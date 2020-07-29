@@ -25,10 +25,10 @@ def index(request):
 
 
 def handle_graph_post(response):
-    num_nodes = response.session.get('num_nodes', 0)
-    num_edges = response.session.get('num_edges', 0)
-    cur_nodes = response.session.get('nodes', [])
-    cur_edges = response.session.get('edges', [])
+    #num_nodes = response.session.get('num_nodes', 0)
+    #num_edges = response.session.get('num_edges', 0)
+    #cur_nodes = response.session.get('nodes', [])
+    #cur_edges = response.session.get('edges', [])
     # prev_post = response.session.get('prev', {}) could be used for "undo"
     misc = response.session.get('misc', {})
 
