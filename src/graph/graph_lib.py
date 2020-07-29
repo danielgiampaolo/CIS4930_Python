@@ -109,6 +109,10 @@ def init_state(session):
     for x in range(state.num_nodes):
         print(state.nodes[x].name, state.nodes[x].description)
 
+    print("state: edges") 
+    for x in range(state.num_edges):
+        print(state.edges[3*x], state.edges[3* + 1], state.edges[3*x + 2])
+
     ##########################################################
     #print("state: edges") # now it does reach here
     #for edge in state.edges:
@@ -162,7 +166,7 @@ def c_delete_node(response):
     cur_edges = response.session.get('edges', [])
 
     # remove node at index
-    deleted, _ = cur_nodes.pop(int(to_delete) - 1)
+    deleted = cur_nodes.pop(int(to_delete) - 1)
 
     # remove edges with removed node
     cur_edges = list(filter(lambda x: deleted not in x, cur_edges))
@@ -176,7 +180,7 @@ def c_delete_node(response):
     response.session['edges'] = cur_edges
 
     # C state
-    cur_state = init_state(response.session)
+    st = init_state(response.session)
 
 
     # things done in C library (mainly loops):
@@ -190,25 +194,32 @@ def c_delete_node(response):
     #  2. look into other performance options
 
     # C function use here:
-    c_lib.del_node(cur_state)
+    c_lib.del_node(st)
 
-    print("python")
+    #print("python")
 
-    print("state nodes")
-    print(cur_state.nodes[0])
+    #print("state nodes")
+    #print(cur_state.nodes[0])
 
     # get list without nodes marked for deletion (and decode)
-    cur_nodes = [x.name.decode('utf-8') for x in cur_state.nodes if x.name]
+    # moving away from list comprehension based on cur_state.nodes
+    # because of the error noted in a previous commit
+    #cur_nodes = [x.name.decode('utf-8') for x in cur_state.nodes if x.name]
+    cur_nodes = [st.nodes[x].name.decode('utf-8') 
+                    for x in range(st.num_nodes) if st.nodes[x].name]
     
-    print("current nodes")
-    print(cur_nodes)
+
+
+    #print("current nodes")
+    #print(cur_nodes)
 
     # decode edges and then put them in pairs
-    cur_edges = [x.decode('utf-8') for x in cur_state.edges]
+    #cur_edges = [x.decode('utf-8') for x in cur_state.edges]
+    cur_edges = [st.edges[x].decode('utf-8') for x in range(st.num_edges * 3)]
     cur_edges = list(zip(*[iter(cur_edges)]*3))
     
-    print("current edges")
-    print(cur_edges)
+    #print("current edges")
+    #print(cur_edges)
 
     # save new values
     response.session['nodes'] = cur_nodes
