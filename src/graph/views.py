@@ -18,6 +18,7 @@ def index(request):
         "node_error": request.session.get('node_error', ''),
         "edge_error": request.session.get('edge_error', ''),
         "path_error": request.session.get('path_error', ''),
+        "file_content": request.session.get('file_content', ''),
         "start": request.session.get('start', ''),
         "end": request.session.get('end', '')
     }
@@ -63,6 +64,7 @@ def handle_graph_post(response):
             delEdge(response, cur_edges, num_edges, cur_nodes)
 
         elif response.POST.get("open-upload"):
+            response.session['file_content'] = response.POST.get("open-upload")
             misc['upload_open'] = True
             response.session['misc'] = misc
         elif response.POST.get("close-upload"):
@@ -72,6 +74,7 @@ def handle_graph_post(response):
             csv_upload(response)
             misc['upload_open'] = False
             response.session['misc'] = misc
+            response.session['file_content'] = ''
 
         elif response.POST.get("clear"):
             clearAll(response)
@@ -325,35 +328,38 @@ def clearAll(response):
 
 def csv_upload(request):
     # request is guaranteed to be POST
+    file_content = request.session['file_content']
     uploaded = request.FILES.get('csv-file')
+    if file_content == 'edges':
+        if uploaded == None:
+            print('Upload used, but no file found.')
+            return JsonResponse({
+                'message': 'No file found.'
+            })
 
-    if uploaded == None:
-        print('Upload used, but no file found.')
-        return JsonResponse({
-            'message': 'No file found.'
-        })
+        if uploaded.content_type not in ['text/csv', 'application/vnd.ms-excel']:
+            print('Was not CSV file')
+            return JsonResponse({
+                'message': 'not csv file (we got %s)' % uploaded.content_type
+            })
 
-    if uploaded.content_type not in ['text/csv', 'application/vnd.ms-excel']:
-        print('Was not CSV file')
-        return JsonResponse({
-            'message': 'not csv file (we got %s)' % uploaded.content_type
-        })
+        raw_bytes = uploaded.read()
+        raw_data = raw_bytes.decode("utf-8")
 
-    raw_bytes = uploaded.read()
-    raw_data = raw_bytes.decode("utf-8")
+        try:
+            (nodes, edges) = csv_parser.read(raw_data)
+        except Exception as e:
+            print(e)
+            return JsonResponse({
+                'message': 'Something went wrong >:('
+            })
 
-    try:
-        (nodes, edges) = csv_parser.read(raw_data)
-    except Exception as e:
-        print(e)
-        return JsonResponse({
-            'message': 'Something went wrong >:('
-        })
-
-    request.session['edges'] = edges
-    request.session['nodes'] = nodes
-    request.session['num_nodes'] = len(nodes)
-    request.session['num_edges'] = len(edges)
+        request.session['edges'] = edges
+        request.session['nodes'] = nodes
+        request.session['num_nodes'] = len(nodes)
+        request.session['num_edges'] = len(edges)
+    elif file_content == 'nodes':
+        print('Nodes selected')
 
     return
 

@@ -28,7 +28,7 @@ def build_image(nodes, edges, start, end):
         if start in nodes and end in nodes:
             try:
                 path = nx.shortest_path(network_graph,source=start,target=end)
-                print(path)
+                #print(path)
                 path_edges = set(zip(path,path[1:]))    
                 nx.draw_networkx_nodes(network_graph,pos,nodelist=path,node_color='g')
                 nx.draw_networkx_edges(network_graph,pos,edgelist=path_edges,edge_color='g',width=10)
