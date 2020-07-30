@@ -359,17 +359,23 @@ def csv_upload(request):
         request.session['nodes'] = nodes
         request.session['num_nodes'] = len(nodes)
         request.session['num_edges'] = len(edges)
+
     elif file_content == 'nodes':
         raw_bytes = uploaded.read()
         raw_data = raw_bytes.decode("utf-8")
         try:
-            nodes = csv_parser.read_desc(raw_data)
+            descs = csv_parser.read_desc(raw_data)
         except Exception as e:
             print(e)
             return JsonResponse({
                 'message': 'Something went wrong >:('
             })
-
+        # currentNodes = request.session.get('nodes', [])
+        # for node,desc in descs:
+        #     for x in range(0,len(currentNodes)):
+        #         if currentNodes[x][0] == node:
+        #             currentNodes[x][1] = desc
+        # request.session['nodes'] = currentNodes
     return
 
 def csv_download(request):

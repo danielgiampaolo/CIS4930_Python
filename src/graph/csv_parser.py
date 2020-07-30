@@ -24,8 +24,27 @@ read(data: string)
 """
 
 def read(data):
-    return
-    
+
+
+    print(data)
+    lib = load_library()
+    data_bytes = data.encode("utf8")
+    test = PerfRead()
+    lib.read(data_bytes, byref(test))
+    edges = []
+    nodes = []
+
+    for x in range(0, test.node_size):
+        nodes.append(test.nodes[x].decode('utf8'))
+
+    # Need to add test.edges[x][1].decode('utf8') for weight
+    for x in range(0, test.edge_size):
+        edges.append([test.edges[x][0].decode('utf8'), test.edges[x][2].decode('utf8')])
+
+    lib.dealloc_read(test)
+    print(test)
+    return (list(nodes), edges)
+
 def read_desc(data):
 
     lib = load_library()
@@ -39,12 +58,11 @@ def read_desc(data):
         for y in range(1, test.desc_num[x]):
             nodes[x][1].append(test.desc[x][y].decode('utf8'))
 
+    lib.dealloc_desc(byref(test))
     return nodes
 
 def load_library():
   lib = cdll.LoadLibrary('./graph/libnetview.so')
-  print(lib)
-  print("I printed the library")
   # set types
 
   lib.read.restype = None
@@ -52,5 +70,11 @@ def load_library():
 
   lib.read_desc.restype = None
   lib.read_desc.argtypes = [c_char_p, POINTER(DescRead)]
+
+  lib.dealloc_read.restype = None
+  lib.dealloc_read.argtypes = [POINTER(PerfRead)]
+
+  lib.dealloc_desc.restype = None
+  lib.dealloc_desc.argtypes = [POINTER(DescRead)]
 
   return lib

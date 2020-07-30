@@ -33,6 +33,8 @@ extern Ext_Struct Read;
 
 extern "C" void read(const char* data, struct Ext_Struct* Perf);
 extern "C" void read_desc(const char* data, struct Desc_Struct* PerfRead);
+extern "C" void dealloc_read(struct Ext_Struct* PerfRead);
+extern "C" void dealloc_desc(struct Desc_Struct* PerfRead);
 
 void read(const char* data, struct Ext_Struct* PerfRead)
 {
@@ -220,3 +222,42 @@ void read_desc(const char* data, struct Desc_Struct* PerfRead)
     PerfRead->nodes_read = line_count;
 }
 
+void dealloc_read(struct Ext_Struct* PerfRead)
+{
+    auto iter = PerfRead->edges;
+    for (int i = 0; i < PerfRead->edge_size; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            free(iter[i][j]);
+        }
+        free(iter[i]);
+    }
+    free(iter);
+
+    auto iter2 = PerfRead->nodes;
+    for (int j = 0; j < PerfRead->node_size; j++)
+    {
+            free(iter2[j]);
+    }
+    free(iter2);
+
+}
+
+void dealloc_desc(struct Desc_Struct* PerfRead)
+{
+    auto iter = PerfRead->descriptions;
+    for (int i = 0; i < PerfRead->nodes_read; i++)
+    {
+        for (int j = 0; j < PerfRead->desc_num[i]; j++)
+        {
+            free(iter[i][j]);
+        }
+        free(iter[i]);
+    }
+    free(iter);
+
+    int* del = PerfRead->desc_num;
+    free(del);
+
+}
