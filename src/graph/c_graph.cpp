@@ -1,13 +1,12 @@
 #include <cstdio>
 #include <cstring>
 
-extern "C"
-{
-// use struct to shorten parameter passing next
-void update_fields(char **nodes, char ***edges, char *test);
-bool add_node(struct State *state, const char *new_node);
-int add_edge(char **nodes, char **edges, int num_nodes, int num_edges, char *new_from, char *new_to);
-void del_node(struct State *state);
+extern "C" {
+    // use struct to shorten parameter passing next
+    void update_fields(char **nodes, char ***edges, char *test);
+    bool add_node(struct State *state, const char *new_node);
+    int add_edge(struct State *state, char *new_from, char *new_to);
+    void del_node(struct State *state);
 void del_edge(struct State *state, char *del_from, char *del_to);
 }
 
@@ -111,44 +110,50 @@ void del_node(struct State *state) {
 // add more fields as necessary
 // or use struct
 
-int add_edge(char **nodes, char **edges, int num_nodes, int num_edges, char *new_from, char *new_to) {
+/**
+ * @param state         Current internal state
+ * @param new_from      Edge's begin node
+ * @param new_to        Edge's end node
+ * @return              `0` if Do not add edge.
+ *                      `1` if Add edge, don't add nodes.
+ *                      `2` if Add edge, add "from" node only.
+ *                      `3` if Add edge, add "to" node only.
+ *                      `4` if Add edge, add both nodes.
+ */
+int add_edge(struct State *state, char *new_from, char *new_to) {
+    char **edges = state->edges;
+    struct Node *nodes = state->nodes;
+    unsigned int num_edges = state->num_edges;
+    unsigned int num_nodes = state->num_nodes;
 
-    int edge_index = 0;
     char *from_node = nullptr;
     char *to_node = nullptr;
 
-    for (int i = 0; i < num_edges; ++i) {
-        from_node = edges[edge_index++];
-        to_node = edges[edge_index++];
+    for (int i = 0; i < num_edges * 3;) {
+        from_node = edges[i++];
+        to_node = edges[i++];
+        i++; // weight, dont worry about it
 
         if (strcmp(from_node, new_from) == 0 && strcmp(to_node, new_to) == 0) {
+            // Edge is already in list, do not add
             return 0;
         }
     }
 
-    // To not allocate on C side, I will have multiple valid return values
-    // 0 -> Do not add edge
-    // 1 -> Add edge, no new nodes
-    // 2 -> Add edge, add "new_from"
-    // 3 -> Add edge, add "new_to"
-    // 4 -> Add edge, add both nodes
-
-    // duplicate edge was not found,
-    // verify if there are new nodes
+    // duplicate edge was not found, verify if there are new nodes
 
     // to tell when to go to 2/3/4
     bool matched_from = false;
     bool matched_to = false;
-    char *cur_node = nullptr;
 
     for (int j = 0; j < num_nodes; ++j) {
-        cur_node = nodes[j];
+        struct Node cur_node = nodes[j];
 
-        if (strcmp(cur_node, new_from) == 0) {
+        if (strcmp(cur_node.name, new_from) == 0) {
             matched_from = true;
         }
 
-        if (strcmp(cur_node, new_to) == 0) {
+        if (strcmp(cur_node.name, new_to) == 0) {
             matched_to = true;
         }
     }
@@ -156,11 +161,11 @@ int add_edge(char **nodes, char **edges, int num_nodes, int num_edges, char *new
     if (matched_from && matched_to) {
         // both nodes exist
         return 1;
-    } else if (matched_from && !matched_to) {
-        return 2;
     } else if (!matched_from && matched_to) {
+        return 2;
+    } else if (matched_from && !matched_to) {
         return 3;
-    } else /*(!matched_from && !matched_to)*/ {
+    } else {
         // no matches (add both)
         return 4;
     }
