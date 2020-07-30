@@ -27,7 +27,7 @@
         <select autocomplete="off" type="text" class="form-control" name="start">
             <option value="{{start}}">{{start}}</option>
             {% for node in nodes  %}
-                <option value="{{node}}">{{node}}</option>
+                <option value="{{node.0}}">{{node.0}}</option>
             {% endfor %}
         </select>
         <div class="input-group-append">
@@ -38,7 +38,7 @@
         <select autocomplete="off" type="text" class="form-control" name="end">
             <option value="{{end}}">{{end}}</option>
             {% for node in nodes  %}
-                <option value="{{node}}">{{node}}</option>
+                <option value="{{node.0}}">{{node.0}}</option>
             {% endfor %}
         </select>
         <div class="input-group-append">
