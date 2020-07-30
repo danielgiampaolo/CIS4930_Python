@@ -61,6 +61,14 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
+
+# CMake stuff:
+src/CMakeFiles
+src/graph/CMakeFiles
+src/graph/cmake_install.cmake
+src/graph/CMakeCache.txt
+src/graph/Makefile
+
 # Flask stuff:
 instance/
 .webassets-cache

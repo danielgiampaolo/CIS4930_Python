@@ -330,18 +330,19 @@ def csv_upload(request):
     # request is guaranteed to be POST
     file_content = request.session['file_content']
     uploaded = request.FILES.get('csv-file')
-    if file_content == 'edges':
-        if uploaded == None:
-            print('Upload used, but no file found.')
-            return JsonResponse({
-                'message': 'No file found.'
-            })
+    if uploaded == None:
+        print('Upload used, but no file found.')
+        return JsonResponse({
+            'message': 'No file found.'
+        })
 
-        if uploaded.content_type not in ['text/csv', 'application/vnd.ms-excel']:
-            print('Was not CSV file')
-            return JsonResponse({
-                'message': 'not csv file (we got %s)' % uploaded.content_type
-            })
+    if uploaded.content_type not in ['text/csv', 'application/vnd.ms-excel']:
+        print('Was not CSV file')
+        return JsonResponse({
+            'message': 'not csv file (we got %s)' % uploaded.content_type
+        })
+
+    if file_content == 'edges':
 
         raw_bytes = uploaded.read()
         raw_data = raw_bytes.decode("utf-8")
@@ -359,7 +360,9 @@ def csv_upload(request):
         request.session['num_nodes'] = len(nodes)
         request.session['num_edges'] = len(edges)
     elif file_content == 'nodes':
-        print('Nodes selected')
+        raw_bytes = uploaded.read()
+        raw_data = raw_bytes.decode("utf-8")
+
 
     return
 
