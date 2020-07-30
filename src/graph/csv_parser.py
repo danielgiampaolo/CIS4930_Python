@@ -24,21 +24,22 @@ read(data: string)
 """
 
 def read(data):
-    print(data)
+    return
+    
+def read_desc(data):
+
     lib = load_library()
     data_bytes = data.encode("utf8")
     test = DescRead()
-    print("Going")
-    lib.read_desc(data_bytes,byref(test))
-    print("Returned")
+    lib.read_desc(data_bytes, byref(test))
     nodes = []
 
-    for x in range(0,test.nodes_read):
+    for x in range(0, test.nodes_read):
         nodes.append([test.desc[x][0].decode('utf8'), []])
-        for y in range(1,test.desc_num[x]):
+        for y in range(1, test.desc_num[x]):
             nodes[x][1].append(test.desc[x][y].decode('utf8'))
 
-    
+    return nodes
 
 def load_library():
   lib = cdll.LoadLibrary('./graph/libnetview.so')

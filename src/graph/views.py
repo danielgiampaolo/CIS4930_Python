@@ -362,7 +362,13 @@ def csv_upload(request):
     elif file_content == 'nodes':
         raw_bytes = uploaded.read()
         raw_data = raw_bytes.decode("utf-8")
-
+        try:
+            nodes = csv_parser.read_desc(raw_data)
+        except Exception as e:
+            print(e)
+            return JsonResponse({
+                'message': 'Something went wrong >:('
+            })
 
     return
 
