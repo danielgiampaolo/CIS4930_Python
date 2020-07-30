@@ -42,17 +42,10 @@ def index(request):
 
 
 def handle_graph_post(response):
-    #num_nodes = response.session.get('num_nodes', 0)
-    #num_edges = response.session.get('num_edges', 0)
-    #cur_nodes = response.session.get('nodes', [])
-    #cur_edges = response.session.get('edges', [])
-    # prev_post = response.session.get('prev', {}) could be used for "undo"
+    # prev_post = response.session.get('prev', []) could be used for "undo"
     misc = response.session.get('misc', {})
 
     form = nodeInput(response.POST)
-
-    # print("printing POST")
-    # print(response.POST)
 
     if form.is_valid():
         if response.POST.get("update"):
@@ -65,14 +58,7 @@ def handle_graph_post(response):
             #addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form)
 
         elif response.POST.get("addEdge"):
-            # graph_lib.c_add_edge(response)
-
-            add_edge(response)
-
-            # was inside add_edge, up for review
-            #return HttpResponseRedirect('/test_form')
-            # commented out because it caused an error when here
-            # testing removing it atm
+            add_edge(response) 
 
         elif response.POST.get("deleteNode"):
             graph_lib.c_delete_node(response)
@@ -406,13 +392,13 @@ def add_edge(request):
 
     from_node = request.POST.get('newedgefrom').strip()
     to_node = request.POST.get('newedgeto').strip()
-    weight = 10
-
+    weight = 10 # TODO: when merging weights, fix
+    
     if from_node and to_node:
         try:
             graph_lib.c_add_edge(request.session, from_node, to_node, weight)
         except graph_lib.EdgeExistsException:
             print("edge exists already!")
-        # should try to catch generic Exception here
-        # I left it out to show the stack trace for debugging
-
+        # TODO: Re-enable in production; disabled for stack-trace
+        # except Exception as e:
+        #     print("something wrong :(", e)

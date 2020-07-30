@@ -3,16 +3,16 @@
 
 extern "C" {
     // use struct to shorten parameter passing next
-    void update_fields(char **nodes, char ***edges, char *test);
+    void update_fields(char **nodes, char ***edges, char *test, char **new_nodes);
     bool add_node(struct State *state, const char *new_node);
     int add_edge(struct State *state, char *new_from, char *new_to);
     void del_node(struct State *state);
-void del_edge(struct State *state, char *del_from, char *del_to);
+    void del_edge(struct State *state, char *del_from, char *del_to);
 }
 
 struct Node {
     char *name;
-    char *description;
+    char **description;
     unsigned int descriptionLines;
 };
 
@@ -28,24 +28,24 @@ void update_fields(char **nodes, char ***edges, char *test, char **new_nodes) {
 }
 
 bool add_node(struct State *state, const char *new_node) {
-    printf("\ninside add_node\n");
+    //printf("\ninside add_node\n");
 
     // doesnt happen I think
     if (new_node == nullptr) {
         return false;
     }
 
-    printf(" nodes: ...%d!\n\n", state->num_nodes);
+    //printf(" nodes: ...%d!\n\n", state->num_nodes);
 
     for (int i = 0; i < state->num_nodes; i++) {
-        printf(" bruhhhh\n");
+        //printf(" bruhhhh\n");
         if (strcmp(new_node, state->nodes[i].name) == 0) {
-            printf("found a match\n");
+            //printf("found a match\n");
             return false;
         }
     }
 
-    printf("\n found no matches \n\n");
+    //printf("\n found no matches \n\n");
 
     return true;
 }
@@ -72,10 +72,6 @@ void del_node(struct State *state) {
             edge_from = state->edges[edge_index++];
             edge_to = state->edges[edge_index++];
             weight = state->edges[edge_index++];
-            // might just to ignore weight?
-            // look into if I need to do something with it
-            // currently here because then putting weight into
-            // new array after function is done could be more work
 
             // find edges for the remaining nodes
 
@@ -99,6 +95,9 @@ void del_node(struct State *state) {
             // handled on python side
             // future versions of this code might allocate a new char **
             // in order to not have to filter it python side
+
+            // update, nodes changed to "\0" seem to stay that way
+            // when re-entered in python, causing bugs
         }
 
     }
