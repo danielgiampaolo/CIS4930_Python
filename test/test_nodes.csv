@@ -1,13 +1,13 @@
 Node,Link,Neighbor
-node 1,10,node 2
+node 1,5,node 2
 node 2,10,node 1
 node 3,10,node 1
-node 4,10,node 3
+node 4,5,node 3
 node 5,10,node 3
 node 6,10,node 3
 node 7,10,node 3
 node 8,10,node 3
-node 9,10,node 3
+node 9,5,node 3
 node 10,10,node 1
 node 10,10,node 2
 node 11,10,node 10
