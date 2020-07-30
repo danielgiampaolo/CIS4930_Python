@@ -35,14 +35,13 @@ def read(data):
     nodes = []
 
     for x in range(0, test.node_size):
-        nodes.append(test.nodes[x].decode('utf8'))
+        nodes.append([test.nodes[x].decode('utf8'),[]])
 
-    # Need to add test.edges[x][1].decode('utf8') for weight
     for x in range(0, test.edge_size):
-        edges.append([test.edges[x][0].decode('utf8'), test.edges[x][2].decode('utf8')])
+        edges.append([test.edges[x][0].decode('utf8'), test.edges[x][2].decode('utf8'),test.edges[x][1].decode('utf8')])
 
     lib.dealloc_read(test)
-    print(test)
+
     return (list(nodes), edges)
 
 def read_desc(data):
@@ -63,7 +62,6 @@ def read_desc(data):
 
 def load_library():
   lib = cdll.LoadLibrary('./graph/libnetview.so')
-  # set types
 
   lib.read.restype = None
   lib.read.argtypes = [c_char_p, POINTER(PerfRead)]

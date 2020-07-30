@@ -370,12 +370,13 @@ def csv_upload(request):
             return JsonResponse({
                 'message': 'Something went wrong >:('
             })
-        # currentNodes = request.session.get('nodes', [])
-        # for node,desc in descs:
-        #     for x in range(0,len(currentNodes)):
-        #         if currentNodes[x][0] == node:
-        #             currentNodes[x][1] = desc
-        # request.session['nodes'] = currentNodes
+        #Bit where the new node desc is saved. If node doesnt exist we ignore the description
+        currentNodes = request.session.get('nodes', [])
+        for node,desc in descs:
+           for x in range(0,len(currentNodes)):
+                if currentNodes[x][0].strip() == node.strip():
+                    currentNodes[x][1] = desc
+        request.session['nodes'] = currentNodes
     return
 
 def csv_download(request):
