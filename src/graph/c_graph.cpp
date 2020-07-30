@@ -121,7 +121,6 @@ void del_node(struct State *state) {
  *                      `4` if Add edge, add both nodes.
  */
 int add_edge(struct State *state, char *new_from, char *new_to) {
-
     char **edges = state->edges;
     struct Node *nodes = state->nodes;
     unsigned int num_edges = state->num_edges;
@@ -162,9 +161,9 @@ int add_edge(struct State *state, char *new_from, char *new_to) {
     if (matched_from && matched_to) {
         // both nodes exist
         return 1;
-    } else if (matched_from && !matched_to) {
-        return 2;
     } else if (!matched_from && matched_to) {
+        return 2;
+    } else if (matched_from && !matched_to) {
         return 3;
     } else {
         // no matches (add both)

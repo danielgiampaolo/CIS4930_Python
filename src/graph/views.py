@@ -162,8 +162,8 @@ def updateFields(response):
                 old_from, old_to, old_weight = currentEdges[int(number) - 1]
 
                 # possible errors when re-mapping edges
-                # New Note: When weights are added to POST, 
-                # update below to new weights (do checks if necessary w/e) 
+                # New Note: When weights are added to POST,
+                # update below to new weights (do checks if necessary w/e)
 
                 if node in currentNodes and to_node in currentNodes:  # ok
                     updatedEdges = updatedEdges + [[node, to_node, old_weight]]
@@ -184,7 +184,7 @@ def updateFields(response):
 
         old_name = old_node_info
         new_name = new_node_info
-        
+
         # find mismatched names
         if not old_name == new_name:
             # rename edge end points
@@ -415,8 +415,6 @@ def add_edge(request):
             graph_lib.c_add_edge(request.session, from_node, to_node, weight)
         except graph_lib.EdgeExistsException:
             print("edge exists already!")
-        except Exception as e:
-            print("Something actually went wrong :(", e)
-            # unknown error
-            pass
+        # should try to catch generic Exception here
+        # I left it out to show the stack trace for debugging
 

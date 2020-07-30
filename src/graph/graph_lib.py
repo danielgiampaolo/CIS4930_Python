@@ -57,7 +57,12 @@ def init_nodes(nodes_to_c):  # this function is from Adithya (12 lines)
         line_count = len(description)
         c_node = Node()
         c_node.name = name.encode('utf-8')
-        c_node.description = (c_char_p * line_count)(*[line.encode('utf-8') for line in description])
+
+        if line_count == 0:
+            c_node.description = "".encode('utf-8')
+        else:
+            c_node.description = (c_char_p * line_count)(*[line.encode('utf-8') for line in description])
+
         c_node.descriptionLines = line_count
 
         c_nodes.append(c_node)
