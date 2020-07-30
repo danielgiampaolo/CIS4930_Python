@@ -53,4 +53,3 @@ def load_library():
   lib.read_desc.argtypes = [c_char_p, POINTER(DescRead)]
 
   return lib
-

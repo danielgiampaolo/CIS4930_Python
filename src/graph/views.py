@@ -1,20 +1,26 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_http_methods
 from .forms import nodeInput
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from . import csv_parser, image_builder, graph_lib
+from . import csv_parser, image_builder
 
 
 @require_http_methods(["GET", "POST"])  # only GET & POST allowed
 def index(request):
-    # get data from session here
+    # get vertices (or anything) from session info here
     graph_data = {
         "nodes": request.session.get('nodes', []),
         "edges": request.session.get('edges', []),
         "type": request.session.get('type', 'Undirected'),
         "num_nodes": request.session.get('num_nodes', 0),
         "num_edges": request.session.get('num_edges', 0),
-        "misc": request.session.get('misc', {})
+        "misc": request.session.get('misc', {}),
+        "node_error": request.session.get('node_error', ''),
+        "edge_error": request.session.get('edge_error', ''),
+        "path_error": request.session.get('path_error', ''),
+        "file_content": request.session.get('file_content', ''),
+        "start": request.session.get('start', ''),
+        "end": request.session.get('end', '')
     }
 
     if request.method == "POST":
@@ -34,45 +40,44 @@ def handle_graph_post(response):
 
     form = nodeInput(response.POST)
 
-    # print("printing POST")
-    # print(response.POST)
+    print("printing POST")
+    print(response.POST)
 
     if form.is_valid():
         if response.POST.get("update"):
-            updateFields(response)
+            updateFields(response, form)
 
         elif response.POST.get("addNode"):
             addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form)
-            graph_lib.c_add_node(response, "new_node_here")
 
         elif response.POST.get("addEdge"):
             add_edge(response)
+        
+        elif response.POST.get("addPath"):
+            add_path(response)
 
         elif response.POST.get("deleteNode"):
             delNode(response, cur_nodes, num_nodes, cur_edges)
 
         elif response.POST.get("deleteEdge"):
+            pass
             delEdge(response, cur_edges, num_edges, cur_nodes)
 
         elif response.POST.get("open-upload"):
+            response.session['file_content'] = response.POST.get("open-upload")
             misc['upload_open'] = True
             response.session['misc'] = misc
-
         elif response.POST.get("close-upload"):
             misc['upload_open'] = False
             response.session['misc'] = misc
-
         elif response.POST.get("upload-csv"):
             csv_upload(response)
             misc['upload_open'] = False
             response.session['misc'] = misc
+            response.session['file_content'] = ''
 
         elif response.POST.get("clear"):
-            response.session['nodes'] = []
-            response.session['edges'] = []
-            response.session['num_edges'] = 0
-            response.session['num_nodes'] = 0
-            response.session['misc'] = {}
+            clearAll(response)
 
         # store previous post. for reasons.
         # response.session['prev'] = response.POST
@@ -89,11 +94,15 @@ def handle_graph_post(response):
         return redirect('/')
 
 
-def updateFields(response):
+def updateFields(response, form):
     currentNodes = response.session["nodes"]
     currentEdges = response.session["edges"]
     updatedNodes = []
     updatedEdges = []
+    from_node = response.POST.get('start')
+    to_node = response.POST.get('end')
+    response.session['start'] = from_node
+    response.session['end'] = to_node
 
     # opportunity to optimize here
     # to reduce checks with smarter
@@ -106,9 +115,11 @@ def updateFields(response):
             # added check to ensure the name is new
             if not node in updatedNodes:
                 updatedNodes = updatedNodes + [node]
+                response.session['node_error'] = ''
             else:
                 old_node = currentNodes[int(field[4:]) - 1]
                 updatedNodes = updatedNodes + [old_node]
+                response.session['node_error'] = old_node + " not changed, new name conflicts with existing node!"
 
             if field[4:] == len(currentNodes):
                 break
@@ -130,7 +141,7 @@ def updateFields(response):
                 old_from = currentEdges[int(number) - 1][0]
                 old_to = currentEdges[int(number) - 1][1]
 
-                # possible errors when re-mapping edges
+                # different kinds of errors when re-mapping edges
 
                 if node in currentNodes and to_node in currentNodes:  # ok
                     updatedEdges = updatedEdges + [[node, to_node]]
@@ -158,6 +169,35 @@ def updateFields(response):
                 if edge_to == old_name:
                     updatedEdges[edge_index][1] = new_name
 
+    # not renaming nodes when changing edges so far
+    # because I dont think its done well enough
+    # to tell apart renaming vs pointing to other nodes
+
+    # renaming nodes from changed edges (Not Active)
+    # for old_pair, new_pair in zip(currentEdges, updatedEdges):
+    #    old_edge_from, old_edge_to = old_pair
+    #    new_edge_from, new_edge_to = new_pair
+
+    # find mismatched node pairs (edges)
+    #    if not old_edge_from == new_edge_from and not new_edge_from in updatedNodes:
+    #        for node_index, node in enumerate(currentNodes):
+    #            if node == old_edge_from:
+    #                updatedNodes[node_index] = new_edge_from
+    #                break
+
+    #    if not old_edge_to == new_edge_to and not new_edge_to in updatedNodes:
+    #        for node_index, node in enumerate(currentNodes):
+    #            if node == old_edge_to:
+    #                updatedNodes[node_index] = new_edge_to
+    #                break
+
+    # what if both are changed? Well... I would be mad. >:(
+    # unless... node rename wins when both renamed
+
+    # issues to check if they exist
+    # what if they change to a name that doesnt exist
+    # what if edges change to different nodes (renaming on accident)
+
     # make current = updated
     response.session["nodes"] = updatedNodes
     response.session["edges"] = updatedEdges
@@ -173,6 +213,9 @@ def addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form):
         response.session['num_edges'] = num_edges + 1
         cur_nodes = cur_nodes + [form.cleaned_data['newNode']]
         response.session['nodes'] = cur_nodes
+        response.session['node_error'] = 'Node Added: ' + newNode
+    else:
+        response.session['node_error'] = "Node not added, node already exists!"
 
     # since we are not rendering the "form" on html
     # updating the context is necessary
@@ -215,6 +258,7 @@ def delNode(response, cur_nodes, num_nodes, current_edges):
     response.session['edges'] = current_edges
     response.session['num_edges'] = len(current_edges)
     response.session['num_nodes'] = len(cur_nodes)
+    response.session['node_error'] = 'Node Deleted: ' + nodeDeleted
 
 
 def delEdge(response, cur_edges, num_edges, cur_nodes):
@@ -271,21 +315,22 @@ def delEdge(response, cur_edges, num_edges, cur_nodes):
     #     response.session['num_edges'] = len(cur_edges)
 
 
-def clear_all(response):
+def clearAll(response):
     response.session['nodes'] = []
     response.session['num_nodes'] = 0
     response.session['num_edges'] = 0
     response.session['edges'] = []
+    response.session['start'] = ''
+    response.session['end'] = ''
 
     return HttpResponse("Hello, world. You're at the graph index.")
 
 
 def csv_upload(request):
     # request is guaranteed to be POST
+    file_content = request.session['file_content']
     uploaded = request.FILES.get('csv-file')
-
-    # modified "==" to "is" because pycharm complained
-    if uploaded is None:
+    if uploaded == None:
         print('Upload used, but no file found.')
         return JsonResponse({
             'message': 'No file found.'
@@ -297,27 +342,29 @@ def csv_upload(request):
             'message': 'not csv file (we got %s)' % uploaded.content_type
         })
 
-    raw_bytes = uploaded.read()
-    raw_data = raw_bytes.decode("utf-8")
+    if file_content == 'edges':
 
-    try:
-        (nodes, edges) = csv_parser.read(raw_data)
-        # use C version here
-        
+        raw_bytes = uploaded.read()
+        raw_data = raw_bytes.decode("utf-8")
 
-    except Exception as e:
-        print(e)
-        return JsonResponse({
-            'message': 'Something went wrong >:('
-        })
+        try:
+            (nodes, edges) = csv_parser.read(raw_data)
+        except Exception as e:
+            print(e)
+            return JsonResponse({
+                'message': 'Something went wrong >:('
+            })
 
-    request.session['edges'] = edges
-    request.session['nodes'] = nodes
-    request.session['num_nodes'] = len(nodes)
-    request.session['num_edges'] = len(edges)
+        request.session['edges'] = edges
+        request.session['nodes'] = nodes
+        request.session['num_nodes'] = len(nodes)
+        request.session['num_edges'] = len(edges)
+    elif file_content == 'nodes':
+        raw_bytes = uploaded.read()
+        raw_data = raw_bytes.decode("utf-8")
+
 
     return
-
 
 def csv_download(request):
     # CSV Headers: Node, Link, Neighbor
@@ -333,22 +380,23 @@ def csv_download(request):
 
     return HttpResponse('\n'.join(result), content_type="text/csv")
 
-
 def graph(request):
     try:
         nodes = request.session['nodes']
         edges = request.session['edges']
+        start = request.session['start']
+        end = request.session['end']
     except KeyError:
         return JsonResponse({
             'message': 'whats the big idea?! (data not found in session)'
         })
 
-    if edges is None or nodes is None:
+    if edges == None or nodes == None:
         return JsonResponse({
             'message': 'whats the big idea?! (data is None)'
         })
 
-    (result, image) = image_builder.build_image(nodes, edges)
+    (result, image) = image_builder.build_image(nodes, edges, start, end)
 
     if result == 0:
         x = HttpResponse(image, content_type='image/png')
@@ -380,7 +428,7 @@ def add_edge(request):
             if to_node not in current_nodes:
                 current_nodes.append(to_node)
             current_edges.append([from_node, to_node])
-            # print('creating edge from %s to %s' % (from_node, to_node))
+            print('creating edge from %s to %s' % (from_node, to_node))
 
             request.session['nodes'] = current_nodes
             request.session['edges'] = current_edges
@@ -388,3 +436,14 @@ def add_edge(request):
             request.session['num_nodes'] = len(current_nodes)
 
     return HttpResponseRedirect('/test_form')
+
+def add_path(response):
+    # if node has no connection to destination node, graph will break.
+    # caught in image_builder, but makes it a refresh late on page...
+    # not sure how to refresh sidebar_base, when graph_base is re-rendered.
+
+    from_node = response.POST.get('start')
+    to_node = response.POST.get('end')
+
+    response.session['start'] = from_node
+    response.session['end'] = to_node

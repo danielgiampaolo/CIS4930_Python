@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/mnt/c/Users/Enzo/Desktop/NetView/CIS4930_Python/src/graph/csv_parser.cpp
+stddef.h
+-
+cstdint
+-
+fstream
+-
+cstring
+-
+set
+-
+iostream
+-
+sstream
+-
+string
+-
+vector
+-
+
