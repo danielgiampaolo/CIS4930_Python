@@ -6,8 +6,6 @@ from . import csv_parser, image_builder, graph_lib
 
 # temporary test method (add to urls manually)
 def test(request):
-    graph_lib.c_add_edge(request.session, 'a', 'b', 10)
-
     return JsonResponse({
         'session': {
             'num_edges': request.session.get('num_edges', 0),

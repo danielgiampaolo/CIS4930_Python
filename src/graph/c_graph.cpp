@@ -126,13 +126,13 @@ int add_edge(struct State *state, char *new_from, char *new_to) {
     unsigned int num_edges = state->num_edges;
     unsigned int num_nodes = state->num_nodes;
 
-    int edge_index = 0;
     char *from_node = nullptr;
     char *to_node = nullptr;
 
-    for (int i = 0; i < num_edges; ++i) {
-        from_node = edges[edge_index++];
-        to_node = edges[edge_index++];
+    for (int i = 0; i < num_edges * 3;) {
+        from_node = edges[i++];
+        to_node = edges[i++];
+        i++; // weight, dont worry about it
 
         if (strcmp(from_node, new_from) == 0 && strcmp(to_node, new_to) == 0) {
             // Edge is already in list, do not add
