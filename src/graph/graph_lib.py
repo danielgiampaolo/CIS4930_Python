@@ -2,6 +2,11 @@ import enum
 from ctypes import cdll, c_char_p, c_int, c_bool, POINTER, Structure
 
 
+# Exceptions
+class EdgeExistsException(Exception):
+    pass
+
+# Structures
 class Node(Structure):  # this structure is from Adithya (6 lines)
     _fields_ = [
         ('name', c_char_p),
@@ -31,14 +36,23 @@ c_lib = load_c_graph_lib()
 c_lib.add_node.restype = c_bool
 c_lib.add_node.argtypes = [POINTER(State), c_char_p]
 
+# define add_edge
+c_lib.add_edge.restype = c_int
+c_lib.add_edge.argtypes = [
+    POINTER(State),
+    c_char_p,
+    c_char_p
+]
+
 
 def init_nodes(nodes_to_c):  # this function is from Adithya (12 lines)
     c_nodes = []
-    for node in nodes_to_c:
+    for [name, *description] in nodes_to_c:
+        line_count = len(description)
         c_node = Node()
-        c_node.name = node[0].encode('utf-8')
-        c_node.description = (c_char_p * len(node[1]))(*[line.encode('utf-8') for line in node[1]])
-        c_node.descriptionLines = len(node[1])
+        c_node.name = name.encode('utf-8')
+        c_node.description = (c_char_p * line_count)(*[line.encode('utf-8') for line in description])
+        c_node.descriptionLines = line_count
 
         c_nodes.append(c_node)
 
@@ -210,87 +224,44 @@ class Result(enum.Enum):
     Add_Both = 4
 
 
-def c_add_edge(response):
-    from_node = response.POST.get('newedgefrom').strip()
-    to_node = response.POST.get('newedgeto').strip()
+def c_add_edge(session, from_node, to_node, weight):
+    cur_state = init_state(session)
+    cur_nodes = session.get('nodes', [])
+    cur_edges = session.get('edges', [])
 
-    if from_node and to_node:
-        # start business after checking valid new edges
+    # TODO
+    #  1. Look into initializing the function only once
+    #       a. Perhaps a boolean for this function
 
-        cur_nodes = response.session.get('nodes', [])
-        cur_edges = response.session.get('edges', [])
+    from_node_bytes = from_node.encode('utf-8')
+    to_node_bytes = to_node.encode('utf-8')
 
-        # TODO
-        #  1. Look into initializing the function only once
-        #       a. Perhaps a boolean for this function
+    # TODO
+    #  1. Remember to add feedback error msg
 
-        num_nodes = len(cur_nodes)
-        num_edges = len(cur_edges)
+    op = c_lib.add_edge(cur_state, from_node_bytes, to_node_bytes)
 
-        # define library properties
-        c_lib.add_edge.restype = c_int
-        c_lib.add_edge.argtypes = [c_char_p * num_nodes,  # pointer to nodes_array
-                                   c_char_p * (num_edges * 2),  # pointer to edges_array
-                                   c_int,  # number of nodes
-                                   c_int,  # number of edges
-                                   c_char_p,  # name of new to_node
-                                   c_char_p,  # name of new from_node
-                                   ]
+    if op == Result.No_Add.value:
+        raise EdgeExistsException
+    else:
+        cur_edges.append([from_node, to_node, weight])
 
-        c_nodes = (c_char_p * num_nodes)()
-        c_edges = (c_char_p * (num_edges * 2))()
+        # doing enum.value is wack
+        if op == Result.Add_From.value:
+            cur_nodes.append(from_node)
 
-        node_bytes = []
-        for node in cur_nodes:
-            node_bytes.append((node + '\0').encode('utf-8'))
+        elif op == Result.Add_To.value:
+            cur_nodes.append(to_node)
 
-        edge_bytes = []
-        for edge_from, edge_to in cur_edges:
-            edge_bytes.append((edge_from + '\0').encode('utf-8'))
-            edge_bytes.append((edge_to + '\0').encode('utf-8'))
+        elif op == Result.Add_Both.value:
+            cur_nodes.append(from_node)
+            cur_nodes.append(to_node)
 
-        # put bytes into C container
-        c_nodes[:] = node_bytes
-        c_edges[:] = edge_bytes
-        from_node_bytes = from_node.encode('utf-8')
-        to_node_bytes = to_node.encode('utf-8')
-
-        # TODO
-        #  1. Remember to add feedback error msg
-
-        # sorry for the long function calls, should use structs
-        op = c_lib.add_edge(c_nodes, c_edges, num_nodes, num_edges,
-                            from_node_bytes, to_node_bytes)
-
-        if op == Result.No_Add:
-            pass  # write error feedback reason
-        else:
-            cur_edges.append([from_node, to_node])
-
-            # print("op equals =", op)
-
-            # doing enum.value is wack
-            if op == Result.Add_From.value:
-                cur_nodes.append(from_node)
-
-            elif op == Result.Add_To.value:
-                cur_nodes.append(to_node)
-
-            elif op == Result.Add_Both.value:
-                cur_nodes.append(from_node)
-                cur_nodes.append(to_node)
-
-        print("after add_edge:")
-        print("nodes:")
-        print(cur_nodes)
-        print("edges:")
-        print(cur_edges)
-
-        # save
-        response.session['nodes'] = cur_nodes
-        response.session['edges'] = cur_edges
-        response.session['num_nodes'] = len(cur_nodes)
-        response.session['num_edges'] = len(cur_edges)
+    # save
+    session['nodes'] = cur_nodes
+    session['edges'] = cur_edges
+    session['num_nodes'] = len(cur_nodes)
+    session['num_edges'] = len(cur_edges)
 
 
 def c_delete_edge(response):

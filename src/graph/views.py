@@ -4,6 +4,18 @@ from .forms import nodeInput
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from . import csv_parser, image_builder, graph_lib
 
+# temporary test method (add to urls manually)
+def test(request):
+    graph_lib.c_add_edge(request.session, 'a', 'b', 10)
+
+    return JsonResponse({
+        'session': {
+            'num_edges': request.session.get('num_edges', 0),
+            'num_nodes': request.session.get('num_nodes', 0),
+            'nodes': request.session.get('nodes', []),
+            'edges': request.session.get('edges', []),
+        }
+    })
 
 @require_http_methods(["GET", "POST"])  # only GET & POST allowed
 def index(request):
@@ -19,6 +31,13 @@ def index(request):
 
     if request.method == "POST":
         return handle_graph_post(request)
+
+    # update plotly_dash's session state
+    # TODO: add bold_edges here
+    request.session['django_plotly_dash'] = {
+        "edges": request.session.get('edges', []),
+        "nodes": request.session.get('nodes', []),
+    }
 
     # else, handle GET
     return render(request, 'index.html', graph_data)
@@ -48,9 +67,9 @@ def handle_graph_post(response):
             #addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form)
 
         elif response.POST.get("addEdge"):
-            graph_lib.c_add_edge(response)
+            # graph_lib.c_add_edge(response)
 
-            #add_edge(response)
+            add_edge(response)
 
             # was inside add_edge, up for review
             #return HttpResponseRedirect('/test_form')
@@ -88,16 +107,6 @@ def handle_graph_post(response):
 
         # store previous post. for reasons.
         # response.session['prev'] = response.POST
-
-        # update plotly_dash's session state
-        edges = response.session['edges']
-        nodes = response.session['nodes']
-
-        # TODO: add bold_edges here
-        response.session['django_plotly_dash'] = {
-            "edges": edges,
-            "nodes": nodes,
-        }
 
         return redirect('/')  # make a GET after changing session data
 
@@ -389,21 +398,17 @@ def add_edge(request):
             "message": "This is not a POST request."
         })
 
-    from_node = request.POST.get('newedgefrom')
-    to_node = request.POST.get('newedgeto')
+    from_node = request.POST.get('newedgefrom').strip()
+    to_node = request.POST.get('newedgeto').strip()
+    weight = 10
 
-    current_nodes = request.session.get('nodes', [])
-    current_edges = request.session.get('edges', [])
+    if from_node and to_node:
+        try:
+            graph_lib.c_add_edge(request.session, from_node, to_node, weight)
+        except graph_lib.EdgeExistsException:
+            print("edge exists already!")
+        except Exception as e:
+            print("Something actually went wrong :(", e)
+            # unknown error
+            pass
 
-    if [from_node, to_node] not in current_edges:
-        if (from_node.strip()) and (to_node.strip()):
-            if from_node not in current_nodes:
-                current_nodes.append(from_node)
-            if to_node not in current_nodes:
-                current_nodes.append(to_node)
-            current_edges.append([from_node, to_node])
-
-            request.session['nodes'] = current_nodes
-            request.session['edges'] = current_edges
-            request.session['num_edges'] = len(current_edges)
-            request.session['num_nodes'] = len(current_nodes)
