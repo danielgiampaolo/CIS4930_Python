@@ -6,13 +6,13 @@ extern "C" {
     void update_fields(char **nodes, char ***edges, char *test);
     bool add_node(struct State *state, const char *new_node);
     int add_edge(struct State *state, char *new_from, char *new_to);
-    void del_node(char **nodes, char **edges, int num_nodes, int num_edges);
+    void del_node(struct State *state);
     void del_edge(char **nodes, char **edges, int num_nodes, int num_edges, char *del_from, char *del_to);
 }
 
 struct Node {
     char *name;
-    char **description;
+    char *description;
     unsigned int descriptionLines;
 };
 
@@ -35,10 +35,10 @@ bool add_node(struct State *state, const char *new_node) {
         return false;
     }
 
-    printf("nodes: ...%d!\n\n", state->num_nodes);
+    printf(" nodes: ...%d!\n\n", state->num_nodes);
 
     for (int i = 0; i < state->num_nodes; i++) {
-        printf("bruhhhh\n");
+        printf(" bruhhhh\n");
         if (strcmp(new_node, state->nodes[i].name) == 0) {
             printf("found a match\n");
             return false;
@@ -50,27 +50,32 @@ bool add_node(struct State *state, const char *new_node) {
     return true;
 }
 
-void del_node(char **nodes, char **edges, int num_nodes, int num_edges) {
-    //printf("\ninside del_node\n");
+void del_node(struct State *state) {
+    printf("\ninside del_node\n");
 
-    // edges is a 1D array and every 2 elements are a pair of edges
+    // edges is a 1D array and every 3 elements represents an edge
 
-    char *edge_from, *edge_to, *cur_node;
+    char *edge_from, *edge_to, *cur_node, *weight;
     bool delete_node;
 
     //printf("checking num edges: %d!!!\n", num_edges);
 
     // checking nodes still have connections
-    for (int j = 0; j < num_nodes; ++j) {
-        cur_node = nodes[j];
+    for (int j = 0; j < state->num_nodes; ++j) {
+        cur_node = state->nodes[j].name;
 
         delete_node = true;
         // going to increment this to traverse **edges
         int edge_index = 0;
 
-        for (int i = 0; i < num_edges; ++i) {
-            edge_from = edges[edge_index++];
-            edge_to = edges[edge_index++];
+        for (int i = 0; i < state->num_edges; ++i) {
+            edge_from = state->edges[edge_index++];
+            edge_to = state->edges[edge_index++];
+            weight = state->edges[edge_index++];
+            // might just to ignore weight?
+            // look into if I need to do something with it
+            // currently here because then putting weight into
+            // new array after function is done could be more work
 
             // find edges for the remaining nodes
 
@@ -99,7 +104,7 @@ void del_node(char **nodes, char **edges, int num_nodes, int num_edges) {
     }
 
 
-    //printf("\nafter del_node\n\n");
+    printf("\nafter del_node\n\n");
 }
 
 // add more fields as necessary
