@@ -19,22 +19,26 @@ struct Ext_Struct {
     char*** edges;
     int node_size;
     int edge_size;
-} ;
+};
+
+struct Desc_Struct {
+    char*** descriptions;
+    int nodes_read;
+    int* desc_num;
+};
 
 
 
 extern Ext_Struct Read;
 
-extern "C" void read(const char* data, struct Ext_Struct *Perf);
+extern "C" void read(const char* data, struct Ext_Struct* Perf);
+extern "C" void read_desc(const char* data, struct Desc_Struct* PerfRead);
 
-void read(const char* data, struct Ext_Struct *PerfRead)
+void read(const char* data, struct Ext_Struct* PerfRead)
 {
     vector<char*> words;
     vector<char**> rows;
     set<string> node_set;
-    int letter_a_count = 0;
-    int letter_b_count = 0;
-    int letter_c_count = 0;
     int line_count = 0;
     int element_count = 0;
     std::stringstream ss;
@@ -62,12 +66,9 @@ void read(const char* data, struct Ext_Struct *PerfRead)
         while (node2.at(0) == ' ')
             node2.erase(0, 1);
 
-        letter_a_count += node1.size(); // Idea was to allocate memory for bigger names but that may bee too difficult
-        letter_b_count += weight.size();
-        letter_c_count += node2.size();
-        words.push_back((char*)malloc(node1.size()+1 * sizeof(char))); // As of right now it holds 24 chars plus the null operator
-        words.push_back((char*)malloc(weight.size()+1 * sizeof(char)));
-        words.push_back((char*)malloc(node2.size()+1 * sizeof(char)));
+        words.push_back((char*)malloc(node1.size() + 1 * sizeof(char)));
+        words.push_back((char*)malloc(weight.size() + 1 * sizeof(char)));
+        words.push_back((char*)malloc(node2.size() + 1 * sizeof(char)));
 
         char* letter_iter_a = words.at(index); //Points the pointers in the word vector to a random char*
         char* letter_iter_b = words.at(index + 1);
@@ -80,7 +81,7 @@ void read(const char* data, struct Ext_Struct *PerfRead)
         {
 
             *letter_iter_a = node1.at(i);
-             letter_iter_a++;
+            letter_iter_a++;
 
         }
         for (int i = 0; i < weight.size(); i++)
@@ -91,8 +92,8 @@ void read(const char* data, struct Ext_Struct *PerfRead)
         }
         for (int i = 0; i < node2.size(); i++)
         {
-                *letter_iter_c = node2.at(i);
-                letter_iter_c++;
+            *letter_iter_c = node2.at(i);
+            letter_iter_c++;
         }
         *letter_iter_a = '\0';
         *letter_iter_b = '\0';
@@ -140,16 +141,82 @@ void read(const char* data, struct Ext_Struct *PerfRead)
         index++;
     }
 
-    //Commented code is to test if the edges*** correctly got all the strings. Worked with test data i used
-    /*auto help = PerfRead->nodes;
-    int i = 0;
-    while (i != node_set.size())
-    {
-        cout << *help << endl;
-        help++;
-        i++;
-    }*/
+    //Loads how many edges and nodes we have so python can easily iterate through them
     PerfRead->node_size = node_set.size();
     PerfRead->edge_size = line_count;
+}
+
+void read_desc(const char* data, struct Desc_Struct* PerfRead)
+{
+    cout << "I'm in description read" << endl;
+
+    std::stringstream ss;
+    int line_count = 0;
+    int index = 0;
+    int old_index = 0;
+
+
+    std::istringstream test_stream(data);
+    string line;
+    string desc;
+    string desc_old;
+
+    vector<char*> words;
+    vector<char**> rows;
+    vector<int>num;
+
+    while (getline(test_stream, line))
+    {
+        istringstream desc_stream(line);
+        while (getline(desc_stream, desc, ','))
+        {
+            words.push_back((char*)malloc(desc.size() + 1 * sizeof(char)));
+            char* letter_iter_a = words.at(index); //Points the pointers in the word vector to a random char*
+
+            for (int i = 0; i < desc.size(); i++) //Manually adds each character to their respective array
+            {
+                *letter_iter_a = desc.at(i);
+                letter_iter_a++;
+            }
+            *letter_iter_a = '\0';
+            index++;
+        }
+        num.push_back(index-old_index);
+        line_count++;
+        rows.push_back((char**)malloc((index - old_index) * sizeof(char*))); // Allocate an index for 3 strings. Ech index represents a row
+        char** row = rows.at(rows.size() - 1);
+        for (old_index; old_index < index; old_index++)
+        {
+            *row = words.at(old_index);
+            row++;
+        }
+        *row = nullptr;
+        row = nullptr;
+
+    }
+
+
+    PerfRead->descriptions = (char***)malloc(rows.size() * sizeof(char**));
+    char*** desc_iter = PerfRead->descriptions;
+    for (int i = 0; i < rows.size(); i++)
+    {
+        *desc_iter = rows.at(i);
+        desc_iter++;
+    }
+
+    PerfRead->desc_num = (int*)malloc(num.size()*sizeof(int));
+    auto iter = PerfRead->desc_num;
+    for(int i = 0; i < num.size(); i++)
+    {
+        *iter = num.at(i);
+        iter++;
+    }
+
+    iter = nullptr;
+
+    *desc_iter = nullptr;
+    desc_iter = nullptr;
+
+    PerfRead->nodes_read = line_count;
 }
 
