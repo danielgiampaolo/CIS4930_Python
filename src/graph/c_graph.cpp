@@ -8,7 +8,7 @@ void update_fields(char **nodes, char ***edges, char *test);
 bool add_node(struct State *state, const char *new_node);
 int add_edge(char **nodes, char **edges, int num_nodes, int num_edges, char *new_from, char *new_to);
 void del_node(struct State *state);
-void del_edge(char **nodes, char **edges, int num_nodes, int num_edges, char *del_from, char *del_to);
+void del_edge(struct State *state, char *del_from, char *del_to);
 }
 
 struct Node {
@@ -166,18 +166,20 @@ int add_edge(char **nodes, char **edges, int num_nodes, int num_edges, char *new
     }
 }
 
-void del_edge(char **nodes, char **edges, int num_nodes, int num_edges, char *del_from, char *del_to) {
+void del_edge(struct State *state, char *del_from, char *del_to) {
 
-    char *edge_from, *edge_to;
+    char *edge_from, *edge_to, *weight;
     bool delete_from = true, delete_to = true;
 
     // checking nodes still have connections
 
     int edge_index = 0;
 
-    for (int i = 0; i < num_edges; ++i) {
-        edge_from = edges[edge_index++];
-        edge_to = edges[edge_index++];
+    for (int i = 0; i < state->num_edges; ++i) {
+        edge_from = state->edges[edge_index++];
+        edge_to = state->edges[edge_index++];
+        weight = state->edges[edge_index++];
+        // ^^ might comment out later for a nice performance boost /s
 
         // find edges that contain the nodes of the deleted edge
 
@@ -200,8 +202,8 @@ void del_edge(char **nodes, char **edges, int num_nodes, int num_edges, char *de
 
         char *cur_node;
 
-        for (int i = 0; i < num_nodes; ++i) {
-            cur_node = nodes[i];
+        for (int i = 0; i < state->num_nodes; ++i) {
+            cur_node = state->nodes[i].name;
 
             // delete_x = true means that
             // an edge containing the node was not found

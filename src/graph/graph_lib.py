@@ -36,6 +36,11 @@ c_lib.del_node.restype = None
 c_lib.del_node.argtypes = [POINTER(State)]
 
 
+# define del_edge
+c_lib.del_edge.restype = None
+c_lib.del_edge.argtypes = [POINTER(State), c_char_p, c_char_p,]
+
+
 def init_nodes(nodes_to_c):  # this function is from Adithya (12 lines)
     print("init nodes: nodes_to_c")
     print(nodes_to_c)
@@ -132,17 +137,17 @@ def init_state(session):
 
 # example
 def c_add_node(response, node_name):
-    # parameters needed for C function: State, new_node
-    # initialize state for C
-    cur_state = init_state(response.session)
-    # get string to proper form
-    new_node_bytes = node_name.encode('utf-8')
 
     # print("adding:")
     # print(new_node)
 
     # check for empty input box
     if node_name:
+        # initialize state for C
+        cur_state = init_state(response.session)
+        # get string to proper form
+        new_node_bytes = node_name.encode('utf-8')
+
         add = c_lib.add_node(cur_state, new_node_bytes)
 
         if add:
@@ -150,12 +155,12 @@ def c_add_node(response, node_name):
             cur_nodes = response.session.get('nodes', [])
             cur_edges = response.session.get('edges', [])
 
-            cur_nodes.append([node_name, "Test add_node"])
+            cur_nodes.append([node_name, "Node created from sidebar"])
 
             response.session['nodes'] = cur_nodes
-            response.session['num_nodes'] = len(cur_nodes) + 1
+            response.session['num_nodes'] = len(cur_nodes)
             response.session['edges'] = cur_edges + [[node_name, node_name, 10]]
-            response.session['num_edges'] = len(cur_edges) + 1
+            response.session['num_edges'] = len(cur_edges)
 
 
 def c_delete_node(response):
@@ -167,9 +172,16 @@ def c_delete_node(response):
 
     # remove node at index
     deleted = cur_nodes.pop(int(to_delete) - 1)
+    print("deleted: ", deleted)
+    name, _ = deleted #pls dont crash
+    # so, this is crashing ^^
 
     # remove edges with removed node
-    cur_edges = list(filter(lambda x: deleted not in x, cur_edges))
+    cur_edges = list(filter(lambda x: name not in x, cur_edges))
+    
+    # another thing, something causes deleted to sometimes be only a name, no info
+    # wait nvm, 
+
     # ISSUE: names might be unique but weights will not,
     # make sure this doesnt filter out this case:
     # deleted "1", example edge = [node1, node2, 1] (weight 1)
@@ -178,6 +190,8 @@ def c_delete_node(response):
     # save changes to init state for C function
     response.session['nodes'] = cur_nodes
     response.session['edges'] = cur_edges
+    response.session['num_nodes'] = len(cur_nodes)
+    response.session['num_edges'] = len(cur_edges)
 
     # C state
     st = init_state(response.session)
@@ -195,11 +209,6 @@ def c_delete_node(response):
 
     # C function use here:
     c_lib.del_node(st)
-
-    #print("python")
-
-    #print("state nodes")
-    #print(cur_state.nodes[0])
 
     # get list without nodes marked for deletion (and decode)
     # moving away from list comprehension based on cur_state.nodes
@@ -320,77 +329,50 @@ def c_add_edge(response):
 
 
 def c_delete_edge(response):
-    cur_nodes = response.session.get('nodes', [])
-    cur_edges = response.session.get('edges', [])
+    edges = response.session.get('edges', [])
 
     edge_deleted = response.POST.get("deleteEdge")
 
     # edge clicked for deletion is gone
-    (deleted_from, deleted_to) = cur_edges.pop(int(edge_deleted) - 1)
+    (deleted_from, deleted_to, weight) = edges.pop(int(edge_deleted) - 1)
 
-    num_nodes = len(cur_nodes)
-    num_edges = len(cur_edges)
+    # save to initialize C state
+    response.session['edges'] = edges
+    response.session['num_edges'] = len(edges)
 
-    # define library properties
-    c_lib.del_edge.restype = None
-    c_lib.del_edge.argtypes = [c_char_p * num_nodes,  # pointer to nodes_array
-                               c_char_p * (num_edges * 2),  # pointer to edges_array
-                               c_int,  # number of nodes
-                               c_int,  # number of edges
-                               c_char_p,  # deleted "from"
-                               c_char_p,  # deleted "to"
-                               ]
-
-    c_nodes = (c_char_p * num_nodes)()
-    c_edges = (c_char_p * (num_edges * 2))()
-
-    # appending the null character might be unnecessary, didnt try it
-
-    node_bytes = []
-    for node in cur_nodes:
-        node_bytes.append((node + '\0').encode('utf-8'))
-
-    edge_bytes = []
-    for edge_from, edge_to in cur_edges:
-        edge_bytes.append((edge_from + '\0').encode('utf-8'))
-        edge_bytes.append((edge_to + '\0').encode('utf-8'))
+    state = init_state(response.session)
 
     # put bytes into C container
-    c_nodes[:] = node_bytes
-    c_edges[:] = edge_bytes
     from_node_bytes = deleted_from.encode('utf-8')
     to_node_bytes = deleted_to.encode('utf-8')
 
-    # after the desired edge was removed
-    # in C, iterate over edges to
-    # find connections for remaining nodes
-    # if no connections are found for a node
-    # it is marked for deletion
-    # and deleted in python
-    # for extra work, allocation of new edge array
-    # could be done in C, if enough hands/time
-
     # checking connections
-    c_lib.del_edge(c_nodes, c_edges, num_nodes, num_edges,
-                   from_node_bytes, to_node_bytes)
+    c_lib.del_edge(state, from_node_bytes, to_node_bytes)
+
+    node_count = range(state.num_nodes)
+    nodes = [state.nodes[x].name.decode('utf-8') for x in node_count if state.nodes[x].name]
+    
+    #cur_edges = [x.decode('utf-8') for x in cur_state.edges]
+    edges = [state.edges[x].decode('utf-8') for x in range(state.num_edges * 3)]
+    edges = list(zip(*[iter(edges)]*3))
 
     # get list without nodes marked for deletion (and decode)
-    cur_nodes = [x.decode('utf-8') for x in c_nodes if x]
+    #nodes = [x.decode('utf-8') for x in c_nodes if x]
     # decode edges and then put them in pairs
-    cur_edges = [x.decode('utf-8') for x in c_edges]
-    cur_edges = list(zip(cur_edges[::2], cur_edges[1::2]))
+    #edges = [x.decode('utf-8') for x in c_edges]
+    #edges = list(zip(edges[::2], edges[1::2]))
 
     print("after del_node")
     print("current nodes")
-    print(cur_nodes)
+    print(nodes)
     print("current edges")
-    print(cur_edges)
+    print(edges)
 
     # save
-    response.session['nodes'] = cur_nodes
-    response.session['edges'] = cur_edges
-    response.session['num_nodes'] = len(cur_nodes)
-    response.session['num_edges'] = len(cur_edges)
+    response.session['nodes'] = nodes
+    response.session['edges'] = edges
+    response.session['num_nodes'] = len(nodes)
+    response.session['num_edges'] = len(edges)
 
 
 def c_update_names(response):
