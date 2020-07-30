@@ -10,7 +10,7 @@ class EdgeExistsException(Exception):
 class Node(Structure):  # this structure is from Adithya (6 lines)
     _fields_ = [
         ('name', c_char_p),
-        ('description', c_char_p),
+        ('description', POINTER(c_char_p)),
         ('descriptionLines', c_int)
     ]
 
