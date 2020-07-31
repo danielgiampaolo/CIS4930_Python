@@ -113,18 +113,30 @@ def updateFields(response):
     # opportunity to optimize here
     # to reduce checks with smarter
     # algorithms/data_structure/etc
+    #print("before renaming")
+    #print(currentNodes)
+    #print(currentEdges)
+
+    node_names = [node_info[0] for node_info in currentNodes]
+    #print("checking:", node_names)
 
     # getting all updated nodes first
     for field, node in response.POST.items():
 
         if "node" in field and field != "newNode":
             # added check to ensure the name is new
-            if not node in updatedNodes:
+
+            if not node in node_names:
+                #print("adding new name:", node)
                 old_node = currentNodes[int(field[4:]) - 1]
-                updatedNodes = updatedNodes + [node, old_node[1:]]
+                #print("previously:", old_node)
+                updatedNodes = updatedNodes + [([node] + old_node[1:])]
+                #print("new node list:", updatedNodes)
             else:
+                #print("keeping old name:", node)
                 old_node = currentNodes[int(field[4:]) - 1]
                 updatedNodes = updatedNodes + [old_node]
+                #print("new node list:", updatedNodes)
 
             if field[4:] == len(currentNodes):
                 break
@@ -135,6 +147,9 @@ def updateFields(response):
     # Doing this to compare the new edge names to all the new node names.
     # With all updated nodes,
     # I will check that the changes in edges are limited to existing nodes.
+    #print("updatedNodes")
+    #print(updatedNodes)
+    #print("what")
 
     for field, node in response.POST.items():
 
@@ -146,40 +161,42 @@ def updateFields(response):
                 old_from, old_to, old_weight = currentEdges[int(number) - 1]
 
                 # possible errors when re-mapping edges
-                # New Note: When weights are added to POST,
-                # update below to new weights (do checks if necessary w/e)
+                # TODO: When weights are added to POST,
+                    # update below to new weights (do checks if necessary w/e)
 
-                if node in currentNodes and to_node in currentNodes:  # ok
+                if node in node_names and to_node in node_names:  # ok
                     updatedEdges = updatedEdges + [[node, to_node, old_weight]]
 
-                elif (not node in currentNodes) and to_node in currentNodes:
+                elif (not node in node_names) and to_node in node_names:
                     updatedEdges = updatedEdges + [[old_from, to_node, old_weight]]
 
-                elif node in currentNodes and (not to_node in currentNodes):
+                elif node in node_names and (not to_node in node_names):
                     updatedEdges = updatedEdges + [[node, old_to, old_weight]]
 
-                else:  # both not in currentNodes
+                else:  # both not in node_names
                     updatedEdges = updatedEdges + [[old_from, old_to, old_weight]]
 
     # renaming edges from changed nodes
     for old_node_info, new_node_info in zip(currentNodes, updatedNodes):
-        print(new_node_info)
-        print(old_node_info)
 
-        old_name = old_node_info
-        new_name = new_node_info
+        old_name = old_node_info[0]
+        new_name = new_node_info[0] # if info[1] is equal to above's, it might not exist
 
         # find mismatched names
         if not old_name == new_name:
             # rename edge end points
             for edge_index, edge_pair in enumerate(updatedEdges):
-                edge_from, edge_to, weight = edge_pair
+                edge_from, edge_to, _ = edge_pair
 
                 if edge_from == old_name:
                     updatedEdges[edge_index][0] = new_name
 
                 if edge_to == old_name:
                     updatedEdges[edge_index][1] = new_name
+
+    #print("after renaming")
+    #print(updatedNodes)
+    #print(updatedEdges)
 
     # make current = updated
     response.session["nodes"] = updatedNodes
