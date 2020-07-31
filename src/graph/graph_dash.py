@@ -32,7 +32,10 @@ def update_graph_callback(_, session_state=None, **kwargs):
     edges = session_state.get('edges', [])
     bold_edges = session_state.get('bold_edges', [])
     nodes = session_state.get('nodes', [])
-
+    start = session_state.get('start')
+    end = session_state.get('end')
+    print("start: " + start)
+    print("end: " + end)
     # misc
     max_weight = 1
 
@@ -42,6 +45,7 @@ def update_graph_callback(_, session_state=None, **kwargs):
 
     # create networkx graph
     G = nx.Graph()
+
 
     # add edges to graph
     # NOTE: if we allow float-based weights, change below
@@ -65,6 +69,17 @@ def update_graph_callback(_, session_state=None, **kwargs):
 
     # set node attributes based on nodes_dict
     nx.set_node_attributes(G, nodes_dict, 'description')
+
+    #Build path
+    if start != '' and end != '':
+        path = nx.shortest_path(G,source=start,target=end)
+        path_edges = set(zip(path,path[1:]))
+        a_path = []
+        for p_edge in path_edges:
+            print(p_edge[0])
+            a_path.append([p_edge[0],p_edge[1]])
+        #print(a_path)
+        bold_edges = a_path
 
     # set layout for graph
     pos = nx.drawing.layout.spring_layout(G, k=0.15, iterations=20)
@@ -115,7 +130,9 @@ def update_graph_callback(_, session_state=None, **kwargs):
         node_list = list(edge)
         if node_list in bold_edges or node_list[::-1] in bold_edges:
             weight = 10
-
+            marker_color = dict(color='green')
+        else:
+            marker_color = dict(color=colors[index])
         # if you want thickness based on weight, enable commented line below
         # weight = float(G.edges[edge]['weight']) / max_weight * 10
 
@@ -124,7 +141,7 @@ def update_graph_callback(_, session_state=None, **kwargs):
             y=tuple([y0, y1, None]),
             mode='lines',
             line={ 'width': weight },
-            marker=dict(color=colors[index]),
+            marker=marker_color,
             line_shape='spline',
             opacity=1
         )

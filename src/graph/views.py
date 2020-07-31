@@ -41,6 +41,8 @@ def index(request):
     request.session['django_plotly_dash'] = {
         "edges": request.session.get('edges', []),
         "nodes": request.session.get('nodes', []),
+        "start": request.session.get('start', ''),
+        "end": request.session.get('end', '')
     }
 
     # else, handle GET
@@ -311,7 +313,7 @@ def delEdge(response, cur_edges, num_edges, cur_nodes):
     #     response.session['num_edges'] = len(cur_edges)
 
 
-def clear_all(response):
+def clearAll(response):
     response.session['nodes'] = []
     response.session['num_nodes'] = 0
     response.session['num_edges'] = 0
