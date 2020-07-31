@@ -50,6 +50,12 @@
             {% include "icons.html" with icon="trash" %}
         </button>
     </div>
+	<div class="input-group-append" style="width: 100%">
+         <input width="auto" autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}weight" value="{{edge.2}}">
+        <button class="btn btn-outline-danger" type="submit" name="deleteEdge" value="{{forloop.counter}}">
+            {% include "icons.html" with icon="trash" %}
+        </button>
+    </div>
 </div>
 {% endfor %}
 
