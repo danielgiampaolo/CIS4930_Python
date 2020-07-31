@@ -1,13 +1,23 @@
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 from .forms import nodeInput
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from . import csv_parser, image_builder
+from . import csv_parser, image_builder, graph_lib
 
+# temporary test method (add to urls manually)
+def test(request):
+    return JsonResponse({
+        'session': {
+            'num_edges': request.session.get('num_edges', 0),
+            'num_nodes': request.session.get('num_nodes', 0),
+            'nodes': request.session.get('nodes', []),
+            'edges': request.session.get('edges', []),
+        }
+    })
 
 @require_http_methods(["GET", "POST"])  # only GET & POST allowed
 def index(request):
-    # get vertices (or anything) from session info here
+    # get data from session here
     graph_data = {
         "nodes": request.session.get('nodes', []),
         "edges": request.session.get('edges', []),
@@ -26,26 +36,32 @@ def index(request):
     if request.method == "POST":
         return handle_graph_post(request)
 
+    # update plotly_dash's session state
+    # TODO: add bold_edges here
+    request.session['django_plotly_dash'] = {
+        "edges": request.session.get('edges', []),
+        "nodes": request.session.get('nodes', []),
+    }
+
     # else, handle GET
     return render(request, 'index.html', graph_data)
 
 
 def handle_graph_post(response):
-    num_nodes = response.session.get('num_nodes', 0)
-    num_edges = response.session.get('num_edges', 0)
-    cur_nodes = response.session.get('nodes', [])
-    cur_edges = response.session.get('edges', [])
-    # prev_post = response.session.get('prev', {}) could be used for "undo"
+    # prev_post = response.session.get('prev', []) could be used for "undo"
     misc = response.session.get('misc', {})
 
     form = nodeInput(response.POST)
 
     if form.is_valid():
         if response.POST.get("update"):
-            updateFields(response, form)
+            updateFields(response)
 
         elif response.POST.get("addNode"):
-            addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form)
+            new_node_field = form.cleaned_data['newNode']
+            graph_lib.c_add_node(response, new_node_field)
+
+            #addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form)
 
         elif response.POST.get("addEdge"):
             add_edge(response)
@@ -54,19 +70,23 @@ def handle_graph_post(response):
             add_path(response)
 
         elif response.POST.get("deleteNode"):
-            delNode(response, cur_nodes, num_nodes, cur_edges)
+            graph_lib.c_delete_node(response)
+
+            #delNode(response, cur_nodes, num_nodes, cur_edges)
 
         elif response.POST.get("deleteEdge"):
-            pass
-            delEdge(response, cur_edges, num_edges, cur_nodes)
+            graph_lib.c_delete_edge(response)
+            #delEdge(response, cur_edges, num_edges, cur_nodes)
 
         elif response.POST.get("open-upload"):
             response.session['file_content'] = response.POST.get("open-upload")
             misc['upload_open'] = True
             response.session['misc'] = misc
+
         elif response.POST.get("close-upload"):
             misc['upload_open'] = False
             response.session['misc'] = misc
+
         elif response.POST.get("upload-csv"):
             csv_upload(response)
             misc['upload_open'] = False
@@ -78,16 +98,6 @@ def handle_graph_post(response):
 
         # store previous post. for reasons.
         # response.session['prev'] = response.POST
-
-        # update plotly_dash's session state
-        edges = response.session['edges']
-        nodes = response.session['nodes']
-
-        # TODO: add bold_edges here
-        response.session['django_plotly_dash'] = {
-            "edges": edges,
-            "nodes": nodes,
-        }
 
         return redirect('/')  # make a GET after changing session data
 
@@ -101,7 +111,7 @@ def handle_graph_post(response):
         return redirect('/')
 
 
-def updateFields(response, form):
+def updateFields(response):
     currentNodes = response.session["nodes"]
     currentEdges = response.session["edges"]
     updatedNodes = []
@@ -121,7 +131,8 @@ def updateFields(response, form):
         if "node" in field and field != "newNode":
             # added check to ensure the name is new
             if not node in updatedNodes:
-                updatedNodes = updatedNodes + [node]
+                old_node = currentNodes[int(field[4:]) - 1]
+                updatedNodes = updatedNodes + [node, old_node[1:]]
                 response.session['node_error'] = ''
             else:
                 old_node = currentNodes[int(field[4:]) - 1]
@@ -145,65 +156,43 @@ def updateFields(response, form):
             if "from" in field:
                 number = field[4:-4]  # start after edge, exclude from => number used
                 to_node = response.POST.get("edge" + number + "to")
-                old_from = currentEdges[int(number) - 1][0]
-                old_to = currentEdges[int(number) - 1][1]
+                old_from, old_to, old_weight = currentEdges[int(number) - 1]
 
-                # different kinds of errors when re-mapping edges
+                # possible errors when re-mapping edges
+                # New Note: When weights are added to POST,
+                # update below to new weights (do checks if necessary w/e)
 
                 if node in currentNodes and to_node in currentNodes:  # ok
-                    updatedEdges = updatedEdges + [[node, to_node]]
+                    updatedEdges = updatedEdges + [[node, to_node, old_weight]]
 
                 elif (not node in currentNodes) and to_node in currentNodes:
-                    updatedEdges = updatedEdges + [[old_from, to_node]]
+                    updatedEdges = updatedEdges + [[old_from, to_node, old_weight]]
 
                 elif node in currentNodes and (not to_node in currentNodes):
-                    updatedEdges = updatedEdges + [[node, old_to]]
+                    updatedEdges = updatedEdges + [[node, old_to, old_weight]]
 
                 else:  # both not in currentNodes
-                    updatedEdges = updatedEdges + [[old_from, old_to]]
+                    updatedEdges = updatedEdges + [[old_from, old_to, old_weight]]
 
     # renaming edges from changed nodes
-    for old_name, new_name in zip(currentNodes, updatedNodes):
+    for old_node_info, new_node_info in zip(currentNodes, updatedNodes):
+        print(new_node_info)
+        print(old_node_info)
+
+        old_name = old_node_info
+        new_name = new_node_info
+
         # find mismatched names
         if not old_name == new_name:
             # rename edge end points
             for edge_index, edge_pair in enumerate(updatedEdges):
-                edge_from, edge_to = edge_pair
+                edge_from, edge_to, weight = edge_pair
 
                 if edge_from == old_name:
                     updatedEdges[edge_index][0] = new_name
 
                 if edge_to == old_name:
                     updatedEdges[edge_index][1] = new_name
-
-    # not renaming nodes when changing edges so far
-    # because I dont think its done well enough
-    # to tell apart renaming vs pointing to other nodes
-
-    # renaming nodes from changed edges (Not Active)
-    # for old_pair, new_pair in zip(currentEdges, updatedEdges):
-    #    old_edge_from, old_edge_to = old_pair
-    #    new_edge_from, new_edge_to = new_pair
-
-    # find mismatched node pairs (edges)
-    #    if not old_edge_from == new_edge_from and not new_edge_from in updatedNodes:
-    #        for node_index, node in enumerate(currentNodes):
-    #            if node == old_edge_from:
-    #                updatedNodes[node_index] = new_edge_from
-    #                break
-
-    #    if not old_edge_to == new_edge_to and not new_edge_to in updatedNodes:
-    #        for node_index, node in enumerate(currentNodes):
-    #            if node == old_edge_to:
-    #                updatedNodes[node_index] = new_edge_to
-    #                break
-
-    # what if both are changed? Well... I would be mad. >:(
-    # unless... node rename wins when both renamed
-
-    # issues to check if they exist
-    # what if they change to a name that doesnt exist
-    # what if edges change to different nodes (renaming on accident)
 
     # make current = updated
     response.session["nodes"] = updatedNodes
@@ -322,7 +311,7 @@ def delEdge(response, cur_edges, num_edges, cur_nodes):
     #     response.session['num_edges'] = len(cur_edges)
 
 
-def clearAll(response):
+def clear_all(response):
     response.session['nodes'] = []
     response.session['num_nodes'] = 0
     response.session['num_edges'] = 0
@@ -370,6 +359,7 @@ def csv_upload(request):
 
     return
 
+
 def csv_download(request):
     # CSV Headers: Node, Link, Neighbor
     headers = ('Node', 'Link', 'Neighbor')
@@ -384,6 +374,7 @@ def csv_download(request):
 
     return HttpResponse('\n'.join(result), content_type="text/csv")
 
+
 def graph(request):
     try:
         nodes = request.session['nodes']
@@ -395,7 +386,7 @@ def graph(request):
             'message': 'whats the big idea?! (data not found in session)'
         })
 
-    if edges == None or nodes == None:
+    if edges is None or nodes is None:
         return JsonResponse({
             'message': 'whats the big idea?! (data is None)'
         })
@@ -419,26 +410,18 @@ def add_edge(request):
             "message": "This is not a POST request."
         })
 
-    from_node = request.POST.get('newedgefrom')
-    to_node = request.POST.get('newedgeto')
-
-    current_nodes = request.session.get('nodes', [])
-    current_edges = request.session.get('edges', [])
-
-    if [from_node, to_node] not in current_edges:
-        if (from_node.strip()) and (to_node.strip()):
-            if from_node not in current_nodes:
-                current_nodes.append(from_node)
-            if to_node not in current_nodes:
-                current_nodes.append(to_node)
-            current_edges.append([from_node, to_node])
-
-            request.session['nodes'] = current_nodes
-            request.session['edges'] = current_edges
-            request.session['num_edges'] = len(current_edges)
-            request.session['num_nodes'] = len(current_nodes)
-
-    return HttpResponseRedirect('/test_form')
+    from_node = request.POST.get('newedgefrom').strip()
+    to_node = request.POST.get('newedgeto').strip()
+    weight = 10 # TODO: when merging weights, fix
+    
+    if from_node and to_node:
+        try:
+            graph_lib.c_add_edge(request.session, from_node, to_node, weight)
+        except graph_lib.EdgeExistsException:
+            print("edge exists already!")
+        # TODO: Re-enable in production; disabled for stack-trace
+        # except Exception as e:
+        #     print("something wrong :(", e)
 
 def add_path(response):
     # if node has no connection to destination node, graph will break.

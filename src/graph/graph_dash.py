@@ -79,6 +79,10 @@ def update_graph_callback(_, session_state=None, **kwargs):
     node_trace = go.Scatter(x=[], y=[], hovertext=[], text=[], mode='markers+text', textposition="bottom center",
                             hoverinfo="text", marker={'size': 50, 'color': 'LightSkyBlue'})
 
+    ######
+    #print(G.nodes())
+    ######
+
     # add nodes into trace
     index = 0
     for node in G.nodes():
