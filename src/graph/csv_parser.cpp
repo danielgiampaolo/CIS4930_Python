@@ -134,10 +134,6 @@ void read(const char* data, struct Ext_Struct* PerfRead)
     index = 0;
     for (auto it = node_set.begin(); it != node_set.end(); it++)
     {
-        cout << *it << endl;
-    }
-    for (auto it = node_set.begin(); it != node_set.end(); it++)
-    {
         words.push_back((char*)malloc(25 * sizeof(char)));
         char* letter_iter_a = words.at(index);
         for (int i = 0; i < (*it).size(); i++)

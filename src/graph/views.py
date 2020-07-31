@@ -391,9 +391,7 @@ def csv_upload(request):
         
         currentNodes = request.session.get('nodes', [])
         for node, *desc in descs: # [[name, desc1, desc2], [...]]
-            print("from desc:", node, desc)
             for x in range(0,len(currentNodes)):
-                print("currentNoode: ", currentNodes[x][0])
                 if currentNodes[x][0].strip() == node.strip():
                     currentNodes[x] = [currentNodes[x][0]] + desc
         request.session['nodes'] = currentNodes

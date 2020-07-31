@@ -28,7 +28,6 @@ read(data: string)
 
 def read(data):
 
-    print(data)
     lib = load_library()
     data_bytes = data.encode("utf8")
     test = PerfRead()
@@ -43,7 +42,6 @@ def read(data):
         edges.append([test.edges[x][0].decode('utf8').strip(), test.edges[x][2].decode('utf8').strip(),test.edges[x][1].decode('utf8').strip()])
 
     lib.dealloc_read(test)
-    print(list(nodes))
 
     return (list(nodes), edges)
 
