@@ -3,7 +3,7 @@
 {% block node_loop %}
 
 {% if nodes|length == 0 %}
-    <p style="font-family: monospace;" class="mb-0">There aren't any ports >:(</p>
+    <p style="font-family: monospace;" class="mb-0">There aren't any nodes >:(</p>
 {% endif %}
 
 {% for node in nodes %}
@@ -13,7 +13,7 @@
             {{ forloop.counter }}
         </span>
     </div>
-    <input autocomplete="off" type="text" class="form-control" name="node{{forloop.counter}}" value="{{ node }}">
+    <input autocomplete="off" type="text" class="form-control" name="node{{forloop.counter}}" value="{{ node.0 }}">
     <div class="input-group-append">
         <button class="btn btn-outline-danger" type="submit" name="deleteNode" value="{{forloop.counter}}">
             {% include "icons.html" with icon="trash" %}
@@ -33,25 +33,29 @@
 
 {% for edge in edges %}
 <div class="input-group">
-    <input style="width: auto" autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}from" value="{{ edge.0 }}">
+    <div class="input-group-prepend">
+        <span class="input-group-text">
+            {{forloop.counter}}
+        </span>
+    </div>
+    <input autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}from" value="{{ edge.0 }}">
     <div class="input-group-append">
         <span class="input-group-text" style="font-family: monospace;">
             {% include "icons.html" with icon="right_arrow" %}
         </span>
-         <br/>
     </div>
-    <div style="width: 100%">
-        <input style="width: 100%" autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}to" value="{{ edge.1 }}">
+    <input autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}to" value="{{ edge.1 }}">
+    <div class="input-group-append">
+        <button class="btn btn-outline-danger" type="submit" name="deleteEdge" value="{{forloop.counter}}">
+            {% include "icons.html" with icon="trash" %}
+        </button>
     </div>
-
-
-    <div class="input-group-append" style="width: 100%">
+	<div class="input-group-append" style="width: 100%">
          <input width="auto" autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}weight" value="{{edge.2}}">
         <button class="btn btn-outline-danger" type="submit" name="deleteEdge" value="{{forloop.counter}}">
             {% include "icons.html" with icon="trash" %}
         </button>
     </div>
-
 </div>
 {% endfor %}
 

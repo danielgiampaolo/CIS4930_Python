@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'graph.apps.GraphConfig',
+    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
     #'django.netjsonconfig',
 ]
 
@@ -121,3 +122,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Required option(s) for django_plotly_dash
+X_FRAME_OPTIONS = 'SAMEORIGIN'

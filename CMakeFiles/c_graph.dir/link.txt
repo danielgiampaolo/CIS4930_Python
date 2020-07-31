@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC   -shared -Wl,-soname,libc_graph.so -o libc_graph.so CMakeFiles/c_graph.dir/c_graph.cpp.o 

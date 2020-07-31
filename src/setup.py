@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name = "NetView",
-    version = 1.0,
+    version = 0.9991,
     packages= ["netview","sample","graph","templates"],
     description='Network Grapher',
     install_requires=["networkx","Django","matplotlib"],

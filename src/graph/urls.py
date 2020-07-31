@@ -1,4 +1,5 @@
 from django.urls import path
+from .graph_dash import app
 
 from . import views
 

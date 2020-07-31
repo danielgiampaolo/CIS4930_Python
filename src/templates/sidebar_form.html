@@ -16,6 +16,41 @@
 
 <hr />
 
+<!-- Path -->
+<div style="overflow: auto; max-height: 300px">
+    <br>
+    <p style="font-weight: bold" class="mb-2">
+        Show Shortest Path
+    </p>
+
+    <div class="input-group">
+        <select autocomplete="off" type="text" class="form-control" name="start">
+            <option value="{{start}}">{{start}}</option>
+            {% for node in nodes  %}
+                <option value="{{node.0}}">{{node.0}}</option>
+            {% endfor %}
+        </select>
+        <div class="input-group-append">
+            <span class="input-group-text" style="font-family: monospace;">
+                {% include "icons.html" with icon="right_arrow" %}
+            </span>
+        </div>
+        <select autocomplete="off" type="text" class="form-control" name="end">
+            <option value="{{end}}">{{end}}</option>
+            {% for node in nodes  %}
+                <option value="{{node.0}}">{{node.0}}</option>
+            {% endfor %}
+        </select>
+        <div class="input-group-append">
+            <input class="btn btn-outline-primary" type="submit" value="Show" name="addPath" />
+        </div>
+    </div>
+    {% if 'Path Drawn: ' not in path_error %}
+        <div class="text-danger">
+        </div>
+    {% endif %}
+</div>
+
 <!-- Now edges -->
 
 <div style="overflow: auto; max-height: 300px">
@@ -38,23 +73,28 @@
             </span>
         </div>
         <input autocomplete="off" type="text" class="form-control" placeholder="From..." name="newedgefrom">
+		<input autocomplete="off" type="text" class="form-control" placeholder="Weight..." name="newedgeweight">
         <div class="input-group-append">
             <span class="input-group-text" style="font-family: monospace;">
                 {% include "icons.html" with icon="right_arrow" %}
             </span>
         </div>
         <input autocomplete="off" type="text" class="form-control" placeholder="To..." name="newedgeto">
-        <input autocomplete="off" type="text" class="form-control" placeholder="Weight..." name="newedgeweight">
         <div class="input-group-append">
             <input class="btn btn-outline-primary" type="submit" value="Add" name="addEdge" />
         </div>
+        {% if 'Edge Added: ' not in edge_error and 'Edge Deleted: ' not in edge_error %}
+            <div class="text-danger">
+                {{ edge_error }}
+            </div>
+        {% endif %}
     </div>
 </div>
 
 
 <div>
     <p style="font-weight: bold" class="mb-2">
-        Ports
+        Nodes
         <span class="badge badge-secondary">
             {{ nodes|length }}
         </span>
@@ -75,6 +115,11 @@
         <div class="input-group-append">
             <input class="btn btn-outline-primary" type="submit" value="Add" name="addNode" />
         </div>
+        {% if 'Node Added: ' not in node_error and 'Node Deleted: ' not in node_error %}
+            <div class="text-danger">
+                {{ node_error }}
+            </div>
+        {% endif %}
     </div>
 
 </div>
@@ -82,7 +127,3 @@
 </form>
 
 {% endblock %}
-
-
-
-
