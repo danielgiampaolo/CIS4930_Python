@@ -11,7 +11,7 @@ class Node(Structure):  # this structure is from Adithya (6 lines)
     _fields_ = [
         ('name', c_char_p),
         ('description', POINTER(c_char_p)),
-        ('descriptionLines', c_int)
+        ('descriptionLines', c_int),
     ]
 
 class State(Structure):
@@ -155,7 +155,7 @@ def c_delete_node(response):
 
     # remove node at index
     deleted = cur_nodes.pop(int(to_delete) - 1)
-    deleted_name, _ = deleted
+    deleted_name, *_ = deleted
 
     # remove edges with removed node (attempt to exclude weight below)
     cur_edges = list(filter(lambda x: deleted_name not in x[:2], cur_edges))
