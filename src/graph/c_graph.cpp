@@ -225,5 +225,4 @@ void del_edge(struct State *state, char *del_from, char *del_to) {
         }
     }
 
-
 }

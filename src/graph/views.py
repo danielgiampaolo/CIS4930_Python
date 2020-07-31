@@ -173,11 +173,13 @@ def updateFields(response):
             if "from" in field:
                 number = field[4:-4]  # start after edge, exclude from => number used
                 to_node = response.POST.get("edge" + number + "to")
+                # TODO: Need to change old_weight to current weight and do some error checking for blank weight in post request
                 old_from, old_to, old_weight = currentEdges[int(number) - 1]
 
                 # possible errors when re-mapping edges
                 # TODO: When weights are added to POST,
                     # update below to new weights (do checks if necessary w/e)
+                    # check if it exists
 
                 if node in node_names and to_node in node_names:  # ok
                     updatedEdges = updatedEdges + [[node, to_node, old_weight]]
@@ -374,8 +376,27 @@ def csv_upload(request):
         request.session['nodes'] = nodes
         request.session['num_nodes'] = len(nodes)
         request.session['num_edges'] = len(edges)
-    elif file_content == 'nodes':
-        print('Nodes selected')
+    elif file_content == 'nodes': 
+        # Code done by Enzo, committed by Adrian, Lines: 15
+        raw_bytes = uploaded.read()
+        raw_data = raw_bytes.decode("utf-8")
+        try:
+            descs = csv_parser.read_desc(raw_data)
+        except Exception as e:
+            print(e)
+            return JsonResponse({
+                'message': 'Something went wrong >:('
+            })
+        # Bit where the new node desc is saved. If node doesnt exist we ignore the description
+        
+        currentNodes = request.session.get('nodes', [])
+        for node, *desc in descs: # [[name, desc1, desc2], [...]]
+            print("from desc:", node, desc)
+            for x in range(0,len(currentNodes)):
+                print("currentNoode: ", currentNodes[x][0])
+                if currentNodes[x][0].strip() == node.strip():
+                    currentNodes[x] = [currentNodes[x][0]] + desc
+        request.session['nodes'] = currentNodes
 
     return
 
