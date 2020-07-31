@@ -144,6 +144,10 @@ def c_add_node(response, node_name):
             response.session['num_nodes'] = len(cur_nodes)
             response.session['edges'] = cur_edges + [[node_name, node_name, 10]]
             response.session['num_edges'] = len(cur_edges)
+            response.session['node_error'] = 'Node Added: ' + node_name
+        else:
+            response.session['node_error'] = "Node not added, node already exists!"
+            
 
 
 def c_delete_node(response):

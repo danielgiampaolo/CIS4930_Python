@@ -82,6 +82,11 @@
         <div class="input-group-append">
             <input class="btn btn-outline-primary" type="submit" value="Add" name="addEdge" />
         </div>
+        {% if 'Edge Added: ' not in edge_error and 'Edge Deleted: ' not in edge_error %}
+            <div class="text-danger">
+                {{ edge_error }}
+            </div>
+        {% endif %}
     </div>
 </div>
 

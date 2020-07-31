@@ -135,11 +135,11 @@ def updateFields(response):
             if not node in updatedNodes:
                 old_node = currentNodes[int(field[4:]) - 1]
                 updatedNodes = updatedNodes + [node, old_node[1:]]
-                response.session['node_error'] = ''
+                response.session['node_error'] = ""
             else:
                 old_node = currentNodes[int(field[4:]) - 1]
                 updatedNodes = updatedNodes + [old_node]
-                response.session['node_error'] = old_node + " not changed, new name conflicts with existing node!"
+                response.session['node_error'] = "" + old_node + " not changed, new name conflicts with existing node!"
 
             if field[4:] == len(currentNodes):
                 break
@@ -175,6 +175,7 @@ def updateFields(response):
 
                 else:  # both not in currentNodes
                     updatedEdges = updatedEdges + [[old_from, old_to, old_weight]]
+                response.session['edge_error'] = ''
 
     # renaming edges from changed nodes
     for old_node_info, new_node_info in zip(currentNodes, updatedNodes):
@@ -419,8 +420,10 @@ def add_edge(request):
     if from_node and to_node:
         try:
             graph_lib.c_add_edge(request.session, from_node, to_node, weight)
+            request.session['edge_error'] = 'Edge Added: ' + from_node + ' to ' + to_node
         except graph_lib.EdgeExistsException:
             print("edge exists already!")
+            request.session['edge_error'] = 'edge exists already!'
         # TODO: Re-enable in production; disabled for stack-trace
         # except Exception as e:
         #     print("something wrong :(", e)

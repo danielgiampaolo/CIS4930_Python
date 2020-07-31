@@ -129,9 +129,10 @@ def update_graph_callback(_, session_state=None, **kwargs):
 
         node_list = list(edge)
         if node_list in bold_edges or node_list[::-1] in bold_edges:
-            weight = 10
+            weight = 5
             marker_color = dict(color='green')
         else:
+            weight = 2.5
             marker_color = dict(color=colors[index])
         # if you want thickness based on weight, enable commented line below
         # weight = float(G.edges[edge]['weight']) / max_weight * 10
@@ -157,8 +158,8 @@ def update_graph_callback(_, session_state=None, **kwargs):
             showlegend=False,
             hovermode='closest',
             margin={'b': 40, 'l': 40, 'r': 40, 't': 40},
-            xaxis={'showgrid': True, 'zeroline': False, 'showticklabels': False},
-            yaxis={'showgrid': True, 'zeroline': False, 'showticklabels': False},
+            xaxis={'showgrid': False, 'zeroline': False, 'showticklabels': False},
+            yaxis={'showgrid': False, 'zeroline': False, 'showticklabels': False},
             height=600,
             clickmode='event+select',
             annotations=[
