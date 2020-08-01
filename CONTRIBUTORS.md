@@ -50,7 +50,5 @@ After his assigned work was complete, he went around fixing bugs and contributin
 ### Tasks
 - Node to Node routing in C `No usable work`
 
-There are more lines about him doing no work than the amount of work he did.
-
 ### Major Files
 - `None committed`
