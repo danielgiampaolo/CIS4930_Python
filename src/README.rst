@@ -21,3 +21,4 @@ Quick start
 3. Access Application:: 
 
     http://127.0.0.1:8000/ (default)
+    http://0.0.0.0:8000/ (runmyserver script)

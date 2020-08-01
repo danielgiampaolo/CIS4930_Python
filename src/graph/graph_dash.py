@@ -3,7 +3,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 import networkx as nx
 from colour import Color
-import pandas as pd
 import plotly.graph_objs as go
 
 from django_plotly_dash import DjangoDash
