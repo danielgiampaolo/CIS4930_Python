@@ -84,11 +84,19 @@
             <input class="btn btn-outline-primary" type="submit" value="Add" name="addEdge" />
         </div>
     </div>
-    {% if 'Edge Added: ' not in edge_error and 'Edge Deleted: ' not in edge_error %}
-        <div class="text-danger">
-            {{ edge_error }}
-        </div>
-    {% endif %}
+    {% for message in messages %}
+        {% if 'edge_error' in message.tags %}
+            <div class="text-danger">
+                {{ message }}
+            </div>
+        {% endif %}
+        <!-- Disable below to hide informational messages -->
+        {% if 'edge_info' in message.tags %}
+            <div class="text-info">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
 </div>
 
 
@@ -115,11 +123,19 @@
         <div class="input-group-append">
             <input class="btn btn-outline-primary" type="submit" value="Add" name="addNode" />
         </div>
-        {% if 'Node Added: ' not in node_error and 'Node Deleted: ' not in node_error %}
-            <div class="text-danger">
-                {{ node_error }}
-            </div>
-        {% endif %}
+        {% for message in messages %}
+            {% if 'node_error' in message.tags %}
+                <div class="text-danger">
+                    {{ message }}
+                </div>
+            {% endif %}
+            <!-- Disable below to hide informational messages -->
+            {% if 'node_info' in message.tags %}
+                <div class="text-info">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
     </div>
 
 </div>

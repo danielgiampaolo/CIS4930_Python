@@ -2,6 +2,10 @@ import csv
 import ctypes
 from ctypes import cdll, c_int, c_char_p, POINTER, Structure,byref
 
+# exceptions
+class CsvParsingException(Exception):
+    pass
+
 # Copy-Pasted from Enzo, Committed by Adrian
 # For reference: 79 lines
 
@@ -38,7 +42,10 @@ def read(data):
     lib = load_library()
     data_bytes = data.encode("utf8")
     test = PerfRead()
-    lib.read(data_bytes, crlf_mode, byref(test))
+
+    if not lib.read(data_bytes, crlf_mode, byref(test)):
+        raise CsvParsingException
+
     edges = []
     nodes = []
 
@@ -69,7 +76,7 @@ def read_desc(data):
 def load_library():
   lib = cdll.LoadLibrary('./graph/libc_graph.so')
 
-  lib.read.restype = None
+  lib.read.restype = ctypes.c_bool
   lib.read.argtypes = [c_char_p, ctypes.c_bool, POINTER(PerfRead)]
 
   lib.read_desc.restype = None

@@ -27,12 +27,12 @@ struct Desc_Struct {
 
 extern Ext_Struct Read;
 
-extern "C" void read(const char* data, bool crlf_mode, struct Ext_Struct* Perf);
+extern "C" bool read(const char* data, bool crlf_mode, struct Ext_Struct* Perf);
 extern "C" void read_desc(const char* data, struct Desc_Struct* PerfRead);
 extern "C" void dealloc_read(struct Ext_Struct* PerfRead);
 extern "C" void dealloc_desc(struct Desc_Struct* PerfRead);
 
-void read(const char* data, bool crlf_mode, struct Ext_Struct* PerfRead)
+bool read(const char* data, bool crlf_mode, struct Ext_Struct* PerfRead)
 {
     vector<char*> words;
     vector<char**> rows;
@@ -49,9 +49,24 @@ void read(const char* data, bool crlf_mode, struct Ext_Struct* PerfRead)
     string weight;
     string dummy;
 
+
     std::getline(test_stream, node1, ',');
+
+    if (node1 != "Node") {
+        return false;
+    }
+
     std::getline(test_stream, weight, ',');
-    std::getline(test_stream, node2, '\n'); //Clears the Node,Link,and Node header
+
+    if (weight != "Link") {
+        return false;
+    }
+
+    std::getline(test_stream, node2, '\n'); // Clears the Node,Link,and Node header
+
+    if (node2 != "Neighbor" && node2 != "Neighbor\r") {
+        return false;
+    }
 
     while (std::getline(test_stream, node1, ',')) {
         std::getline(test_stream, weight, ',');
@@ -152,6 +167,8 @@ void read(const char* data, bool crlf_mode, struct Ext_Struct* PerfRead)
     //Loads how many edges and nodes we have so python can easily iterate through them
     PerfRead->node_size = node_set.size();
     PerfRead->edge_size = line_count;
+
+    return true;
 }
 
 void read_desc(const char* data, struct Desc_Struct* PerfRead)

@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
+from django.contrib import messages
 from .forms import nodeInput
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from . import csv_parser, image_builder, graph_lib
@@ -25,8 +26,6 @@ def index(request):
         "num_nodes": request.session.get('num_nodes', 0),
         "num_edges": request.session.get('num_edges', 0),
         "misc": request.session.get('misc', {}),
-        "node_error": request.session.get('node_error', ''),
-        "edge_error": request.session.get('edge_error', ''),
         "path_error": request.session.get('path_error', ''),
         "file_content": request.session.get('file_content', ''),
         "start": request.session.get('start', ''),
@@ -67,7 +66,7 @@ def handle_graph_post(response):
 
         elif response.POST.get("addEdge"):
             add_edge(response)
-        
+
         elif response.POST.get("addPath"):
             add_path(response)
 
@@ -148,12 +147,11 @@ def updateFields(response):
                 #print("previously:", old_node)
                 updatedNodes = updatedNodes + [([node] + old_node[1:])]
                 #print("new node list:", updatedNodes)
-                response.session['node_error'] = ""
             else:
                 #print("keeping old name:", node)
                 old_node = currentNodes[int(field[4:]) - 1]
                 updatedNodes = updatedNodes + [old_node]
-                response.session['node_error'] = "" + old_node[0] + " not changed, new name conflicts with existing node!"
+                messages.add_message(response, messages.ERROR, "%s not changed, new name conflicts with existing node!" % old_node[0], extra_tags="node_error")
                 #print("new node list:", updatedNodes)
 
             if field[4:] == len(currentNodes):
@@ -179,12 +177,12 @@ def updateFields(response):
                 to_node = response.POST.get("edge" + number + "to")
 
                 old_from, old_to, weight = currentEdges[int(number) - 1]
-                
+
                 weight_field = field[0:(len(field)-4)] + "weight"
                 new_weight = response.POST.get(weight_field).strip()
 
                 if(new_weight != '' and new_weight.isnumeric()):
-                
+
                     if int(new_weight) != weight:
                         weight = int(new_weight)
 
@@ -204,7 +202,6 @@ def updateFields(response):
 
                 else:  # both not in node_names
                     updatedEdges = updatedEdges + [[old_from, old_to, weight]]
-                response.session['edge_error'] = ''
 
     # renaming edges from changed nodes
     for old_node_info, new_node_info in zip(currentNodes, updatedNodes):
@@ -244,9 +241,10 @@ def addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form):
         response.session['num_edges'] = num_edges + 1
         cur_nodes = cur_nodes + [[form.cleaned_data['newNode']]]
         response.session['nodes'] = cur_nodes
-        response.session['node_error'] = 'Node Added: ' + newNode
+        print("\n\n\nUFCK\n\n")
+        messages.add_message(response, messages.INFO, "Node added: %s" % newNode, extra_tags="node_info")
     else:
-        response.session['node_error'] = "Node not added, node already exists!"
+        messages.add_message(response, messages.ERROR, "Node not added, node already exists" % newNode, extra_tags="node_error")
 
     # since we are not rendering the "form" on html
     # updating the context is necessary
@@ -289,7 +287,8 @@ def delNode(response, cur_nodes, num_nodes, current_edges):
     response.session['edges'] = current_edges
     response.session['num_edges'] = len(current_edges)
     response.session['num_nodes'] = len(cur_nodes)
-    response.session['node_error'] = 'Node Deleted: ' + nodeDeleted
+
+    messages.add_message(response, messages.INFO, "Node deleted: %s" % nodeDeleted, extra_tags="node_info")
 
 
 def delEdge(response, cur_edges, num_edges, cur_nodes):
@@ -353,8 +352,6 @@ def clearAll(response):
     response.session['edges'] = []
     response.session['start'] = ''
     response.session['end'] = ''
-    response.session['node_error'] = ""
-    response.session['edge_error'] = ''
     return HttpResponse("Hello, world. You're at the graph index.")
 
 
@@ -380,20 +377,23 @@ def csv_upload(request):
 
         try:
             (nodes, edges) = csv_parser.read(raw_data)
+
+            request.session['edges'] = edges
+            request.session['nodes'] = nodes
+            request.session['num_nodes'] = len(nodes)
+            request.session['num_edges'] = len(edges)
+            print("Parsed correctly :)")
+            print(list(edges))
+            print(list(nodes))
+        except csv_parser.CsvParsingException:
+            messages.add_message(request, messages.ERROR, 'An error occurred while parsing the csv file.', extra_tags="edge_error")
         except Exception as e:
             print(e)
             return JsonResponse({
                 'message': 'Something went wrong >:('
             })
 
-        request.session['edges'] = edges
-        request.session['nodes'] = nodes
-        request.session['num_nodes'] = len(nodes)
-        request.session['num_edges'] = len(edges)
-        print("Parsed correctly :)")
-        print(list(edges))
-        print(list(nodes))
-    elif file_content == 'nodes': 
+    elif file_content == 'nodes':
         # Code done by Enzo, committed by Adrian, Lines: 15
         raw_bytes = uploaded.read()
         raw_data = raw_bytes.decode("utf-8")
@@ -405,7 +405,7 @@ def csv_upload(request):
                 'message': 'Something went wrong >:('
             })
         # Bit where the new node desc is saved. If node doesnt exist we ignore the description
-        
+
         currentNodes = request.session.get('nodes', [])
         for node, *desc in descs: # [[name, desc1, desc2], [...]]
             for x in range(0,len(currentNodes)):
@@ -465,21 +465,20 @@ def add_edge(request):
         return JsonResponse({
             "message": "This is not a POST request."
         })
-    
+
     from_node = request.POST.get('newedgefrom').strip()
     to_node = request.POST.get('newedgeto').strip()
     weight = request.POST.get('newedgeweight').strip()
-    
+
     if from_node and to_node:
         try:
             graph_lib.c_add_edge(request.session, from_node, to_node, weight)
-            request.session['edge_error'] = 'Edge Added: ' + from_node + ' to ' + to_node
+            messages.add_message(request, messages.INFO, 'Edge added: ' + from_node + ' to ' + to_node, extra_tags="edge_info")
         except graph_lib.EdgeExistsException:
-            print("edge exists already!")
-            request.session['edge_error'] = 'edge exists already!'
-        # TODO: Re-enable in production; disabled for stack-trace
-        # except Exception as e:
-        #     print("something wrong :(", e)
+            messages.add_message(request, messages.ERROR, 'That edge exists already!', extra_tags="edge_error")
+        except Exception as e:
+            messages.add_message(request, messages.ERROR, 'An unknown error occurred.', extra_tags="edge_error")
+            print("something wrong :(", e)
 
 def add_path(response):
     # if node has no connection to destination node, graph will break.
