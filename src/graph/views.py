@@ -4,6 +4,7 @@ from django.contrib import messages
 from .forms import nodeInput
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from . import csv_parser, image_builder, graph_lib
+import re
 
 # temporary test method (add to urls manually)
 def test(request):
@@ -126,82 +127,59 @@ def updateFields(response):
     # opportunity to optimize here
     # to reduce checks with smarter
     # algorithms/data_structure/etc
-    #print("before renaming")
-    #print(currentNodes)
-    #print(currentEdges)
 
     node_names = [node_info[0] for node_info in currentNodes]
-    #print("checking:", node_names)
-    print(list(response.POST.items()))
-    print("Names: ",node_names)
+
     # getting all updated nodes first
     for field, node in response.POST.items():
-        currentNode_num =  field[4-len(field)]
-        current_node_val = response.POST.get('node'+currentNode_num)
-        if "node" in field and field != "newNode":
+        nodeField = re.search(r"^node(\d+)$", field)
+        edgeField = re.search(r"^edge(\d+)(\w+)$", field)
+
+        if nodeField:
+            currentNode_num = int(nodeField.group(1))
+            current_node_val = response.POST.get("node%d" % currentNode_num)
+
+            old_node = currentNodes[currentNode_num - 1]
+
             # added check to ensure the name is new
-
-            if not node in node_names or (current_node_val == node_names[int(currentNode_num)-1] ):
-                #print("adding new name:", node)
-                old_node = currentNodes[int(field[4:]) - 1]
-                #print("previously:", old_node)
+            if node not in node_names or (current_node_val == node_names[currentNode_num - 1]):
+                # [([node] + old_node[1:])] = get new name, keep old description
                 updatedNodes = updatedNodes + [([node] + old_node[1:])]
-                #print("new node list:", updatedNodes)
             else:
-                #print("keeping old name:", node)
-                old_node = currentNodes[int(field[4:]) - 1]
                 updatedNodes = updatedNodes + [old_node]
-                messages.add_message(response, messages.ERROR, "%s not changed, new name conflicts with existing node!" % old_node[0], extra_tags="node_error")
-                #print("new node list:", updatedNodes)
+                messages.add_message(response, messages.ERROR, "Name conflict for %s. No changes made." % old_node[0], extra_tags="node_error")
 
-            if field[4:] == len(currentNodes):
-                break
-                # attempt to stop extra iterations
-            print("First go around: ",updatedNodes)
+        elif edgeField:
+            number = int(edgeField.group(1))
+            f_type = edgeField.group(2)
+
+            if "from" in f_type:
+                # only work on "from" fields. if this exists, others are guaranteed
+                to_node = response.POST.get("edge%dto" % number).strip()
+                new_weight = response.POST.get("edge%dweight" % number).strip()
+
+                old_weight = currentEdges[number - 1][2]
+
+                if new_weight != "" and new_weight.isnumeric():
+                    new_weight = int(new_weight)
+
+                    if new_weight != old_weight:
+                        old_weight = new_weight
+
+                # please refer to me as the king of unreadable one-liners
+                updatedEdges = updatedEdges + [[new if new in node_names else old for (new, old) in zip((node, to_node), currentEdges[number - 1][:-1])] + [old_weight]]
+
+                if not updatedEdges[-1][0] == node:
+                    messages.add_message(response, messages.ERROR, 'Node "%s" does not exist.' % node, extra_tags="edge_error")
+
+                if not updatedEdges[-1][1] == to_node:
+                    messages.add_message(response, messages.ERROR, 'Node "%s" does not exist.' % to_node, extra_tags="edge_error")
 
     # Not assuming I will see all the node fields before the edges.
     # Maybe I could.
     # Doing this to compare the new edge names to all the new node names.
     # With all updated nodes,
     # I will check that the changes in edges are limited to existing nodes.
-    #print("updatedNodes")
-    #print(updatedNodes)
-    #print("what")
-    print(response.POST.items())
-    for field, node in response.POST.items():
-
-        if "edge" in field and (not field == "newedgeto" and not field == "newedgefrom"):
-
-            if "from" in field:
-                number = field[4:-4]  # start after edge, exclude from => number used
-                to_node = response.POST.get("edge" + number + "to")
-
-                old_from, old_to, weight = currentEdges[int(number) - 1]
-
-                weight_field = field[0:(len(field)-4)] + "weight"
-                new_weight = response.POST.get(weight_field).strip()
-
-                if(new_weight != '' and new_weight.isnumeric()):
-
-                    if int(new_weight) != weight:
-                        weight = int(new_weight)
-
-                # possible errors when re-mapping edges
-                # TODO: When weights are added to POST,
-                    # update below to new weights (do checks if necessary w/e)
-                    # check if it exists
-
-                if node in node_names and to_node in node_names:  # ok
-                    updatedEdges = updatedEdges + [[node, to_node, weight]]
-
-                elif (not node in node_names) and to_node in node_names:
-                    updatedEdges = updatedEdges + [[old_from, to_node, weight]]
-
-                elif node in node_names and (not to_node in node_names):
-                    updatedEdges = updatedEdges + [[node, old_to, weight]]
-
-                else:  # both not in node_names
-                    updatedEdges = updatedEdges + [[old_from, old_to, weight]]
 
     # renaming edges from changed nodes
     for old_node_info, new_node_info in zip(currentNodes, updatedNodes):
@@ -212,21 +190,8 @@ def updateFields(response):
         # find mismatched names
         if not old_name == new_name:
             # rename edge end points
-            for edge_index, edge_pair in enumerate(updatedEdges):
-                edge_from, edge_to, _ = edge_pair
+            updatedEdges = [[new_name if f == old_name else f, new_name if t == old_name else t, w] for (f, t, w) in updatedEdges]
 
-                if edge_from == old_name:
-                    updatedEdges[edge_index][0] = new_name
-
-                if edge_to == old_name:
-                    updatedEdges[edge_index][1] = new_name
-
-    #print("after renaming")
-    #print(updatedNodes)
-    #print(updatedEdges)
-
-    # make current = updated
-    print("In finale", updatedNodes)
     response.session["nodes"] = updatedNodes
     response.session["edges"] = updatedEdges
 
@@ -241,7 +206,6 @@ def addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form):
         response.session['num_edges'] = num_edges + 1
         cur_nodes = cur_nodes + [[form.cleaned_data['newNode']]]
         response.session['nodes'] = cur_nodes
-        print("\n\n\nUFCK\n\n")
         messages.add_message(response, messages.INFO, "Node added: %s" % newNode, extra_tags="node_info")
     else:
         messages.add_message(response, messages.ERROR, "Node not added, node already exists" % newNode, extra_tags="node_error")
@@ -426,7 +390,7 @@ def csv_download(request):
     for edge in edges:
         # as you can see, the link isn't carried over.
         # someone should fix that.
-        result.append(','.join((edge[0], '0', edge[1])))
+        result.append(','.join((edge[0], edge[2], edge[1])))
 
     return HttpResponse('\n'.join(result), content_type="text/csv")
 

@@ -43,6 +43,8 @@ def update_graph_callback(_, session_state=None, **kwargs):
     nodes_dict = dict()
     node_set = set()
 
+    error = None
+
     # create networkx graph
     G = nx.Graph()
 
@@ -72,14 +74,17 @@ def update_graph_callback(_, session_state=None, **kwargs):
 
     #Build path
     if start != '' and end != '':
-        path = nx.shortest_path(G,source=start,target=end)
-        path_edges = set(zip(path,path[1:]))
-        a_path = []
-        for p_edge in path_edges:
-            print(p_edge[0])
-            a_path.append([p_edge[0],p_edge[1]])
-        #print(a_path)
-        bold_edges = a_path
+        try:
+            path = nx.shortest_path(G,source=start,target=end)
+            path_edges = set(zip(path,path[1:]))
+            a_path = []
+            for p_edge in path_edges:
+                print(p_edge[0])
+                a_path.append([p_edge[0],p_edge[1]])
+            #print(a_path)
+            bold_edges = a_path
+        except nx.exception.NetworkXNoPath:
+            error = "Could not find path between %s and %s" % (start, end)
 
     # set layout for graph
     pos = nx.drawing.layout.spring_layout(G, k=0.15, iterations=20)
@@ -188,6 +193,7 @@ def update_graph_callback(_, session_state=None, **kwargs):
             id='graph',
             figure=figure
         ),
+        html.Span(id="boomer", style={'color': 'red', 'fontFamily': 'arial', 'marginTop': '16px'}, children=[error]),
         html.Span(id="callback-input", children=[])
     ]
 

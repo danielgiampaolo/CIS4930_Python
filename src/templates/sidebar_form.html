@@ -123,21 +123,20 @@
         <div class="input-group-append">
             <input class="btn btn-outline-primary" type="submit" value="Add" name="addNode" />
         </div>
-        {% for message in messages %}
-            {% if 'node_error' in message.tags %}
-                <div class="text-danger">
-                    {{ message }}
-                </div>
-            {% endif %}
-            <!-- Disable below to hide informational messages -->
-            {% if 'node_info' in message.tags %}
-                <div class="text-info">
-                    {{ message }}
-                </div>
-            {% endif %}
-        {% endfor %}
     </div>
-
+    {% for message in messages %}
+        {% if 'node_error' in message.tags %}
+            <div class="text-danger">
+                {{ message }}
+            </div>
+        {% endif %}
+        <!-- Disable below to hide informational messages -->
+        {% if 'node_info' in message.tags %}
+            <div class="text-info">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
 </div>
 
 </form>
