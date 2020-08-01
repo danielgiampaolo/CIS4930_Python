@@ -34,8 +34,8 @@ def update_graph_callback(_, session_state=None, **kwargs):
     nodes = session_state.get('nodes', [])
     start = session_state.get('start')
     end = session_state.get('end')
-    print("start: " + start)
-    print("end: " + end)
+    # print("start: " + start)
+    # print("end: " + end)
     # misc
     max_weight = 1
 
@@ -79,7 +79,7 @@ def update_graph_callback(_, session_state=None, **kwargs):
             path_edges = set(zip(path,path[1:]))
             a_path = []
             for p_edge in path_edges:
-                print(p_edge[0])
+                # print(p_edge[0])
                 a_path.append([p_edge[0],p_edge[1]])
             #print(a_path)
             bold_edges = a_path
@@ -193,7 +193,7 @@ def update_graph_callback(_, session_state=None, **kwargs):
             id='graph',
             figure=figure
         ),
-        html.Span(id="boomer", style={'color': 'red', 'fontFamily': 'arial', 'marginTop': '16px'}, children=[error]),
+        html.Div(id="boomer", style={'color': 'red', 'fontFamily': 'arial', 'marginTop': '16px'}, children=[error]),
         html.Span(id="callback-input", children=[])
     ]
 

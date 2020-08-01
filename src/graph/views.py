@@ -114,7 +114,7 @@ def handle_graph_post(response):
 
 
 def updateFields(response):
-    print(response.POST.get('start'))
+    # print(response.POST.get('start'))
     currentNodes = response.session["nodes"]
     currentEdges = response.session["edges"]
     updatedNodes = []
@@ -346,9 +346,9 @@ def csv_upload(request):
             request.session['nodes'] = nodes
             request.session['num_nodes'] = len(nodes)
             request.session['num_edges'] = len(edges)
-            print("Parsed correctly :)")
-            print(list(edges))
-            print(list(nodes))
+            # print("Parsed correctly :)")
+            # print(list(edges))
+            # print(list(nodes))
         except csv_parser.CsvParsingException:
             messages.add_message(request, messages.ERROR, 'An error occurred while parsing the csv file.', extra_tags="edge_error")
         except Exception as e:
@@ -357,7 +357,7 @@ def csv_upload(request):
                 'message': 'Something went wrong >:('
             })
 
-    elif file_content == 'nodes':
+    elif file_content == 'descriptions':
         # Code done by Enzo, committed by Adrian, Lines: 15
         raw_bytes = uploaded.read()
         raw_data = raw_bytes.decode("utf-8")

@@ -223,7 +223,7 @@ def c_add_edge(session, from_node, to_node, weight):
         cur_nodes = session.get('nodes', [])
         cur_edges = session.get('edges', [])
 
-        cur_edges.append([from_node, to_node, weight])
+        cur_edges.append([from_node, to_node, 10 if not weight.isnumeric() else int(weight)])
 
         # doing enum.value is wack
         if op == Result.Add_From.value:
@@ -234,7 +234,8 @@ def c_add_edge(session, from_node, to_node, weight):
 
         elif op == Result.Add_Both.value:
             cur_nodes.append([from_node, "Node created when adding edge"])
-            cur_nodes.append([to_node, "Node created when adding edge"])
+            if not from_node == to_node:
+                cur_nodes.append([to_node, "Node created when adding edge"])
 
     # save
     session['nodes'] = cur_nodes

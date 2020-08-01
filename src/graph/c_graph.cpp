@@ -51,7 +51,7 @@ bool add_node(struct State *state, const char *new_node) {
 }
 
 void del_node(struct State *state) {
-    printf("\ninside del_node\n");
+    // printf("\ninside del_node\n");
 
     // edges is a 1D array and every 3 elements represents an edge
 
@@ -89,7 +89,7 @@ void del_node(struct State *state) {
         }
 
         if (delete_node) {
-            printf("marking node %s for deletion\n", cur_node);
+            // printf("marking node %s for deletion\n", cur_node);
             strncpy(cur_node, "\0", strlen(cur_node));
             // empty string is a mark for deletion
             // handled on python side
@@ -103,7 +103,7 @@ void del_node(struct State *state) {
     }
 
 
-    printf("\nafter del_node\n\n");
+    // printf("\nafter del_node\n\n");
 }
 
 // add more fields as necessary
@@ -135,6 +135,11 @@ int add_edge(struct State *state, char *new_from, char *new_to) {
 
         if (strcmp(from_node, new_from) == 0 && strcmp(to_node, new_to) == 0) {
             // Edge is already in list, do not add
+            return 0;
+        }
+
+        if (strcmp(from_node, new_to) == 0 && strcmp(to_node, new_from) == 0) {
+            // Edge is already in list, but flipped
             return 0;
         }
     }
@@ -214,12 +219,12 @@ void del_edge(struct State *state, char *del_from, char *del_to) {
             // right here, we find said node and mark it
 
             if (delete_from && strcmp(cur_node, del_from) == 0) {
-                printf("marking node %s for deletion\n", cur_node);
+                // printf("marking node %s for deletion\n", cur_node);
                 strncpy(cur_node, "\0", strlen(cur_node));
             }
 
             if (delete_to && strcmp(cur_node, del_to) == 0) {
-                printf("marking node %s for deletion\n", cur_node);
+                // printf("marking node %s for deletion\n", cur_node);
                 strncpy(cur_node, "\0", strlen(cur_node));
             }
         }

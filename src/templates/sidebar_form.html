@@ -25,9 +25,17 @@
 
     <div class="input-group">
         <select autocomplete="off" type="text" class="form-control" name="start">
-            <option value="{{start}}">{{start}}</option>
-            {% for node in nodes  %}
-                <option value="{{node.0}}">{{node.0}}</option>
+            {% if start and start.strip %}
+                <option value="" selected></option>
+            {% else %}
+                <option value=""></option>
+            {% endif %}
+            {% for node in nodes %}
+                {% if start == node.0 %}
+                    <option value="{{node.0}}" selected>{{node.0}}</option>
+                {% else %}
+                    <option value="{{node.0}}">{{node.0}}</option>
+                {% endif %}
             {% endfor %}
         </select>
         <div class="input-group-append">
@@ -36,9 +44,17 @@
             </span>
         </div>
         <select autocomplete="off" type="text" class="form-control" name="end">
-            <option value="{{end}}">{{end}}</option>
-            {% for node in nodes  %}
-                <option value="{{node.0}}">{{node.0}}</option>
+            {% if end and end.strip %}
+                <option value="" selected></option>
+            {% else %}
+                <option value=""></option>
+            {% endif %}
+            {% for node in nodes %}
+                {% if end == node.0 %}
+                    <option value="{{node.0}}" selected>{{node.0}}</option>
+                {% else %}
+                    <option value="{{node.0}}">{{node.0}}</option>
+                {% endif %}
             {% endfor %}
         </select>
         <div class="input-group-append">
