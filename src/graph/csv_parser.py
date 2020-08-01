@@ -28,10 +28,17 @@ read(data: string)
 
 def read(data):
 
+    crlf_mode = True
+
+    # this is not foolproof
+    if '\r\n' not in data:
+        # god bless
+        crlf_mode = False
+
     lib = load_library()
     data_bytes = data.encode("utf8")
     test = PerfRead()
-    lib.read(data_bytes, byref(test))
+    lib.read(data_bytes, crlf_mode, byref(test))
     edges = []
     nodes = []
 
@@ -63,7 +70,7 @@ def load_library():
   lib = cdll.LoadLibrary('./graph/libc_graph.so')
 
   lib.read.restype = None
-  lib.read.argtypes = [c_char_p, POINTER(PerfRead)]
+  lib.read.argtypes = [c_char_p, ctypes.c_bool, POINTER(PerfRead)]
 
   lib.read_desc.restype = None
   lib.read_desc.argtypes = [c_char_p, POINTER(DescRead)]

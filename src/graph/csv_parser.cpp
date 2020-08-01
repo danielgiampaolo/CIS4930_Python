@@ -27,12 +27,12 @@ struct Desc_Struct {
 
 extern Ext_Struct Read;
 
-extern "C" void read(const char* data, struct Ext_Struct* Perf);
+extern "C" void read(const char* data, bool crlf_mode, struct Ext_Struct* Perf);
 extern "C" void read_desc(const char* data, struct Desc_Struct* PerfRead);
 extern "C" void dealloc_read(struct Ext_Struct* PerfRead);
 extern "C" void dealloc_desc(struct Desc_Struct* PerfRead);
 
-void read(const char* data, struct Ext_Struct* PerfRead)
+void read(const char* data, bool crlf_mode, struct Ext_Struct* PerfRead)
 {
     vector<char*> words;
     vector<char**> rows;
@@ -55,8 +55,10 @@ void read(const char* data, struct Ext_Struct* PerfRead)
 
     while (std::getline(test_stream, node1, ',')) {
         std::getline(test_stream, weight, ',');
-        std::getline(test_stream, node2, '\r'); 
-        std::getline(test_stream, dummy, '\n'); 
+        std::getline(test_stream, node2, crlf_mode ? '\r' : '\n');
+
+        if (crlf_mode)
+            std::getline(test_stream, dummy, '\n');
 
         while (node1.at(0) == ' ') // Erases any spaces that may exist
             node1.erase(0, 1);
