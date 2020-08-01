@@ -73,7 +73,7 @@
             </span>
         </div>
         <input autocomplete="off" type="text" class="form-control" placeholder="From..." name="newedgefrom">
-		<input autocomplete="off" type="text" class="form-control" placeholder="Weight..." name="newedgeweight">
+		<input autocomplete="off" type="text" class="form-control" placeholder="W" name="newedgeweight" style="max-width: 42px;">
         <div class="input-group-append">
             <span class="input-group-text" style="font-family: monospace;">
                 {% include "icons.html" with icon="right_arrow" %}
@@ -83,12 +83,12 @@
         <div class="input-group-append">
             <input class="btn btn-outline-primary" type="submit" value="Add" name="addEdge" />
         </div>
-        {% if 'Edge Added: ' not in edge_error and 'Edge Deleted: ' not in edge_error %}
-            <div class="text-danger">
-                {{ edge_error }}
-            </div>
-        {% endif %}
     </div>
+    {% if 'Edge Added: ' not in edge_error and 'Edge Deleted: ' not in edge_error %}
+        <div class="text-danger">
+            {{ edge_error }}
+        </div>
+    {% endif %}
 </div>
 
 

@@ -6,8 +6,19 @@
     <p style="font-family: monospace;" class="mb-0">There aren't any nodes >:(</p>
 {% endif %}
 
+
+<style>
+    .node + .node {
+        margin-top: 10px;
+    }
+
+    .node:last-child {
+        margin-bottom: 10px;
+    }
+</style>
+
 {% for node in nodes %}
-<div class="input-group">
+<div class="node input-group">
     <div class="input-group-prepend">
         <span class="input-group-text" id="basic-addon1">
             {{ forloop.counter }}
@@ -31,30 +42,45 @@
     <p style="font-family: monospace;" class="mb-0">There aren't any edges >:(</p>
 {% endif %}
 
+<style>
+    .edge + .edge {
+        margin-top: 10px;
+    }
+
+    .edge:last-child {
+        margin-bottom: 10px;
+    }
+
+    .edge .input-group:first-child > input {
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    .edge .input-group + .input-group > input {
+        border-top-right-radius: 0;
+        border-top-left-radius: 0;
+        border-top: none;
+    }
+
+    .edge .input-group + .input-group > .input-group-append > button {
+        border-top-right-radius: 0;
+        border-top-left-radius: 0;
+    }
+</style>
+
 {% for edge in edges %}
-<div class="input-group">
-    <div class="input-group-prepend">
-        <span class="input-group-text">
-            {{forloop.counter}}
-        </span>
+<div class="edge">
+    <div class="input-group">
+        <input autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}from" value="{{ edge.0 }}">
+        <input style="max-width: 42px;" autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}weight" value="{{edge.2}}">
     </div>
-    <input autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}from" value="{{ edge.0 }}">
-    <div class="input-group-append">
-        <span class="input-group-text" style="font-family: monospace;">
-            {% include "icons.html" with icon="right_arrow" %}
-        </span>
-    </div>
-    <input autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}to" value="{{ edge.1 }}">
-    <div class="input-group-append">
-        <button class="btn btn-outline-danger" type="submit" name="deleteEdge" value="{{forloop.counter}}">
-            {% include "icons.html" with icon="trash" %}
-        </button>
-    </div>
-	<div class="input-group-append" style="width: 100%">
-         <input width="auto" autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}weight" value="{{edge.2}}">
-        <button class="btn btn-outline-danger" type="submit" name="deleteEdge" value="{{forloop.counter}}">
-            {% include "icons.html" with icon="trash" %}
-        </button>
+    <div class="input-group">
+        <input autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}to" value="{{ edge.1 }}">
+        <div class="input-group-append">
+            <button class="btn btn-outline-danger" type="submit" name="deleteEdge" value="{{forloop.counter}}">
+                {% include "icons.html" with icon="trash" %}
+            </button>
+        </div>
     </div>
 </div>
 {% endfor %}
