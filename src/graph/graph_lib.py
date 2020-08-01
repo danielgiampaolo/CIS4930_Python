@@ -1,6 +1,8 @@
 import enum
 from ctypes import cdll, c_char_p, c_int, c_bool, POINTER, Structure, create_string_buffer, cast
+from os import path
 
+current_directory = path.abspath(path.dirname(__file__))
 
 # Exceptions
 class EdgeExistsException(Exception):
@@ -24,7 +26,7 @@ class State(Structure):
 
 
 def load_c_graph_lib():
-    lib = cdll.LoadLibrary("./graph/libc_graph.so")
+    lib = cdll.LoadLibrary(path.join(current_directory, "libc_graph.so"))
 
     return lib
 
@@ -60,7 +62,7 @@ def init_nodes(nodes_to_c):  # this function is from Adithya (12 lines)
 
         line_count = len(description)
 
-        if line_count == 0: 
+        if line_count == 0:
             c_node.description = (c_char_p * 1)("".encode('utf-8'))
             # it threw errors before so x * 1 -> *just works*
             # possibly fits data type after that
@@ -147,7 +149,7 @@ def c_add_node(response, node_name):
             response.session['node_error'] = 'Node Added: ' + node_name
         else:
             response.session['node_error'] = "Node not added, node already exists!"
-            
+
 
 
 def c_delete_node(response):

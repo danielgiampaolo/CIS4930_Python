@@ -1,6 +1,9 @@
 import csv
 import ctypes
 from ctypes import cdll, c_int, c_char_p, POINTER, Structure,byref
+from os import path
+
+current_directory = path.abspath(path.dirname(__file__))
 
 # exceptions
 class CsvParsingException(Exception):
@@ -74,18 +77,18 @@ def read_desc(data):
     return nodes
 
 def load_library():
-  lib = cdll.LoadLibrary('./graph/libc_graph.so')
+    lib = cdll.LoadLibrary(path.join(current_directory, "libc_graph.so"))
 
-  lib.read.restype = ctypes.c_bool
-  lib.read.argtypes = [c_char_p, ctypes.c_bool, POINTER(PerfRead)]
+    lib.read.restype = ctypes.c_bool
+    lib.read.argtypes = [c_char_p, ctypes.c_bool, POINTER(PerfRead)]
 
-  lib.read_desc.restype = None
-  lib.read_desc.argtypes = [c_char_p, POINTER(DescRead)]
+    lib.read_desc.restype = None
+    lib.read_desc.argtypes = [c_char_p, POINTER(DescRead)]
 
-  lib.dealloc_read.restype = None
-  lib.dealloc_read.argtypes = [POINTER(PerfRead)]
+    lib.dealloc_read.restype = None
+    lib.dealloc_read.argtypes = [POINTER(PerfRead)]
 
-  lib.dealloc_desc.restype = None
-  lib.dealloc_desc.argtypes = [POINTER(DescRead)]
+    lib.dealloc_desc.restype = None
+    lib.dealloc_desc.argtypes = [POINTER(DescRead)]
 
-  return lib
+    return lib
