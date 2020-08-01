@@ -114,6 +114,7 @@ def handle_graph_post(response):
 
 
 def updateFields(response):
+    print(response.POST.get('start'))
     currentNodes = response.session["nodes"]
     currentEdges = response.session["edges"]
     updatedNodes = []
@@ -132,14 +133,16 @@ def updateFields(response):
 
     node_names = [node_info[0] for node_info in currentNodes]
     #print("checking:", node_names)
-
+    print(list(response.POST.items()))
+    print("Names: ",node_names)
     # getting all updated nodes first
     for field, node in response.POST.items():
-
+        currentNode_num =  field[4-len(field)]
+        current_node_val = response.POST.get('node'+currentNode_num)
         if "node" in field and field != "newNode":
             # added check to ensure the name is new
 
-            if not node in node_names:
+            if not node in node_names or (current_node_val == node_names[int(currentNode_num)-1] ):
                 #print("adding new name:", node)
                 old_node = currentNodes[int(field[4:]) - 1]
                 #print("previously:", old_node)
@@ -150,12 +153,13 @@ def updateFields(response):
                 #print("keeping old name:", node)
                 old_node = currentNodes[int(field[4:]) - 1]
                 updatedNodes = updatedNodes + [old_node]
-                response.session['node_error'] = "" + old_node + " not changed, new name conflicts with existing node!"
+                response.session['node_error'] = "" + old_node[0] + " not changed, new name conflicts with existing node!"
                 #print("new node list:", updatedNodes)
 
             if field[4:] == len(currentNodes):
                 break
                 # attempt to stop extra iterations
+            print("First go around: ",updatedNodes)
 
     # Not assuming I will see all the node fields before the edges.
     # Maybe I could.
@@ -165,7 +169,7 @@ def updateFields(response):
     #print("updatedNodes")
     #print(updatedNodes)
     #print("what")
-
+    print(response.POST.items())
     for field, node in response.POST.items():
 
         if "edge" in field and (not field == "newedgeto" and not field == "newedgefrom"):
@@ -173,8 +177,16 @@ def updateFields(response):
             if "from" in field:
                 number = field[4:-4]  # start after edge, exclude from => number used
                 to_node = response.POST.get("edge" + number + "to")
-                # TODO: Need to change old_weight to current weight and do some error checking for blank weight in post request
-                old_from, old_to, old_weight = currentEdges[int(number) - 1]
+
+                old_from, old_to, weight = currentEdges[int(number) - 1]
+                
+                weight_field = field[0:(len(field)-4)] + "weight"
+                new_weight = response.POST.get(weight_field).strip()
+
+                if(new_weight != '' and new_weight.isnumeric()):
+                
+                    if int(new_weight) != weight:
+                        weight = int(new_weight)
 
                 # possible errors when re-mapping edges
                 # TODO: When weights are added to POST,
@@ -182,16 +194,16 @@ def updateFields(response):
                     # check if it exists
 
                 if node in node_names and to_node in node_names:  # ok
-                    updatedEdges = updatedEdges + [[node, to_node, old_weight]]
+                    updatedEdges = updatedEdges + [[node, to_node, weight]]
 
                 elif (not node in node_names) and to_node in node_names:
-                    updatedEdges = updatedEdges + [[old_from, to_node, old_weight]]
+                    updatedEdges = updatedEdges + [[old_from, to_node, weight]]
 
                 elif node in node_names and (not to_node in node_names):
-                    updatedEdges = updatedEdges + [[node, old_to, old_weight]]
+                    updatedEdges = updatedEdges + [[node, old_to, weight]]
 
                 else:  # both not in node_names
-                    updatedEdges = updatedEdges + [[old_from, old_to, old_weight]]
+                    updatedEdges = updatedEdges + [[old_from, old_to, weight]]
                 response.session['edge_error'] = ''
 
     # renaming edges from changed nodes
@@ -217,6 +229,7 @@ def updateFields(response):
     #print(updatedEdges)
 
     # make current = updated
+    print("In finale", updatedNodes)
     response.session["nodes"] = updatedNodes
     response.session["edges"] = updatedEdges
 
@@ -340,7 +353,8 @@ def clearAll(response):
     response.session['edges'] = []
     response.session['start'] = ''
     response.session['end'] = ''
-
+    response.session['node_error'] = ""
+    response.session['edge_error'] = ''
     return HttpResponse("Hello, world. You're at the graph index.")
 
 
@@ -376,6 +390,9 @@ def csv_upload(request):
         request.session['nodes'] = nodes
         request.session['num_nodes'] = len(nodes)
         request.session['num_edges'] = len(edges)
+        print("Parsed correctly :)")
+        print(list(edges))
+        print(list(nodes))
     elif file_content == 'nodes': 
         # Code done by Enzo, committed by Adrian, Lines: 15
         raw_bytes = uploaded.read()
@@ -448,10 +465,10 @@ def add_edge(request):
         return JsonResponse({
             "message": "This is not a POST request."
         })
-
+    
     from_node = request.POST.get('newedgefrom').strip()
     to_node = request.POST.get('newedgeto').strip()
-    weight = 10 # TODO: when merging weights, fix
+    weight = request.POST.get('newedgeweight').strip()
     
     if from_node and to_node:
         try:

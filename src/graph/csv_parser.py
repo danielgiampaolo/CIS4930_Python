@@ -40,9 +40,7 @@ def read(data):
 
     for x in range(0, test.edge_size):
         edges.append([test.edges[x][0].decode('utf8').strip(), test.edges[x][2].decode('utf8').strip(),test.edges[x][1].decode('utf8').strip()])
-
     lib.dealloc_read(test)
-
     return (list(nodes), edges)
 
 def read_desc(data):
