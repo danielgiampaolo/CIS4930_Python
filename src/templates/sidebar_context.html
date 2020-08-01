@@ -51,12 +51,14 @@
         margin-bottom: 10px;
     }
 
-    .edge .input-group:first-child > input {
+    .edge .input-group:first-child > input,
+    .edge .input-group:first-child > div > span {
         border-bottom-right-radius: 0;
         border-bottom-left-radius: 0;
     }
 
-    .edge .input-group + .input-group > input {
+    .edge .input-group + .input-group > input,
+    .edge .input-group + .input-group > div > span {
         border-top-right-radius: 0;
         border-top-left-radius: 0;
         border-top: none;
@@ -71,10 +73,20 @@
 {% for edge in edges %}
 <div class="edge">
     <div class="input-group">
+        <div class="input-group-prepend">
+            <span class="input-group-text" style="width: 64px;">
+                From
+            </span>
+        </div>
         <input autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}from" value="{{ edge.0 }}">
         <input style="max-width: 42px;" autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}weight" value="{{edge.2}}">
     </div>
     <div class="input-group">
+        <div class="input-group-prepend">
+            <span class="input-group-text" style="width: 64px;">
+                To
+            </span>
+        </div>
         <input autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}to" value="{{ edge.1 }}">
         <div class="input-group-append">
             <button class="btn btn-outline-danger" type="submit" name="deleteEdge" value="{{forloop.counter}}">
