@@ -3,17 +3,28 @@
 {% block node_loop %}
 
 {% if nodes|length == 0 %}
-    <p style="font-family: monospace;" class="mb-0">There aren't any ports >:(</p>
+    <p style="font-family: monospace;" class="mb-0">There aren't any nodes >:(</p>
 {% endif %}
 
+
+<style>
+    .node + .node {
+        margin-top: 10px;
+    }
+
+    .node:last-child {
+        margin-bottom: 10px;
+    }
+</style>
+
 {% for node in nodes %}
-<div class="input-group">
+<div class="node input-group">
     <div class="input-group-prepend">
         <span class="input-group-text" id="basic-addon1">
             {{ forloop.counter }}
         </span>
     </div>
-    <input type="text" class="form-control" name="node{{forloop.counter}}" value="{{ node }}">
+    <input autocomplete="off" type="text" class="form-control" name="node{{forloop.counter}}" value="{{ node.0 }}">
     <div class="input-group-append">
         <button class="btn btn-outline-danger" type="submit" name="deleteNode" value="{{forloop.counter}}">
             {% include "icons.html" with icon="trash" %}
@@ -31,24 +42,57 @@
     <p style="font-family: monospace;" class="mb-0">There aren't any edges >:(</p>
 {% endif %}
 
+<style>
+    .edge + .edge {
+        margin-top: 10px;
+    }
+
+    .edge:last-child {
+        margin-bottom: 10px;
+    }
+
+    .edge .input-group:first-child > input,
+    .edge .input-group:first-child > div > span {
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    .edge .input-group + .input-group > input,
+    .edge .input-group + .input-group > div > span {
+        border-top-right-radius: 0;
+        border-top-left-radius: 0;
+        border-top: none;
+    }
+
+    .edge .input-group + .input-group > .input-group-append > button {
+        border-top-right-radius: 0;
+        border-top-left-radius: 0;
+    }
+</style>
+
 {% for edge in edges %}
-<div class="input-group">
-    <div class="input-group-prepend">
-        <span class="input-group-text">
-            {{forloop.counter}}
-        </span>
+<div class="edge">
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <span class="input-group-text" style="width: 64px;">
+                From
+            </span>
+        </div>
+        <input autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}from" value="{{ edge.0 }}">
+        <input style="max-width: 42px;" autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}weight" value="{{edge.2}}">
     </div>
-    <input type="text" class="form-control" name="edge{{forloop.counter}}from" value="{{ edge.0 }}">
-    <div class="input-group-append">
-        <span class="input-group-text" style="font-family: monospace;">
-            {% include "icons.html" with icon="right_arrow" %}
-        </span>
-    </div>
-    <input type="text" class="form-control" name="edge{{forloop.counter}}to" value="{{ edge.1 }}">
-    <div class="input-group-append">
-        <button class="btn btn-outline-danger" type="submit" name="deleteEdge" value="{{forloop.counter}}">
-            {% include "icons.html" with icon="trash" %}
-        </button>
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <span class="input-group-text" style="width: 64px;">
+                To
+            </span>
+        </div>
+        <input autocomplete="off" type="text" class="form-control" name="edge{{forloop.counter}}to" value="{{ edge.1 }}">
+        <div class="input-group-append">
+            <button class="btn btn-outline-danger" type="submit" name="deleteEdge" value="{{forloop.counter}}">
+                {% include "icons.html" with icon="trash" %}
+            </button>
+        </div>
     </div>
 </div>
 {% endfor %}

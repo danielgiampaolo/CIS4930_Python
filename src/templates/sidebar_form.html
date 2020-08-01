@@ -16,6 +16,57 @@
 
 <hr />
 
+<!-- Path -->
+<div style="overflow: auto; max-height: 300px">
+    <br>
+    <p style="font-weight: bold" class="mb-2">
+        Show Shortest Path
+    </p>
+
+    <div class="input-group">
+        <select autocomplete="off" type="text" class="form-control" name="start">
+            {% if start and start.strip %}
+                <option value="" selected></option>
+            {% else %}
+                <option value=""></option>
+            {% endif %}
+            {% for node in nodes %}
+                {% if start == node.0 %}
+                    <option value="{{node.0}}" selected>{{node.0}}</option>
+                {% else %}
+                    <option value="{{node.0}}">{{node.0}}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <div class="input-group-append">
+            <span class="input-group-text" style="font-family: monospace;">
+                {% include "icons.html" with icon="right_arrow" %}
+            </span>
+        </div>
+        <select autocomplete="off" type="text" class="form-control" name="end">
+            {% if end and end.strip %}
+                <option value="" selected></option>
+            {% else %}
+                <option value=""></option>
+            {% endif %}
+            {% for node in nodes %}
+                {% if end == node.0 %}
+                    <option value="{{node.0}}" selected>{{node.0}}</option>
+                {% else %}
+                    <option value="{{node.0}}">{{node.0}}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <div class="input-group-append">
+            <input class="btn btn-outline-primary" type="submit" value="Show" name="addPath" />
+        </div>
+    </div>
+    {% if 'Path Drawn: ' not in path_error %}
+        <div class="text-danger">
+        </div>
+    {% endif %}
+</div>
+
 <!-- Now edges -->
 
 <div style="overflow: auto; max-height: 300px">
@@ -37,23 +88,37 @@
                 +
             </span>
         </div>
-        <input type="text" class="form-control" placeholder="From..." name="newedgefrom">
+        <input autocomplete="off" type="text" class="form-control" placeholder="From..." name="newedgefrom">
+		<input autocomplete="off" type="text" class="form-control" placeholder="W" name="newedgeweight" style="max-width: 42px;">
         <div class="input-group-append">
             <span class="input-group-text" style="font-family: monospace;">
                 {% include "icons.html" with icon="right_arrow" %}
             </span>
         </div>
-        <input type="text" class="form-control" placeholder="To..." name="newedgeto">
+        <input autocomplete="off" type="text" class="form-control" placeholder="To..." name="newedgeto">
         <div class="input-group-append">
             <input class="btn btn-outline-primary" type="submit" value="Add" name="addEdge" />
         </div>
     </div>
+    {% for message in messages %}
+        {% if 'edge_error' in message.tags %}
+            <div class="text-danger">
+                {{ message }}
+            </div>
+        {% endif %}
+        <!-- Disable below to hide informational messages -->
+        {% if 'edge_info' in message.tags %}
+            <div class="text-info">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
 </div>
 
 
 <div>
     <p style="font-weight: bold" class="mb-2">
-        Ports
+        Nodes
         <span class="badge badge-secondary">
             {{ nodes|length }}
         </span>
@@ -70,18 +135,26 @@
                 +
             </span>
         </div>
-        <input type="text" class="form-control" placeholder="New node" name="newNode">
+        <input autocomplete="off" type="text" class="form-control" placeholder="New node" name="newNode">
         <div class="input-group-append">
             <input class="btn btn-outline-primary" type="submit" value="Add" name="addNode" />
         </div>
     </div>
-
+    {% for message in messages %}
+        {% if 'node_error' in message.tags %}
+            <div class="text-danger">
+                {{ message }}
+            </div>
+        {% endif %}
+        <!-- Disable below to hide informational messages -->
+        {% if 'node_info' in message.tags %}
+            <div class="text-info">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
 </div>
 
 </form>
 
 {% endblock %}
-
-
-
-

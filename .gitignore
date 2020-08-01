@@ -61,6 +61,19 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
+# CMake stuff:
+src/CMakeFiles
+src/graph/CMakeFiles
+src/graph/cmake_install.cmake
+src/graph/CMakeCache.txt
+src/graph/Makefile
+
+# removing from root folder
+CMakeFiles/
+cmake_install.cmake
+CMakeCache.txt
+Makefile
+
 # Flask stuff:
 instance/
 .webassets-cache
@@ -133,5 +146,10 @@ dmypy.json
 # PyCharm garbage
 .idea/
 
-# VsCode Bs
+# vscode bs
 .vscode/
+*.code-workspace
+
+src/graph/graph.cbp
+
+src/graph/c_graph.cbp
