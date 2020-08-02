@@ -55,8 +55,9 @@ def read(data):
         nodes.append([test.nodes[x].decode('utf8')])
     for x in range(0, test.edge_size):
         if(test.edges[x][1].decode('utf8').strip().isnumeric() == False):
-            edges.append([test.edges[x][0].decode('utf8').strip(), test.edges[x][2].decode('utf8').strip(),'10'])
-        edges.append([test.edges[x][0].decode('utf8').strip(), test.edges[x][2].decode('utf8').strip(),test.edges[x][1].decode('utf8').strip()])
+            edges.append([test.edges[x][0].decode('utf8').strip(), test.edges[x][2].decode('utf8').strip(),"10"])
+        else:    
+            edges.append([test.edges[x][0].decode('utf8').strip(), test.edges[x][2].decode('utf8').strip(),test.edges[x][1].decode('utf8').strip()])
     lib.dealloc_read(test)
     return (list(nodes), edges)
 
