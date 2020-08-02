@@ -20,7 +20,7 @@ c_lib = [Extension("libc_graph",
 
 setup(
     name = "NetView",
-    version = 2.2,
+    version = 2.3,
     packages= ["netview","sample","graph","templates"],
     package_data={'graph': ['libc_graph.so']},
     description='Network Grapher',
