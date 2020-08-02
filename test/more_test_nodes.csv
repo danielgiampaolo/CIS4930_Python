@@ -1,0 +1,19 @@
+Node,Link,Neighbor
+node 1,10,node 2
+node 2,7,node 3
+node 4,32,node 7
+node 6,14,node 3
+node 8,100,node 9
+node 10,42,node 1
+node 12,13,node 13
+node 11,97,node 7
+node 14,17,node 8
+node 7,6,node 3
+node 9,42,node 15
+node 10,13,node 6
+node 11,36,node 2
+node 2,16,node 6
+node 12,32,node 8
+node 13,26,node 14
+node 4,10,node 8
+node 9,74,node 11
