@@ -44,6 +44,11 @@ After his assigned work was complete, he went around fixing bugs and contributin
 ### Major Files
 - `views.py`
 - `graph_dash.py,` `Shortest path`
+- `*.html`
+
+Daniel primarily worked on graph v1 generation, the shortest path interactions, error handling, and some front-end clean up. 
+
+Once the bulk of the error handling was plumbed, he attempted to contribute bits to others work and began the merging of the groups independent efforts, ironing out some overlapping code and preparing for the final push to master.
 
 
 ## Pratik Gajjar
