@@ -121,8 +121,6 @@ def updateFields(response):
     updatedEdges = []
     from_node = response.POST.get('start')
     to_node = response.POST.get('end')
-    response.session['start'] = from_node
-    response.session['end'] = to_node
 
     # opportunity to optimize here
     # to reduce checks with smarter
@@ -192,8 +190,15 @@ def updateFields(response):
             # rename edge end points
             updatedEdges = [[new_name if f == old_name else f, new_name if t == old_name else t, w] for (f, t, w) in updatedEdges]
 
+            from_node = new_name if from_node == old_name else from_node
+            to_node = new_name if to_node == old_name else to_node
+
+
+
     response.session["nodes"] = updatedNodes
     response.session["edges"] = updatedEdges
+    response.session['start'] = from_node
+    response.session['end'] = to_node
 
 
 def addNode(response, cur_nodes, num_nodes, cur_edges, num_edges, form):

@@ -84,6 +84,8 @@ def update_graph_callback(_, session_state=None, **kwargs):
             bold_edges = a_path
         except nx.exception.NetworkXNoPath:
             error = "Could not find path between %s and %s" % (start, end)
+        except Exception:
+            error = "Something went wrong with the shortest path calculation."
 
     # set layout for graph
     pos = nx.drawing.layout.spring_layout(G, k=0.15, iterations=20)
