@@ -1,6 +1,7 @@
 import enum
 from ctypes import cdll, c_char_p, c_int, c_bool, POINTER, Structure, create_string_buffer, cast
 from os import path
+from django.contrib import messages
 
 current_directory = path.abspath(path.dirname(__file__))
 
@@ -146,9 +147,9 @@ def c_add_node(response, node_name):
             response.session['num_nodes'] = len(cur_nodes)
             response.session['edges'] = cur_edges + [[node_name, node_name, 10]]
             response.session['num_edges'] = len(cur_edges)
-            response.session['node_error'] = 'Node Added: ' + node_name
+            messages.add_message(response, messages.INFO, 'Node \"%s\" added.' % node_name, extra_tags="node_info")
         else:
-            response.session['node_error'] = "Node not added, node already exists!"
+            messages.add_message(response, messages.ERROR, 'Node \"%s\" already exists.' % node_name, extra_tags="node_error")
 
 
 
