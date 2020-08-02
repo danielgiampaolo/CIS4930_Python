@@ -4,11 +4,13 @@ _This document only contains the contributions for the second sprint._
 
 ## Adrian Salazar
 ### Tasks
-- Parsing Node Manipulations in C
+- State manipulation checks transitioned to C.
+
+Adrian worked on passing loops checking the state of the graph to C for performance reasons. Limiting the graph modification to python. 
 
 ### Major Files
-- `graph_lib.py,` `Everything except add edge`
-- `graph_lib.cpp,` `Everything except add edge`
+- `graph_lib.py,` `Most content`   `280 lines`
+- `c_graph.cpp,` `220 lines Aprox.`
 
 ## Enzo E. Dominguez
 ### Tasks
@@ -53,7 +55,7 @@ Once the bulk of the error handling was plumbed, he attempted to contribute bits
 
 ## Pratik Gajjar
 ### Tasks
-- Node to Node routing in C `No usable work`
+- Node to Node routing in C. `No usable work`
 
 ### Major Files
 - `None committed`
