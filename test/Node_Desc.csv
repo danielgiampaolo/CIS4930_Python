@@ -1,14 +1,14 @@
 node 1,Example 1,Example 2,Example 3
-node 2 ,Ex 1 ,EX 2,EX 3
+node 2 ,Ex 1 ,EX 2,None
 node 3,Test,testing,Hello
-node 4,Hello,World,!
+node 4,Hello,World,None
 node 5,Robots,Live,on this node
-node 6,meme,blank,blank
-node 7,Why,is,eight
+node 6,meme,None,liver
+node 7,Why,None,None
 node 8,scared,of,seven
 node 9,Seven,ate,nine
 node 10,did,you,laugh?
-node 11,Ex 1 ,Ex 2,Ex 3
-node 12,Test 1,Test 4,Test 7
+node 11,None,None,None
+node 12,None,None,Test 7
 node 13,None,None,None
 node 14,None,None,None

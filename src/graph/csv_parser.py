@@ -73,7 +73,8 @@ def read_desc(data):
     for x in range(0, test.nodes_read):
         nodes.append([test.desc[x][0].decode('utf8').strip()])
         for y in range(1, test.desc_num[x]):
-            nodes[x].append(test.desc[x][y].decode('utf8').strip())
+            if test.desc[x][y].decode('utf8').strip() != "None":
+                nodes[x].append(test.desc[x][y].decode('utf8').strip())
 
     lib.dealloc_desc(byref(test))
     return nodes
